@@ -1,3 +1,5 @@
+import 'package:astro_log/gallery_page.dart';
+import 'package:astro_log/routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +28,9 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
-          home: MyHomePage(title: 'Astronomy Log Book'),
+          // home: MyHomePage(title: 'Astronomy Log Book'),
+          initialRoute: HomePageRoute,
+          routes: routeMap,
         );
       },
     );

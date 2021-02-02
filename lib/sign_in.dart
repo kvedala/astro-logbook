@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:astro_log/routes.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+
+import 'gallery_page.dart';
 
 /// Main sign in page
 class SignInPage extends StatefulWidget {
@@ -68,11 +71,7 @@ class _SignInPageState extends State<SignInPage> {
         scopes.forEach((scope) => provider.addScope(scope));
         await authInstance.signInWithPopup(provider);
         setState(() {});
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Text("Logged In - User Profile"),
-            ));
+        Navigator.pushNamed(context, GalleryPageRoute);
       } catch (e) {
         print(e);
       }
@@ -97,11 +96,7 @@ class _SignInPageState extends State<SignInPage> {
       //     firstName: names[0],
       //     lastName: names.length == 2 ? names[1] : " ");
       setState(() {});
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Text("Signed In - Google Sign In"),
-          ));
+      Navigator.pushNamed(context, GalleryPageRoute);
     } catch (error) {
       print(error);
     }
@@ -153,11 +148,7 @@ class _SignInPageState extends State<SignInPage> {
       await authInstance.signInWithCredential(oauthCredential);
 
       setState(() {});
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Text("Signed In - Apple"),
-          ));
+      Navigator.pushNamed(context, GalleryPageRoute);
     } catch (error) {
       print(error);
     }
@@ -220,11 +211,7 @@ class _SignInPageState extends State<SignInPage> {
             minimumSize: MaterialStateProperty.all(Size(150, 50)),
             textStyle: MaterialStateProperty.all(TextStyle(fontSize: 20)),
           ),
-          onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Text("Signed In - Generic"),
-              )),
+          onPressed: () => Navigator.pushNamed(context, GalleryPageRoute),
           icon: Icon(
             Icons.person_pin,
             size: 30,
