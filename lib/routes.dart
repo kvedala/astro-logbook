@@ -1,4 +1,4 @@
-import 'package:astro_log/add_image.dart';
+import 'package:astro_log/add_observation.dart';
 import 'package:astro_log/main.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +8,7 @@ import 'sign_in.dart';
 const String HomePageRoute = '/';
 const String SignInPageRoute = '/';
 const String GalleryPageRoute = '/gallery';
-const String AddImagePageRoute = '/add-image';
+const String AddObservationPageRoute = '/add-observation';
 
 final Map<String, Widget Function(BuildContext)> routeMap = {
   HomePageRoute: (BuildContext context) => MyHomePage(
@@ -16,5 +16,5 @@ final Map<String, Widget Function(BuildContext)> routeMap = {
       ),
   // SignInPageRoute: (BuildContext context) => SignInPage(),
   GalleryPageRoute: (BuildContext context) => GallaryPage(),
-  AddImagePageRoute: (BuildContext context) => AddImagePage(),
+  AddObservationPageRoute: (BuildContext context) => AddObservationPage(),
 };

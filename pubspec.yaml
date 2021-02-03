@@ -24,6 +24,11 @@ dependencies:
   flutter:
     sdk: flutter
 
+  intl: ^0.16.1
+  geocoding: ^1.0.5
+  file_picker: ^2.1.6
+  geolocator: ^6.1.14
+
   firebase_core: ^0.7.0
   firebase_auth: "^0.20.0+1"
   cloud_firestore: ^0.16.0
