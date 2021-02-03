@@ -33,8 +33,8 @@ class ObservationData {
         latitude = _valueFromJSON(json, 'latitude'),
         longitude = _valueFromJSON(json, 'longitude'),
         location = _valueFromJSON(json, 'location'),
-        dateTime = _valueFromJSON(json, 'dateTime'),
-        notes = _valueFromJSON(json, 'notes');
+        dateTime = _valueFromJSON(json, 'dateTime').toDate(),
+        notes = List<String>.from(_valueFromJSON(json, 'notes'));
 
   Map<String, dynamic> toJSON() => {
         'title': title,
@@ -119,7 +119,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       decoration: InputDecoration(
                                         labelText: "Messier #",
                                       ),
-                                      initialValue: _responses['messier'],
+                                      initialValue: _responses['messier'] ==
+                                              null
+                                          ? ""
+                                          : _responses['messier'].toString(),
                                       keyboardType:
                                           const TextInputType.numberWithOptions(
                                               signed: false, decimal: false),
@@ -158,7 +161,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       decoration: InputDecoration(
                                         labelText: "NGC #",
                                       ),
-                                      initialValue: _responses['ngc'],
+                                      initialValue: _responses['ngc'] == null
+                                          ? ""
+                                          : _responses['ngc'].toString(),
                                       keyboardType:
                                           TextInputType.numberWithOptions(),
                                       readOnly: false,

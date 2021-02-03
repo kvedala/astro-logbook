@@ -27,6 +27,7 @@ class ObservationsGallary extends StatelessWidget {
             : GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2),
+                shrinkWrap: true,
                 itemCount: snap.data.docs.length,
                 itemBuilder: (context, index) => snap.data == null
                     ? SizedBox()

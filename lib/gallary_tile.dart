@@ -1,5 +1,6 @@
 import 'package:astro_log/add_observation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class GallaryTile extends StatelessWidget {
   final String filePath;
@@ -44,10 +45,41 @@ class GallaryTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
       ),
       child: GridTile(
-        header: Text(title),
+        // header: Text(title),
         // footer: Text(time.toString()),
-        child: Center(
-          child: Text(title),
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 20),
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                messier == null
+                    ? SizedBox()
+                    : Text(
+                        "Messier# $messier",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                ngc == null
+                    ? SizedBox()
+                    : Text(
+                        "NGC# $ngc",
+                        style: TextStyle(fontSize: 15),
+                      ),
+              ]),
+              Text(
+                "Observation Date: " +
+                    DateFormat.yMMMd().format(time) +
+                    " " +
+                    DateFormat.Hm().format(time),
+                style: TextStyle(fontSize: 15),
+              ),
+            ],
+          ),
         ),
       ),
     );
