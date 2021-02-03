@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -79,7 +80,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
       body: FutureBuilder<Position>(
         future: _getCurrentPosition(),
         builder: (context, snapshot) => Container(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
           child: snapshot.connectionState != ConnectionState.done
               ? Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
@@ -89,7 +90,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                     child: Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: Row(
                             children: [
                               Expanded(
@@ -207,7 +208,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         //   validator: (value) => _isFileValid,
                         // ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: Row(children: [
                             Expanded(
                               child: TextFormField(
@@ -242,7 +243,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ]),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: Row(children: [
                             Expanded(
                               child: TextFormField(
@@ -272,7 +273,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ]),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: DropdownButtonFormField(
                             isExpanded: true,
                             isDense: false,
@@ -301,7 +302,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: TextFormField(
                             decoration: InputDecoration(
                               labelText: "Date & Time of observation",
@@ -336,7 +337,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -355,8 +356,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: _responses['notes'].length == 0
                               ? SizedBox()
                               : ListView.builder(
