@@ -6,10 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ObservationsGallary extends StatelessWidget {
-  final User _user;
-
-  ObservationsGallary() : _user = FirebaseAuth.instance.currentUser;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,10 +58,6 @@ class ObservationsGallary extends StatelessWidget {
 }
 
 class PhotographyGallary extends StatelessWidget {
-  final User _user;
-
-  PhotographyGallary() : _user = FirebaseAuth.instance.currentUser;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
