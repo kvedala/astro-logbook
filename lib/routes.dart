@@ -2,10 +2,9 @@ import 'package:astro_log/add_observation.dart';
 import 'package:astro_log/main.dart';
 import 'package:flutter/material.dart';
 
-import 'gallery_page.dart';
-
 const String HomePageRoute = '/';
 const String SignInPageRoute = '/';
+const String SignedInPageRoute = '/signed-in';
 const String GalleryPageRoute = '/gallery';
 const String AddObservationPageRoute = '/add-observation';
 
@@ -14,6 +13,6 @@ final Map<String, Widget Function(BuildContext)> routeMap = {
         title: 'Astronomy Log Book',
       ),
   // SignInPageRoute: (BuildContext context) => SignInPage(),
-  GalleryPageRoute: (BuildContext context) => GallaryPage(),
+  // GalleryPageRoute: (BuildContext context) => GallaryPage(),
   AddObservationPageRoute: (BuildContext context) => AddObservationPage(),
 };

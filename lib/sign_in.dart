@@ -69,7 +69,7 @@ class _SignInPageState extends State<SignInPage> {
         scopes.forEach((scope) => provider.addScope(scope));
         await authInstance.signInWithPopup(provider);
         setState(() {});
-        Navigator.pushNamed(context, GalleryPageRoute);
+        Navigator.pushNamed(context, HomePageRoute);
       } catch (e) {
         print(e);
       }
@@ -94,7 +94,7 @@ class _SignInPageState extends State<SignInPage> {
       //     firstName: names[0],
       //     lastName: names.length == 2 ? names[1] : " ");
       setState(() {});
-      Navigator.pushNamed(context, GalleryPageRoute);
+      Navigator.pushNamed(context, HomePageRoute);
     } catch (error) {
       print(error);
     }
@@ -146,7 +146,7 @@ class _SignInPageState extends State<SignInPage> {
       await authInstance.signInWithCredential(oauthCredential);
 
       setState(() {});
-      Navigator.pushNamed(context, GalleryPageRoute);
+      Navigator.pushNamed(context, HomePageRoute);
     } catch (error) {
       print(error);
     }
@@ -209,7 +209,7 @@ class _SignInPageState extends State<SignInPage> {
             minimumSize: MaterialStateProperty.all(Size(150, 50)),
             textStyle: MaterialStateProperty.all(TextStyle(fontSize: 20)),
           ),
-          onPressed: () => Navigator.pushNamed(context, GalleryPageRoute),
+          onPressed: () => Navigator.pushNamed(context, HomePageRoute),
           icon: Icon(
             Icons.person_pin,
             size: 30,
