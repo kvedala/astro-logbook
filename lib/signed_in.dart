@@ -6,16 +6,29 @@ import 'observations_gallery_page.dart';
 class SignedInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(FirebaseAuth.instance.currentUser.displayName),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(child: ObservationsGallary()),
-          Expanded(child: PhotographyGallary()),
-        ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(FirebaseAuth.instance.currentUser.displayName),
+          centerTitle: true,
+          bottom: TabBar(tabs: [
+            Text(
+              "Observations",
+              style: TextStyle(fontSize: 18),
+            ),
+            Text(
+              "Photography",
+              style: TextStyle(fontSize: 18),
+            ),
+          ]),
+        ),
+        body: TabBarView(
+          children: [
+            ObservationsGallary(),
+            PhotographyGallary(),
+          ],
+        ),
       ),
     );
   }
