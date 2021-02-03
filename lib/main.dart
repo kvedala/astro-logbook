@@ -1,4 +1,3 @@
-import 'package:astro_log/gallery_page.dart';
 import 'package:astro_log/routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

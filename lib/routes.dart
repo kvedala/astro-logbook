@@ -3,7 +3,6 @@ import 'package:astro_log/main.dart';
 import 'package:flutter/material.dart';
 
 import 'gallery_page.dart';
-import 'sign_in.dart';
 
 const String HomePageRoute = '/';
 const String SignInPageRoute = '/';
