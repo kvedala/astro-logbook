@@ -13,10 +13,10 @@ class ObservationsGallary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Observations Gallary"),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   title: Text("Observations Gallary"),
+      //   centerTitle: true,
+      // ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _getObservations(),
         builder: (context, snap) => snap.connectionState ==
@@ -69,10 +69,10 @@ class PhotographyGallary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Photography Gallary"),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   title: Text("Photography Gallary"),
+      //   centerTitle: true,
+      // ),
       floatingActionButton: FloatingActionButton(
         heroTag: "add_photo",
         child: Icon(Icons.add_rounded),
