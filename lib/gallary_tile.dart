@@ -44,7 +44,7 @@ class GallaryTile extends StatelessWidget {
         border: Border.all(),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: GestureDetector(
+      child: InkWell(
         child: GridTile(
           // header: Text(title),
           // footer: Text(time.toString()),
@@ -58,22 +58,18 @@ class GallaryTile extends StatelessWidget {
                   title,
                   style: TextStyle(fontSize: 20),
                 ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      messier == null
-                          ? SizedBox()
-                          : Text(
-                              "Messier# $messier",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                      ngc == null
-                          ? SizedBox()
-                          : Text(
-                              "NGC# $ngc",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                    ]),
+                messier == null
+                    ? SizedBox()
+                    : Text(
+                        "Messier# $messier",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                ngc == null
+                    ? SizedBox()
+                    : Text(
+                        "NGC# $ngc",
+                        style: TextStyle(fontSize: 15),
+                      ),
                 Text(
                   "Observation Date: " +
                       DateFormat.yMMMd().format(time) +

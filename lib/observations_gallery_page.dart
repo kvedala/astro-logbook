@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 class ObservationsGallary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text("Observations Gallary"),
@@ -22,7 +24,12 @@ class ObservationsGallary extends StatelessWidget {
               )
             : GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2),
+                  crossAxisCount: size.width > 845
+                      ? 6
+                      : size.width >= 670
+                          ? 4
+                          : 3,
+                ),
                 shrinkWrap: true,
                 itemCount: snap.data.docs.length,
                 itemBuilder: (context, index) => snap.data == null
