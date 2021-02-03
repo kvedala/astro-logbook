@@ -9,6 +9,46 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:geocoding/geocoding.dart';
 
+class ObservationData {
+  String title;
+  int ngc;
+  int messier;
+  String fileName;
+  num latitude;
+  num longitude;
+  String location;
+  DateTime dateTime;
+  List<String> notes;
+
+  static dynamic _valueFromJSON(Map<String, dynamic> json, String key) =>
+      json.containsKey(key) ? json[key] : null;
+
+  ObservationData(this.title);
+
+  ObservationData.fromJSON(Map<String, dynamic> json)
+      : title = _valueFromJSON(json, 'title'),
+        ngc = _valueFromJSON(json, 'ngc'),
+        messier = _valueFromJSON(json, 'messier'),
+        fileName = _valueFromJSON(json, 'fileName'),
+        latitude = _valueFromJSON(json, 'latitude'),
+        longitude = _valueFromJSON(json, 'longitude'),
+        location = _valueFromJSON(json, 'location'),
+        dateTime = _valueFromJSON(json, 'dateTime'),
+        notes = _valueFromJSON(json, 'notes');
+
+  Map<String, dynamic> toJSON() => {
+        'title': title,
+        'ngc': ngc,
+        'messier': messier,
+        'fileName': fileName,
+        'latitude': latitude,
+        'longitude': longitude,
+        'location': location,
+        'dateTime': dateTime,
+        'notes': notes,
+      };
+}
+
 class AddObservationPage extends StatefulWidget {
   _AddObservationPageState createState() => _AddObservationPageState();
 }
@@ -19,9 +59,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'title': "",
     'ngc': null,
     'messier': null,
-    'fileName': "",
+    // 'fileName': "",
     'latitude': null,
     'longitude': null,
+    'location': null,
     'dateTime': null,
     'notes': <String>[],
   };
@@ -105,9 +146,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       },
                                       autovalidateMode: AutovalidateMode.always,
                                       onSaved: (value) =>
-                                          _responses['messier'] = value,
+                                          _responses['messier'] =
+                                              int.parse(value),
                                       onChanged: (value) =>
-                                          _responses['messier'] = value,
+                                          _responses['messier'] =
+                                              int.parse(value),
                                     ),
                                   ),
                                   Expanded(
@@ -130,9 +173,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       },
                                       autovalidateMode: AutovalidateMode.always,
                                       onSaved: (value) =>
-                                          _responses['ngc'] = value,
+                                          _responses['ngc'] = int.parse(value),
                                       onChanged: (value) =>
-                                          _responses['ngc'] = value,
+                                          _responses['ngc'] = int.parse(value),
                                       inputFormatters: [
                                         TextInputFormatter.withFunction(
                                             (oldValue, newValue) => newValue
@@ -148,16 +191,16 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             ],
                           ),
                         ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            icon: Icon(Icons.image_rounded),
-                            labelText: "Image file to upload (if any)",
-                          ),
-                          controller: _filenameTextController,
-                          onTap: _pickFile,
-                          readOnly: true,
-                          validator: (value) => _isFileValid,
-                        ),
+                        // TextFormField(
+                        //   decoration: InputDecoration(
+                        //     icon: Icon(Icons.image_rounded),
+                        //     labelText: "Image file to upload (if any)",
+                        //   ),
+                        //   controller: _filenameTextController,
+                        //   onTap: _pickFile,
+                        //   readOnly: true,
+                        //   validator: (value) => _isFileValid,
+                        // ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 5),
                           child: Row(children: [
@@ -368,6 +411,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
         content: Container(
           constraints: BoxConstraints.loose(Size(200, 200)),
           child: TextField(
+            textCapitalization: TextCapitalization.sentences,
             controller: noteController,
             maxLines: 5,
             minLines: 3,
@@ -378,12 +422,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
             icon: Icon(Icons.done),
             label: Text("Accept"),
             onPressed: () {
-              setState(() {
-                if (index == -1)
-                  _responses['notes'].add(noteController.text);
-                else
-                  _responses['notes'][index] = noteController.text;
-              });
+              if (noteController.text.isNotEmpty)
+                setState(() {
+                  if (index == -1)
+                    _responses['notes'].add(noteController.text);
+                  else
+                    _responses['notes'][index] = noteController.text;
+                });
               Navigator.pop(context);
             },
           ),
@@ -412,18 +457,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
       //       .set(_responses);
       // else
       await firestore
-          .collection('users/' +
-              auth.currentUser.uid +
-              "/" +
-              DateFormat.yMMMd().format(_responses['dateTime']))
-          .doc(DateFormat.Hm().format(_responses['dateTime']))
-          .set(_responses);
+          .collection('users/' + auth.currentUser.uid + "/observations")
+          .add(_responses);
     } catch (e) {
-      print(e);
+      // print(e);
       return false;
     }
-    print("Success");
-    return false;
+    // print("Success");
+    return true;
   }
 
   Future<Position> _getCurrentPosition() async {
