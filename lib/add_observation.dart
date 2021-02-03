@@ -28,8 +28,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
   final _filenameTextController = TextEditingController();
   List<String> _possibleLocations = [""];
   String _isFileValid;
-  String _formattedLatitude = "";
-  String _formattedLongitude = "";
 
   @override
   Widget build(BuildContext context) {
