@@ -28,7 +28,9 @@ class ObservationsGallary extends StatelessWidget {
                       ? 6
                       : size.width >= 670
                           ? 4
-                          : 3,
+                          : size.width >= 550
+                              ? 3
+                              : 2,
                 ),
                 shrinkWrap: true,
                 itemCount: snap.data.docs.length,
