@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,6 +17,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, dynamic> _responses = {
     'title': "",
+    'ngc': null,
+    'messier': null,
     'fileName': "",
     'latitude': null,
     'longitude': null,
@@ -54,8 +58,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                   decoration: InputDecoration(
                                     labelText: "Title",
                                   ),
-                                  initialValue: _responses['title'].toString(),
+                                  initialValue: _responses['title'],
                                   keyboardType: TextInputType.name,
+                                  textCapitalization: TextCapitalization.words,
                                   readOnly: false,
                                   validator: (value) => value == null
                                       ? "Cannot be NULL"
@@ -63,6 +68,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                           ? "Cannot be empty"
                                           : null,
                                   onSaved: (value) =>
+                                      _responses['title'] = value,
+                                  onChanged: (value) =>
                                       _responses['title'] = value,
                                 ),
                               ),
@@ -73,15 +80,24 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       decoration: InputDecoration(
                                         labelText: "Messier #",
                                       ),
-                                      initialValue:
-                                          _responses['title'].toString(),
+                                      initialValue: _responses['messier'],
                                       keyboardType:
-                                          TextInputType.numberWithOptions(),
+                                          const TextInputType.numberWithOptions(
+                                              signed: false, decimal: false),
                                       readOnly: false,
+                                      inputFormatters: [
+                                        TextInputFormatter.withFunction(
+                                            (oldValue, newValue) => newValue
+                                                    .text
+                                                    .contains(RegExp(r'[^0-9]'))
+                                                ? oldValue
+                                                : newValue)
+                                      ],
                                       validator: (value) {
+                                        if (value.isEmpty) return null;
                                         final t = int.tryParse(value);
                                         return t == null
-                                            ? "Not a valid number"
+                                            ? null
                                             : t <= 0
                                                 ? "Cannot be negative"
                                                 : t > 110
@@ -89,8 +105,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                                         "only upto 110"
                                                     : null;
                                       },
+                                      autovalidateMode: AutovalidateMode.always,
                                       onSaved: (value) =>
-                                          _responses['title'] = value,
+                                          _responses['messier'] = value,
+                                      onChanged: (value) =>
+                                          _responses['messier'] = value,
                                     ),
                                   ),
                                   Expanded(
@@ -98,12 +117,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       decoration: InputDecoration(
                                         labelText: "NGC #",
                                       ),
-                                      initialValue:
-                                          _responses['title'].toString(),
+                                      initialValue: _responses['ngc'],
                                       keyboardType:
                                           TextInputType.numberWithOptions(),
                                       readOnly: false,
                                       validator: (value) {
+                                        if (value.isEmpty) return null;
                                         final t = int.tryParse(value);
                                         return t == null
                                             ? "Not a valid number"
@@ -111,8 +130,19 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                                 ? "Cannot be negative"
                                                 : null;
                                       },
+                                      autovalidateMode: AutovalidateMode.always,
                                       onSaved: (value) =>
-                                          _responses['title'] = value,
+                                          _responses['ngc'] = value,
+                                      onChanged: (value) =>
+                                          _responses['ngc'] = value,
+                                      inputFormatters: [
+                                        TextInputFormatter.withFunction(
+                                            (oldValue, newValue) => newValue
+                                                    .text
+                                                    .contains(RegExp(r'[^0-9]'))
+                                                ? oldValue
+                                                : newValue)
+                                      ],
                                     ),
                                   ),
                                 ]),
@@ -199,6 +229,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           padding: EdgeInsets.symmetric(vertical: 5),
                           child: DropdownButtonFormField(
                             isExpanded: true,
+                            isDense: false,
                             decoration: InputDecoration(
                               labelText: "Location",
                             ),
@@ -306,9 +337,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               ElevatedButton.icon(
                                 label: Text("Submit"),
                                 icon: Icon(Icons.send_rounded),
-                                onPressed: () {
-                                  if (_formKey.currentState.validate())
+                                onPressed: () async {
+                                  if (_formKey.currentState.validate()) {
                                     _formKey.currentState.save();
+                                    if (await saveToDB())
+                                      Navigator.pop(context);
+                                  }
                                 },
                               ),
                               ElevatedButton.icon(
@@ -363,6 +397,35 @@ class _AddObservationPageState extends State<AddObservationPage> {
         ],
       ),
     );
+  }
+
+  Future<bool> saveToDB() async {
+    final firestore = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+    try {
+      // final userDoc =
+      //     await firestore.collection('user').doc(auth.currentUser.uid).get();
+      // if (!userDoc.exists)
+      //   await firestore
+      //       .collection('user/' +
+      //           auth.currentUser.uid +
+      //           DateFormat.yMd().format(_responses['dateTime']))
+      //       .doc(DateFormat.Hm().format(_responses['dateTime']))
+      //       .set(_responses);
+      // else
+      await firestore
+          .collection('users/' +
+              auth.currentUser.uid +
+              "/" +
+              DateFormat.yMMMd().format(_responses['dateTime']))
+          .doc(DateFormat.Hm().format(_responses['dateTime']))
+          .set(_responses);
+    } catch (e) {
+      print(e);
+      return false;
+    }
+    print("Success");
+    return false;
   }
 
   Future<Position> _getCurrentPosition() async {
