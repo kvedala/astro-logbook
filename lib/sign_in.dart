@@ -70,7 +70,7 @@ class _SignInPageState extends State<SignInPage> {
         scopes.forEach((scope) => provider.addScope(scope));
         await authInstance.signInWithPopup(provider);
         setState(() {});
-        Navigator.popAndPushNamed(context, HomePageRoute);
+        // Navigator.popAndPushNamed(context, HomePageRoute);
       } catch (e) {
         print(e);
       }
@@ -95,7 +95,7 @@ class _SignInPageState extends State<SignInPage> {
       //     firstName: names[0],
       //     lastName: names.length == 2 ? names[1] : " ");
       setState(() {});
-      Navigator.popAndPushNamed(context, HomePageRoute);
+      // Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
       print(error);
     }
@@ -147,7 +147,7 @@ class _SignInPageState extends State<SignInPage> {
       await authInstance.signInWithCredential(oauthCredential);
 
       setState(() {});
-      Navigator.popAndPushNamed(context, HomePageRoute);
+      // Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
       print(error);
     }
@@ -247,10 +247,10 @@ class _SignInPageState extends State<SignInPage> {
     }
     if (Navigator.canPop(context)) {
       setState(() {});
-      Navigator.popUntil(
-        context,
-        ModalRoute.withName(HomePageRoute),
-      );
+      // Navigator.popUntil(
+      //   context,
+      //   ModalRoute.withName(HomePageRoute),
+      // );
     }
   }
 }

@@ -8,6 +8,12 @@ import 'observations_gallery_page.dart';
 class SignedInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    if (FirebaseAuth.instance.currentUser == null) {
+      // user not logged in
+      Navigator.popAndPushNamed(context, SignInPageRoute);
+      // return null;
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -34,7 +40,7 @@ class SignedInPage extends StatelessWidget {
                       await googleSignIn.signOut();
                   }
                   Navigator.pushNamedAndRemoveUntil(
-                      context, HomePageRoute, (route) => false);
+                      context, SignInPageRoute, (route) => false);
                 })
           ],
         ),
