@@ -401,21 +401,18 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
+                          padding: EdgeInsets.only(top: 5),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Notes:"),
-                              Ink(
-                                decoration: const ShapeDecoration(
-                                  color: Colors.lightBlue,
-                                  shape: CircleBorder(),
-                                ),
-                                child: IconButton(
-                                  icon: Icon(Icons.add_rounded),
-                                  color: Colors.white,
-                                  onPressed: () => _addNote(context),
-                                ),
+                              Text(
+                                "Notes:",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.add_rounded),
+                                // color: Colors.white,
+                                onPressed: () => _addNote(context),
                               ),
                             ],
                           ),

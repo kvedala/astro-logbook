@@ -21,12 +21,45 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasError) throw "Initialization error: ${snapshot.error}";
         if (snapshot.connectionState == ConnectionState.waiting)
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         return MaterialApp(
           title: 'Astronomy Log Book',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
+          // theme: ThemeData(
+          //   primarySwatch: Colors.blue,
+          // ),
+          darkTheme: ThemeData(
+            textTheme: Theme.of(context).textTheme.apply(
+                bodyColor: Colors.red,
+                displayColor: Colors.red,
+                decorationColor: Colors.red),
+            primaryIconTheme: IconThemeData(color: Colors.red),
+            accentIconTheme: IconThemeData(color: Colors.red),
+            brightness: Brightness.dark,
+            accentColor: Colors.red,
+            // buttonColor: ButtonThemeData(textTheme: ButtonTextTheme.accent),
+            iconTheme: IconThemeData(color: Colors.red),
+            inputDecorationTheme:
+                InputDecorationTheme(labelStyle: TextStyle(color: Colors.red)),
+
+            colorScheme: ColorScheme.dark(
+              primary: Colors.red.shade800,
+              secondary: Colors.red.shade600,
+              primaryVariant: Colors.red.shade600,
+              secondaryVariant: Colors.red.shade600,
+            ),
+            appBarTheme: AppBarTheme(
+              textTheme: Theme.of(context).textTheme.apply(
+                  bodyColor: Colors.red,
+                  displayColor: Colors.red,
+                  decorationColor: Colors.red),
+            ),
+            tabBarTheme: TabBarTheme(
+              labelColor: Colors.red,
+              indicator: UnderlineTabIndicator(
+                  borderSide: BorderSide(color: Colors.red)),
+            ),
           ),
+          themeMode: ThemeMode.dark,
           // home: MyHomePage(title: 'Astronomy Log Book'),
           initialRoute: SignInPageRoute,
           routes: routeMap,
