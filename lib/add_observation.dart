@@ -70,7 +70,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'location': null,
     'dateTime': null,
     'notes': <String>[],
-    'equipment': "",
+    'equipment': null,
   };
   final _filenameTextController = TextEditingController();
   List<String> _possibleLocations = [""];
@@ -157,10 +157,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       autovalidateMode: AutovalidateMode.always,
                                       onSaved: (value) =>
                                           _responses['messier'] =
-                                              int.parse(value),
+                                              int.tryParse(value),
                                       onChanged: (value) =>
                                           _responses['messier'] =
-                                              int.parse(value),
+                                              int.tryParse(value),
                                     ),
                                   ),
                                   Expanded(
@@ -184,10 +184,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                                 : null;
                                       },
                                       autovalidateMode: AutovalidateMode.always,
-                                      onSaved: (value) =>
-                                          _responses['ngc'] = int.parse(value),
-                                      onChanged: (value) =>
-                                          _responses['ngc'] = int.parse(value),
+                                      onSaved: (value) => _responses['ngc'] =
+                                          int.tryParse(value),
+                                      onChanged: (value) => _responses['ngc'] =
+                                          int.tryParse(value),
                                       inputFormatters: [
                                         TextInputFormatter.withFunction(
                                             (oldValue, newValue) => newValue
@@ -309,32 +309,40 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
-                          child: DropdownButtonFormField(
-                            isExpanded: true,
-                            isDense: false,
-                            decoration: InputDecoration(
-                              labelText: "Equipment used",
-                            ),
-                            value: _responses['equipment'],
-                            items: List.generate(
-                              _possibleLocations.length,
-                              (index) => DropdownMenuItem(
-                                value: _possibleLocations[index],
-                                child: Text(
-                                  _possibleLocations[index],
-                                  softWrap: true,
+                          child: Row(children: [
+                            Expanded(
+                              child: DropdownButtonFormField<DocumentReference>(
+                                isExpanded: true,
+                                isDense: false,
+                                decoration: InputDecoration(
+                                  labelText: "Equipment used",
                                 ),
+                                value: _responses['equipment'],
+                                items: _equipments.length == 0
+                                    ? []
+                                    : List.generate(
+                                        _equipments.length,
+                                        (index) => DropdownMenuItem(
+                                          value: _equipments[index].reference,
+                                          child: _equipments[index],
+                                        ),
+                                      ),
+                                onChanged: (newItem) => setState(
+                                    () => _responses['equipment'] = newItem),
+                                validator: (value) => value == null
+                                    ? "Value cannot be null"
+                                    : null,
+                                onSaved: (value) =>
+                                    _responses['equipment'] = value,
                               ),
                             ),
-                            onChanged: (newItem) => setState(
-                                () => _responses['location'] = newItem),
-                            validator: (value) => value == null
-                                ? "Value cannot be null"
-                                : (value.isEmpty
-                                    ? "Value cannot be empty"
-                                    : null),
-                            onSaved: (value) => _responses['location'] = value,
-                          ),
+                            IconButton(
+                                icon: Icon(Icons.add_link),
+                                onPressed: () {
+                                  Equipment.addEquipment(context);
+                                  setState(() {});
+                                }),
+                          ]),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
@@ -544,9 +552,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final auth = FirebaseAuth.instance;
     try {
       final docs = await firestore
-          .collection('users/' + auth.currentUser.uid + "/equipment")
+          .collection('users/' + auth.currentUser.uid + "/equipments")
           .get();
-      docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
+      _equipments =
+          docs.docs.map((query) => Equipment.fromQuery(query)).toList();
       return _equipments;
     } catch (e) {
       // print(e);
