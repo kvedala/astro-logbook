@@ -1,16 +1,11 @@
-# astro_log
+# Astronomy Logbook
 
-A new Flutter project.
+App for stargazers and astronomers to maintain a log of their observations and astrophotographs.
 
-## Getting Started
+The app can be compiled for Android and iOS smartphones and tablets and also as a web-application. 
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Features
+1. Operates in darkmode - convinent to maintain night vision
+2. All data stored safely and securely on google cloud
+3. No personal information required other than e-mail address for login
+4. Free Open source project for the stargazers by a stargazer
