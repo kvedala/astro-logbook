@@ -29,12 +29,12 @@ class _SignInPageState extends State<SignInPage> {
   void _initFirebaseAuth() async {
     if (authInstance == null) {
       authInstance = FirebaseAuth.instance;
-      authInstance.authStateChanges().listen(
-            (user) => mounted ? setState(() {}) : null,
-            onDone: () => mounted ? setState(() {}) : null,
-            // onError: () => setState(() {}),
-            // cancelOnError: () => setState(() {}),
-          );
+      // authInstance.authStateChanges().listen(
+      //       (user) => mounted ? setState(() {}) : null,
+      //       onDone: () => mounted ? setState(() {}) : null,
+      //       // onError: () => setState(() {}),
+      //       // cancelOnError: () => setState(() {}),
+      //     );
       try {
         await authInstance.setPersistence(Persistence.SESSION);
         // setState(() {
@@ -70,7 +70,7 @@ class _SignInPageState extends State<SignInPage> {
         scopes.forEach((scope) => provider.addScope(scope));
         await authInstance.signInWithPopup(provider);
         setState(() {});
-        Navigator.pushNamed(context, HomePageRoute);
+        Navigator.popAndPushNamed(context, HomePageRoute);
       } catch (e) {
         print(e);
       }
@@ -95,7 +95,7 @@ class _SignInPageState extends State<SignInPage> {
       //     firstName: names[0],
       //     lastName: names.length == 2 ? names[1] : " ");
       setState(() {});
-      Navigator.pushNamed(context, HomePageRoute);
+      Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
       print(error);
     }
@@ -147,7 +147,7 @@ class _SignInPageState extends State<SignInPage> {
       await authInstance.signInWithCredential(oauthCredential);
 
       setState(() {});
-      Navigator.pushNamed(context, HomePageRoute);
+      Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
       print(error);
     }
@@ -210,7 +210,8 @@ class _SignInPageState extends State<SignInPage> {
             minimumSize: MaterialStateProperty.all(Size(150, 50)),
             textStyle: MaterialStateProperty.all(TextStyle(fontSize: 20)),
           ),
-          onPressed: () => Navigator.pushNamed(context, SignedInPageRoute),
+          onPressed: () =>
+              Navigator.popAndPushNamed(context, SignedInPageRoute),
           icon: Icon(
             Icons.person_pin,
             size: 30,
@@ -245,9 +246,10 @@ class _SignInPageState extends State<SignInPage> {
       if (await googleSignIn.isSignedIn()) await googleSignIn.signOut();
     }
     if (Navigator.canPop(context)) {
+      setState(() {});
       Navigator.popUntil(
         context,
-        ModalRoute.withName(Navigator.defaultRouteName),
+        ModalRoute.withName(HomePageRoute),
       );
     }
   }

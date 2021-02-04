@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
           ),
           // home: MyHomePage(title: 'Astronomy Log Book'),
-          initialRoute: HomePageRoute,
+          initialRoute: SignInPageRoute,
           routes: routeMap,
         );
       },
