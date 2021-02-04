@@ -1,29 +1,56 @@
 import 'package:astro_log/add_observation.dart';
+import 'package:astro_log/equipment.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// Widget to display tile in the gallery view
 class GallaryTile extends StatelessWidget {
+  /// path of image file, if any
   final String filePath;
+
+  /// title of the tile
   final String title;
+
+  /// [Image] to display on the tile
   final Image image;
+
+  /// Time of observation or image
   final DateTime time;
+
+  /// Messier catalog number, if any
   final int messier;
+
+  /// NGC catalog number, if any
   final int ngc;
+
+  /// Notes taken for the observation/photograph
   final List<String> notes;
+
+  /// Observation latitude
   final num latitude;
+
+  /// Observation longitude
   final num longitude;
+
+  /// Address of the location
   final String location;
 
-  GallaryTile(this.title,
-      {this.filePath,
-      this.image,
-      this.time,
-      this.latitude,
-      this.longitude,
-      this.messier,
-      this.ngc,
-      this.notes,
-      this.location});
+  /// [Equipment] details
+  final Equipment equipment;
+
+  GallaryTile(
+    this.title, {
+    this.filePath,
+    this.image,
+    this.time,
+    this.latitude,
+    this.longitude,
+    this.messier,
+    this.ngc,
+    this.notes,
+    this.location,
+    this.equipment,
+  });
 
   GallaryTile.fromObservation(ObservationData data)
       : title = data.title,
@@ -35,7 +62,8 @@ class GallaryTile extends StatelessWidget {
         notes = data.notes,
         latitude = data.latitude,
         longitude = data.longitude,
-        location = data.location;
+        location = data.location,
+        equipment = data.equipment;
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +121,8 @@ class _ShowDetails extends StatelessWidget {
   final Map<String, dynamic> tableItems;
   _ShowDetails(this.tile)
       : tableItems = {
-          'Messier': tile.messier.toString(),
-          'NGC': tile.ngc.toString(),
+          'Messier': tile.messier == null ? "-" : tile.messier.toString(),
+          'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
           'Date & Time': DateFormat.yMMMd().format(tile.time) +
               " " +
               DateFormat.Hm().format(tile.time),
@@ -149,6 +177,10 @@ class _ShowDetails extends StatelessWidget {
                   ),
                 )
                 .toList(),
+          ),
+          Container(
+            padding: EdgeInsets.all(10),
+            child: tile.equipment == null ? SizedBox() : tile.equipment,
           ),
           Container(
             padding: EdgeInsets.all(10),

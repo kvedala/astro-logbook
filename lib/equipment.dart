@@ -38,13 +38,15 @@ class Equipment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(data['telescope'] +
-          " (${data['aperture']}mm, f/" +
-          (data['focalLength'] / data['aperture']).toStringAsFixed(1) +
-          ")"),
-      subtitle: Text(data['mount']),
-    );
+    return data == null
+        ? Text("Telescope data not found")
+        : ListTile(
+            title: Text(data['telescope'] +
+                " (${data['aperture']}mm, f/" +
+                (data['focalLength'] / data['aperture']).toStringAsFixed(1) +
+                ")"),
+            subtitle: Text(data['mount']),
+          );
   }
 
   /// Procedure to add a new equipment in the user DB
