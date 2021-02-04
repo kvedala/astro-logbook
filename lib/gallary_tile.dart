@@ -1,5 +1,7 @@
 import 'package:astro_log/add_observation.dart';
 import 'package:astro_log/equipment.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -156,48 +158,86 @@ class _ShowDetails extends StatelessWidget {
         title: Text(tile.title),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
-        child: Column(children: [
-          Table(
-            columnWidths: {0: FixedColumnWidth(120)},
-            children: tableItems.entries
-                .map(
-                  (e) => TableRow(
-                    children: e == null
-                        ? []
-                        : [
-                            TableCell(
-                              child: SizedBox(
-                                child:
-                                    Text(e.key, style: TextStyle(fontSize: 18)),
-                                height: 25,
+      body: Column(children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.all(10),
+          child: Column(children: [
+            Table(
+              columnWidths: {0: FixedColumnWidth(120)},
+              children: tableItems.entries
+                  .map(
+                    (e) => TableRow(
+                      children: e == null
+                          ? []
+                          : [
+                              TableCell(
+                                child: SizedBox(
+                                  child: Text(e.key,
+                                      style: TextStyle(fontSize: 18)),
+                                  height: 25,
+                                ),
                               ),
-                            ),
-                            Text(e.value, style: TextStyle(fontSize: 18)),
-                          ],
-                  ),
-                )
-                .toList(),
-          ),
-          Container(
-            padding: EdgeInsets.all(10),
-            child: tile.equipment == null ? SizedBox() : tile.equipment,
-          ),
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Text("Notes:", style: TextStyle(fontSize: 20)),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: tile.notes.length,
-            itemBuilder: (context, index) => ListTile(
-              leading: Text("${index + 1}"),
-              title: Text(tile.notes[index]),
+                              Text(e.value, style: TextStyle(fontSize: 18)),
+                            ],
+                    ),
+                  )
+                  .toList(),
             ),
-          )
-        ]),
-      ),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: tile.equipment == null ? SizedBox() : tile.equipment,
+            ),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: Text("Notes:", style: TextStyle(fontSize: 20)),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: tile.notes.length,
+              itemBuilder: (context, index) => ListTile(
+                leading: Text("${index + 1}"),
+                title: Text(tile.notes[index]),
+              ),
+            )
+          ]),
+        ),
+        ElevatedButton.icon(
+          icon: Icon(Icons.delete_forever_rounded),
+          label: Text("Delete observation"),
+          onPressed: () => _deleteObservation(context),
+        ),
+      ]),
     );
+  }
+
+  void _deleteObservation(BuildContext context) async {
+    final store = FirebaseFirestore.instance;
+    final collectionPath =
+        'users/' + FirebaseAuth.instance.currentUser.uid + '/observations/';
+    final result = await store
+        .collection(collectionPath)
+        .where('title', isEqualTo: tile.title)
+        .where('dateTime', isEqualTo: tile.time)
+        .get();
+    if (result.size != 1) {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+                title: Text("Unable to delete the object."),
+              ));
+      return await Future.delayed(
+          Duration(seconds: 1), () => Navigator.pop(context));
+    }
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+              child: CircularProgressIndicator(),
+            ));
+    await store.doc(collectionPath + result.docs[0].id).delete();
+    Navigator.pop(context);
+    Navigator.pop(context);
+    return;
   }
 }
