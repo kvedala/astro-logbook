@@ -100,385 +100,399 @@ class _AddObservationPageState extends State<AddObservationPage> {
   String _isFileValid;
 
   @override
+  void initState() {
+    super.initState();
+    _loadData(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return
+        //  FutureBuilder(
+        //   future: _responses['longitude'] == null
+        //       ? _loadData(context)
+        //       : Future.value(true),
+        //   builder: (context, snap) =>
+        Scaffold(
       appBar: AppBar(
         title: Text("Record observation"),
       ),
-      body: FutureBuilder(
-        future: _loadData(context),
-        builder: (context, snapshot) => Container(
-          padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
-          child: snapshot.connectionState != ConnectionState.done
-              ? Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.disabled,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: "Title",
-                                  ),
-                                  initialValue: _responses['title'],
-                                  keyboardType: TextInputType.name,
-                                  textCapitalization: TextCapitalization.words,
-                                  readOnly: false,
-                                  validator: (value) => value == null
-                                      ? "Cannot be NULL"
-                                      : value.isEmpty
-                                          ? "Cannot be empty"
-                                          : null,
-                                  onSaved: (value) =>
-                                      _responses['title'] = value,
-                                  onChanged: (value) =>
-                                      _responses['title'] = value,
+      body: Container(
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
+        child: _responses['longitude'] == null
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: "Title",
                                 ),
+                                initialValue: _responses['title'],
+                                keyboardType: TextInputType.name,
+                                textCapitalization: TextCapitalization.words,
+                                readOnly: false,
+                                validator: (value) => value == null
+                                    ? "Cannot be NULL"
+                                    : value.isEmpty
+                                        ? "Cannot be empty"
+                                        : null,
+                                onSaved: (value) => _responses['title'] = value,
+                                onChanged: (value) =>
+                                    _responses['title'] = value,
                               ),
-                              Expanded(
-                                child: Row(children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      decoration: InputDecoration(
-                                        labelText: "Messier #",
-                                      ),
-                                      initialValue: _responses['messier'] ==
-                                              null
-                                          ? ""
-                                          : _responses['messier'].toString(),
-                                      keyboardType:
-                                          const TextInputType.numberWithOptions(
-                                        signed: false,
-                                        decimal: false,
-                                      ),
-                                      readOnly: false,
-                                      inputFormatters: [
-                                        TextInputFormatter.withFunction(
-                                            (oldValue, newValue) => newValue
-                                                    .text
-                                                    .contains(RegExp(r'[^0-9]'))
-                                                ? oldValue
-                                                : newValue)
-                                      ],
-                                      validator: (value) {
-                                        if (value.isEmpty) return null;
-                                        final t = int.tryParse(value);
-                                        if (t == null) return null;
-                                        if (t <= 0) return "Cannot be negative";
-                                        if (t > 110)
-                                          return "Messier catalog numbers are "
-                                              "only upto 110";
-                                        return null;
-                                      },
-                                      autovalidateMode: AutovalidateMode.always,
-                                      onSaved: (value) =>
-                                          _responses['messier'] =
-                                              int.tryParse(value),
-                                      onChanged: (value) =>
-                                          _responses['messier'] =
-                                              int.tryParse(value),
+                            ),
+                            Expanded(
+                              child: Row(children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    decoration: InputDecoration(
+                                      labelText: "Messier #",
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      decoration: InputDecoration(
-                                        labelText: "NGC #",
-                                      ),
-                                      initialValue: _responses['ngc'] == null
-                                          ? ""
-                                          : _responses['ngc'].toString(),
-                                      keyboardType:
-                                          TextInputType.numberWithOptions(),
-                                      readOnly: false,
-                                      validator: (value) {
-                                        if (value.isEmpty) return null;
-                                        final t = int.tryParse(value);
-                                        return t == null
-                                            ? "Not a valid number"
-                                            : t <= 0
-                                                ? "Cannot be negative"
-                                                : null;
-                                      },
-                                      autovalidateMode: AutovalidateMode.always,
-                                      onSaved: (value) => _responses['ngc'] =
-                                          int.tryParse(value),
-                                      onChanged: (value) => _responses['ngc'] =
-                                          int.tryParse(value),
-                                      inputFormatters: [
-                                        TextInputFormatter.withFunction(
-                                            (oldValue, newValue) => newValue
-                                                    .text
-                                                    .contains(RegExp(r'[^0-9]'))
-                                                ? oldValue
-                                                : newValue)
-                                      ],
+                                    initialValue: _responses['messier'] == null
+                                        ? ""
+                                        : _responses['messier'].toString(),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: false,
                                     ),
+                                    readOnly: false,
+                                    inputFormatters: [
+                                      TextInputFormatter.withFunction(
+                                          (oldValue, newValue) => newValue.text
+                                                  .contains(RegExp(r'[^0-9]'))
+                                              ? oldValue
+                                              : newValue)
+                                    ],
+                                    validator: (value) {
+                                      if (value.isEmpty) return null;
+                                      final t = int.tryParse(value);
+                                      if (t == null) return null;
+                                      if (t <= 0) return "Cannot be negative";
+                                      if (t > 110)
+                                        return "Messier catalog numbers are "
+                                            "only upto 110";
+                                      return null;
+                                    },
+                                    autovalidateMode: AutovalidateMode.always,
+                                    onSaved: (value) => _responses['messier'] =
+                                        int.tryParse(value),
+                                    onChanged: (value) =>
+                                        _responses['messier'] =
+                                            int.tryParse(value),
                                   ),
-                                ]),
+                                ),
+                                Expanded(
+                                  child: TextFormField(
+                                    decoration: InputDecoration(
+                                      labelText: "NGC #",
+                                    ),
+                                    initialValue: _responses['ngc'] == null
+                                        ? ""
+                                        : _responses['ngc'].toString(),
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(),
+                                    readOnly: false,
+                                    validator: (value) {
+                                      if (value.isEmpty) return null;
+                                      final t = int.tryParse(value);
+                                      return t == null
+                                          ? "Not a valid number"
+                                          : t <= 0
+                                              ? "Cannot be negative"
+                                              : null;
+                                    },
+                                    autovalidateMode: AutovalidateMode.always,
+                                    onSaved: (value) =>
+                                        _responses['ngc'] = int.tryParse(value),
+                                    onChanged: (value) =>
+                                        _responses['ngc'] = int.tryParse(value),
+                                    inputFormatters: [
+                                      TextInputFormatter.withFunction(
+                                          (oldValue, newValue) => newValue.text
+                                                  .contains(RegExp(r'[^0-9]'))
+                                              ? oldValue
+                                              : newValue)
+                                    ],
+                                  ),
+                                ),
+                              ]),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // TextFormField(
+                      //   decoration: InputDecoration(
+                      //     icon: Icon(Icons.image_rounded),
+                      //     labelText: "Image file to upload (if any)",
+                      //   ),
+                      //   controller: _filenameTextController,
+                      //   onTap: _pickFile,
+                      //   readOnly: true,
+                      //   validator: (value) => _isFileValid,
+                      // ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: Row(children: [
+                          Expanded(
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Latitude",
                               ),
-                            ],
+                              initialValue: _responses['latitude'] == null
+                                  ? ""
+                                  : _responses['latitude'].toString(),
+                              keyboardType: TextInputType.numberWithOptions(
+                                  signed: true, decimal: true),
+                              // readOnly: true,
+                              validator: (value) {
+                                final number = num.tryParse(value);
+                                if (number == null) return "Not a number";
+                                if (number < -90 || number > 90)
+                                  return "Invalid range";
+                                return null;
+                              },
+                              onSaved: (value) =>
+                                  _responses['latitude'] = num.parse(value),
+                              onChanged: (value) {
+                                final numeric = num.tryParse(value);
+                                if (numeric == null) return;
+                                setState(
+                                    () => _responses['latitude'] = numeric);
+                              },
+                            ),
                           ),
-                        ),
-                        // TextFormField(
-                        //   decoration: InputDecoration(
-                        //     icon: Icon(Icons.image_rounded),
-                        //     labelText: "Image file to upload (if any)",
-                        //   ),
-                        //   controller: _filenameTextController,
-                        //   onTap: _pickFile,
-                        //   readOnly: true,
-                        //   validator: (value) => _isFileValid,
-                        // ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: Row(children: [
-                            Expanded(
-                              child: TextFormField(
-                                decoration: InputDecoration(
-                                  labelText: "Latitude",
-                                ),
-                                initialValue: _responses['latitude'].toString(),
-                                keyboardType: TextInputType.number,
-                                // readOnly: true,
-                                validator: (value) {
-                                  final number = num.tryParse(value);
-                                  if (number == null) return "Not a number";
-                                  if (number < -90 || number > 90)
-                                    return "Invalid range";
-                                  return null;
-                                },
-                                onSaved: (value) =>
-                                    _responses['latitude'] = num.parse(value),
-                                onChanged: (value) {
-                                  final numeric = num.tryParse(value);
-                                  if (numeric == null) return;
-                                  setState(
-                                      () => _responses['latitude'] = numeric);
-                                },
+                          Text(
+                            _responses['latitude'] == null
+                                ? ""
+                                : _decimalDegreesToDMS(
+                                    _responses['latitude'], 'lat'),
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ]),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: Row(children: [
+                          Expanded(
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Longitude",
                               ),
+                              initialValue: _responses['longitude'] == null
+                                  ? ""
+                                  : _responses['longitude'].toString(),
+                              keyboardType: TextInputType.numberWithOptions(
+                                  signed: true, decimal: true),
+                              // readOnly: true,
+                              validator: (value) {
+                                final number = num.tryParse(value);
+                                if (number == null) return "Not a number";
+                                if (number < -180 || number > 180)
+                                  return "Invalid range";
+                                return null;
+                              },
+                              onSaved: (value) =>
+                                  _responses['longitude'] = num.parse(value),
+                              onChanged: (value) {
+                                final numeric = num.tryParse(value);
+                                if (numeric == null) return;
+                                setState(() {
+                                  _responses['longitude'] = numeric;
+                                });
+                                // longitudeWidget.build(context);
+                              },
                             ),
-                            Text(
-                              _decimalDegreesToDMS(
-                                  _responses['latitude'], 'lat'),
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ]),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: Row(children: [
-                            Expanded(
-                              child: TextFormField(
+                          ),
+                          Text(
+                            _responses['longitude'] == null
+                                ? ""
+                                : _decimalDegreesToDMS(
+                                    _responses['longitude'], 'long'),
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ]),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: _possibleLocations.length == 0
+                            ? TextFormField(
                                 decoration: InputDecoration(
-                                  labelText: "Longitude",
+                                  labelText: "Location - Enter Address",
                                 ),
-                                initialValue:
-                                    _responses['longitude'].toString(),
-                                keyboardType: TextInputType.number,
-                                // readOnly: true,
-                                validator: (value) {
-                                  final number = num.tryParse(value);
-                                  if (number == null) return "Not a number";
-                                  if (number < -180 || number > 180)
-                                    return "Invalid range";
-                                  return null;
-                                },
+                                initialValue: _responses['location'],
+                                keyboardType: TextInputType.streetAddress,
+                                // readOnly: false,
+                                validator: (value) =>
+                                    value.isEmpty ? "Cannot be empty" : null,
                                 onSaved: (value) =>
-                                    _responses['longitude'] = num.parse(value),
-                              ),
-                            ),
-                            Text(
-                              _decimalDegreesToDMS(
-                                  _responses['longitude'], 'long'),
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ]),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: _possibleLocations.length == 0
-                              ? TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: "Location - Enter Address",
-                                  ),
-                                  initialValue: _responses['location'],
-                                  keyboardType: TextInputType.streetAddress,
-                                  // readOnly: false,
-                                  validator: (value) =>
-                                      value.isEmpty ? "Cannot be empty" : null,
-                                  onSaved: (value) =>
-                                      _responses['location'] = value,
-                                )
-                              : DropdownButtonFormField(
-                                  isExpanded: true,
-                                  isDense: false,
-                                  decoration: InputDecoration(
-                                    labelText: "Location",
-                                  ),
-                                  value: _responses['location'],
-                                  items: List.generate(
-                                    _possibleLocations.length,
-                                    (index) => DropdownMenuItem(
-                                      value: _possibleLocations[index],
-                                      child: Text(
-                                        _possibleLocations[index],
-                                        softWrap: true,
-                                      ),
-                                    ),
-                                  ),
-                                  onChanged: (newItem) => setState(
-                                      () => _responses['location'] = newItem),
-                                  validator: (value) => value == null
-                                      ? "Value cannot be null"
-                                      : (value.isEmpty
-                                          ? "Value cannot be empty"
-                                          : null),
-                                  onSaved: (value) =>
-                                      _responses['location'] = value,
-                                ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: Row(children: [
-                            Expanded(
-                              child: DropdownButtonFormField<DocumentReference>(
+                                    _responses['location'] = value,
+                              )
+                            : DropdownButtonFormField(
                                 isExpanded: true,
                                 isDense: false,
                                 decoration: InputDecoration(
-                                  labelText: "Equipment used",
+                                  labelText: "Location",
                                 ),
-                                value: _responses['equipment'],
-                                items: _equipments.length == 0
-                                    ? []
-                                    : List.generate(
-                                        _equipments.length,
-                                        (index) => DropdownMenuItem(
-                                          value: _equipments[index].reference,
-                                          child: _equipments[index],
-                                        ),
-                                      ),
-                                onChanged: (newItem) => setState(
-                                    () => _responses['equipment'] = newItem),
-                                validator: (value) => value == null
-                                    ? "Value cannot be null"
-                                    : null,
-                                onSaved: (value) =>
-                                    _responses['equipment'] = value,
-                              ),
-                            ),
-                            IconButton(
-                                icon: Icon(Icons.add_link),
-                                onPressed: () async =>
-                                    await Equipment.addEquipment(context)
-                                        ? setState(() {})
-                                        : null),
-                          ]),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Date & Time of observation",
-                            ),
-                            initialValue: _responses['dateTime'] == null
-                                ? ""
-                                : DateFormat('dd MMM, yyyy HH:mm')
-                                    .format(_responses['dateTime']),
-                            readOnly: true,
-                            onTap: () async {
-                              final date = await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime.now());
-                              if (date == null) return;
-                              final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now());
-                              if (time == null) return;
-                              setState(() {
-                                _responses['dateTime'] = DateTime(
-                                    date.year,
-                                    date.month,
-                                    date.day,
-                                    time.hour,
-                                    time.minute);
-                              });
-                            },
-                            validator: (value) =>
-                                value.isEmpty ? "Cannot be empty" : null,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Notes:",
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.add_rounded),
-                                // color: Colors.white,
-                                onPressed: () => _addNote(context),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: _responses['notes'].length == 0
-                              ? SizedBox()
-                              : ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: _responses['notes'].length,
-                                  itemBuilder: (context, index) => Dismissible(
-                                    key: Key(_responses['notes'][index]),
-                                    background: Container(
-                                      color: Colors.red,
+                                value: _responses['location'],
+                                items: List.generate(
+                                  _possibleLocations.length,
+                                  (index) => DropdownMenuItem(
+                                    value: _possibleLocations[index],
+                                    child: Text(
+                                      _possibleLocations[index],
+                                      softWrap: true,
                                     ),
-                                    child: ListTile(
-                                      leading: Text("${index + 1}"),
-                                      title: Text(_responses['notes'][index]),
-                                      onTap: () => _addNote(context, index),
-                                    ),
-                                    onDismissed: (event) => setState(() =>
-                                        _responses['notes'].removeAt(index)),
                                   ),
                                 ),
+                                onChanged: (newItem) => setState(
+                                    () => _responses['location'] = newItem),
+                                validator: (value) => value == null
+                                    ? "Value cannot be null"
+                                    : (value.isEmpty
+                                        ? "Value cannot be empty"
+                                        : null),
+                                onSaved: (value) =>
+                                    _responses['location'] = value,
+                              ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: Row(children: [
+                          Expanded(
+                            child: DropdownButtonFormField<DocumentReference>(
+                              isExpanded: true,
+                              isDense: false,
+                              decoration: InputDecoration(
+                                labelText: "Equipment used",
+                              ),
+                              value: _responses['equipment'],
+                              items: _equipments.length == 0
+                                  ? []
+                                  : List.generate(
+                                      _equipments.length,
+                                      (index) => DropdownMenuItem(
+                                        value: _equipments[index].reference,
+                                        child: _equipments[index],
+                                      ),
+                                    ),
+                              onChanged: (newItem) => setState(
+                                  () => _responses['equipment'] = newItem),
+                              validator: (value) =>
+                                  value == null ? "Value cannot be null" : null,
+                              onSaved: (value) =>
+                                  _responses['equipment'] = value,
+                            ),
+                          ),
+                          IconButton(
+                              icon: Icon(Icons.add_link),
+                              onPressed: () async =>
+                                  await Equipment.addEquipment(context)
+                                      ? setState(() {})
+                                      : null),
+                        ]),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: "Date & Time of observation",
+                          ),
+                          initialValue: _responses['dateTime'] == null
+                              ? ""
+                              : DateFormat('dd MMM, yyyy HH:mm')
+                                  .format(_responses['dateTime']),
+                          readOnly: true,
+                          onTap: () async {
+                            final date = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2010),
+                                lastDate: DateTime.now());
+                            if (date == null) return;
+                            final time = await showTimePicker(
+                                context: context, initialTime: TimeOfDay.now());
+                            if (time == null) return;
+                            setState(() {
+                              _responses['dateTime'] = DateTime(date.year,
+                                  date.month, date.day, time.hour, time.minute);
+                            });
+                          },
+                          validator: (value) =>
+                              value.isEmpty ? "Cannot be empty" : null,
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              ElevatedButton.icon(
-                                label: Text("Submit"),
-                                icon: Icon(Icons.send_rounded),
-                                onPressed: () async {
-                                  if (_formKey.currentState.validate()) {
-                                    _formKey.currentState.save();
-                                    if (await saveToDB())
-                                      Navigator.pop(context);
-                                  }
-                                },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Notes:",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.add_rounded),
+                              // color: Colors.white,
+                              onPressed: () => _addNote(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: _responses['notes'].length == 0
+                            ? SizedBox()
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: _responses['notes'].length,
+                                itemBuilder: (context, index) => Dismissible(
+                                  key: Key(_responses['notes'][index]),
+                                  background: Container(
+                                    color: Colors.red,
+                                  ),
+                                  child: ListTile(
+                                    leading: Text("${index + 1}"),
+                                    title: Text(_responses['notes'][index]),
+                                    onTap: () => _addNote(context, index),
+                                  ),
+                                  onDismissed: (event) => setState(() =>
+                                      _responses['notes'].removeAt(index)),
+                                ),
                               ),
-                              ElevatedButton.icon(
-                                label: Text("Cancel"),
-                                icon: Icon(Icons.cancel_rounded),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ]),
-                      ],
-                    ),
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            ElevatedButton.icon(
+                              label: Text("Submit"),
+                              icon: Icon(Icons.send_rounded),
+                              onPressed: () async {
+                                if (_formKey.currentState.validate()) {
+                                  _formKey.currentState.save();
+                                  if (await saveToDB()) Navigator.pop(context);
+                                }
+                              },
+                            ),
+                            ElevatedButton.icon(
+                              label: Text("Cancel"),
+                              icon: Icon(Icons.cancel_rounded),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ]),
+                    ],
                   ),
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -555,7 +569,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
   /// Get current address from GPS coordinates
   ///
   ///
-  Future<gps.LocationData> _getCurrentPosition() async {
+  Future<void> _getCurrentPosition() async {
     if (_responses['latitude'] != null && _responses['longitude'] != null)
       return null;
     final location = gps.Location();
@@ -564,42 +578,44 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
     final permission = await location.requestPermission();
     if (permission == gps.PermissionStatus.granted ||
-        permission == gps.PermissionStatus.grantedLimited)
-      return location.getLocation()
-        ..then((value) async {
-          _responses['latitude'] = value.latitude;
-          _responses['longitude'] = value.longitude;
-          _responses['dateTime'] =
-              DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
+        permission == gps.PermissionStatus.grantedLimited) {
+      final value = await location.getLocation();
 
-          if (kIsWeb) {
-            _possibleLocations = [];
-            return null;
-          }
+      setState(() {
+        _responses['latitude'] = value.latitude;
+        _responses['longitude'] = value.longitude;
+        _responses['dateTime'] =
+            DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
+      });
 
-          final places =
-              await placemarkFromCoordinates(value.latitude, value.longitude);
-          setState(() {
-            _possibleLocations = List.generate(
-                places.length,
-                (index) =>
-                    places[index].name +
-                    ", " +
-                    places[index].subLocality +
-                    ", " +
-                    places[index].locality +
-                    ", " +
-                    places[index].country +
-                    " " +
-                    places[index].postalCode,
-                growable: false);
-          });
-        });
+      if (kIsWeb) {
+        _possibleLocations = [];
+        return null;
+      }
+
+      final places =
+          await placemarkFromCoordinates(value.latitude, value.longitude);
+      setState(() {
+        _possibleLocations = List.generate(
+            places.length,
+            (index) =>
+                places[index].name +
+                ", " +
+                places[index].subLocality +
+                ", " +
+                places[index].locality +
+                ", " +
+                places[index].country +
+                " " +
+                places[index].postalCode,
+            growable: false);
+      });
+    }
     return null;
   }
 
   /// Get the list of user's equipment from DB
-  Future<List<Equipment>> _loadEquipment(BuildContext context) async {
+  Future<void> _loadEquipment(BuildContext context) async {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
     try {
@@ -611,12 +627,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
       return _equipments;
     } catch (e) {
       // print(e);
-      return [];
+      return;
     }
   }
 
   /// Perform initial data load operations
   Future<void> _loadData(BuildContext context) async {
+    if (_responses['location'] != null) return;
     await Future.wait([_getCurrentPosition(), _loadEquipment(context)]);
   }
 

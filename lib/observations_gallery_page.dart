@@ -11,43 +11,31 @@ class ObservationsGallary extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: Text("Observations Gallary"),
-      //   centerTitle: true,
-      // ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _getObservations(),
-        builder: (context, snap) => snap.connectionState ==
-                ConnectionState.waiting
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: size.width > 845
-                      ? 6
-                      : size.width >= 670
-                          ? 4
-                          : size.width >= 550
-                              ? 3
-                              : 2,
-                ),
-                shrinkWrap: true,
-                itemCount: snap.data.docs.length,
-                itemBuilder: (context, index) => snap.data == null
-                    ? SizedBox()
-                    : GallaryTile.fromObservation(
-                        ObservationData.fromJSON(snap.data.docs[index].data()),
-                      ),
+    return StreamBuilder<QuerySnapshot>(
+      stream: _getObservations(),
+      builder: (context, snap) => snap.connectionState ==
+              ConnectionState.waiting
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: size.width > 845
+                    ? 6
+                    : size.width >= 670
+                        ? 4
+                        : size.width >= 550
+                            ? 3
+                            : 2,
               ),
-      ),
-      // ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "add_observation",
-        child: Icon(Icons.add_rounded),
-        onPressed: () => Navigator.pushNamed(context, AddObservationPageRoute),
-      ),
+              shrinkWrap: true,
+              itemCount: snap.data.docs.length,
+              itemBuilder: (context, index) => snap.data == null
+                  ? SizedBox()
+                  : GallaryTile.fromObservation(
+                      ObservationData.fromJSON(snap.data.docs[index].data()),
+                    ),
+            ),
     );
   }
 
@@ -72,16 +60,8 @@ class ObservationsGallary extends StatelessWidget {
 class PhotographyGallary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: Text("Photography Gallary"),
-      //   centerTitle: true,
-      // ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "add_photo",
-        child: Icon(Icons.add_rounded),
-        onPressed: () {},
-      ),
+    return Center(
+      child: Text("To be implemented...."),
     );
   }
 }
