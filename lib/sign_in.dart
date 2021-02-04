@@ -165,20 +165,20 @@ class _SignInPageState extends State<SignInPage> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         ),
-        !isWebPlatform
-            ? Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: SignInButton(
-                  Buttons.Apple,
-                  text: 'Sign in with Apple',
-                  // shape: ShapeBorder,
-                  onPressed: _appleSignIn,
-                  padding: EdgeInsets.all(10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                ),
-              )
-            : SizedBox(),
+        // !isWebPlatform
+        //     ? Padding(
+        //         padding: EdgeInsets.only(top: 10),
+        //         child: SignInButton(
+        //           Buttons.Apple,
+        //           text: 'Sign in with Apple',
+        //           // shape: ShapeBorder,
+        //           onPressed: _appleSignIn,
+        //           padding: EdgeInsets.all(10),
+        //           shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(15)),
+        //         ),
+        //       )
+        //     : SizedBox(),
       ],
     );
   }
