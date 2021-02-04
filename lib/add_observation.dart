@@ -580,12 +580,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
     if (permission == gps.PermissionStatus.granted ||
         permission == gps.PermissionStatus.grantedLimited) {
       final value = await location.getLocation();
+      final temp = DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
 
       setState(() {
         _responses['latitude'] = value.latitude;
         _responses['longitude'] = value.longitude;
         _responses['dateTime'] =
-            DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
+            DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
       });
 
       if (kIsWeb) {
