@@ -338,10 +338,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             ),
                             IconButton(
                                 icon: Icon(Icons.add_link),
-                                onPressed: () {
-                                  Equipment.addEquipment(context);
-                                  setState(() {});
-                                }),
+                                onPressed: () async =>
+                                    await Equipment.addEquipment(context)
+                                        ? setState(() {})
+                                        : null),
                           ]),
                         ),
                         Padding(

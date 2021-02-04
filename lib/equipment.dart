@@ -50,6 +50,8 @@ class Equipment extends StatelessWidget {
   }
 
   /// Procedure to add a new equipment in the user DB
+  ///
+  /// Returns [true] if new equipment was added else, [false].
   static Future<bool> addEquipment(BuildContext context) async {
     Map<String, dynamic> data = {
       'telescope': "",
@@ -61,6 +63,7 @@ class Equipment extends StatelessWidget {
     };
 
     final _equipmentKey = GlobalKey<FormState>();
+    bool returnVal = false;
 
     await showDialog(
       context: context,
@@ -172,11 +175,16 @@ class Equipment extends StatelessWidget {
                       FirebaseAuth.instance.currentUser.uid +
                       '/equipments')
                   .add(data)
-                  .whenComplete(() => Navigator.pop(context));
+                  .whenComplete(() {
+                Navigator.pop(context);
+                returnVal = true;
+              });
             },
           )
         ],
       ),
     );
+
+    return returnVal;
   }
 }
