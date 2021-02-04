@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+/// Page to display the observations as a gallery
 class ObservationsGallary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -50,6 +51,7 @@ class ObservationsGallary extends StatelessWidget {
     );
   }
 
+  /// Get user observations as a stream instead of bulk load
   Stream<QuerySnapshot> _getObservations() {
     // Stream<List<ObservationData>> _getObservations() {
     final firestore = FirebaseFirestore.instance;
@@ -66,6 +68,7 @@ class ObservationsGallary extends StatelessWidget {
   }
 }
 
+/// Page to display the observations as a gallery
 class PhotographyGallary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

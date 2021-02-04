@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'sign_in.dart';
 import 'observations_gallery_page.dart';
 
+/// Page to display after signing in
 class SignedInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -11,16 +11,36 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:geocoding/geocoding.dart';
 
+/// Convenient class for observational data
 class ObservationData {
+  /// Title of observation
   String title;
+
+  /// NGC catalog number
   int ngc;
+
+  /// Messier catalog number
   int messier;
+
+  /// Path of any image file to add
   String fileName;
+
+  /// latitude of location of observation
   num latitude;
+
+  /// longitude of location of observation
   num longitude;
+
+  /// Address of location of observation
   String location;
+
+  /// [Equipment] details for observation
   Equipment equipment;
+
+  /// Date and time of observation
   DateTime dateTime;
+
+  /// list of notes and observations
   List<String> notes;
 
   static dynamic _valueFromJSON(Map<String, dynamic> json, String key) =>
@@ -54,6 +74,7 @@ class ObservationData {
       };
 }
 
+/// Widget to add observation data to DB
 class AddObservationPage extends StatefulWidget {
   _AddObservationPageState createState() => _AddObservationPageState();
 }
@@ -132,7 +153,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                           : _responses['messier'].toString(),
                                       keyboardType:
                                           const TextInputType.numberWithOptions(
-                                              signed: false, decimal: false),
+                                        signed: false,
+                                        decimal: false,
+                                      ),
                                       readOnly: false,
                                       inputFormatters: [
                                         TextInputFormatter.withFunction(
@@ -145,14 +168,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       validator: (value) {
                                         if (value.isEmpty) return null;
                                         final t = int.tryParse(value);
-                                        return t == null
-                                            ? null
-                                            : t <= 0
-                                                ? "Cannot be negative"
-                                                : t > 110
-                                                    ? "Messier catalog numbers are "
-                                                        "only upto 110"
-                                                    : null;
+                                        if (t == null) return null;
+                                        if (t <= 0) return "Cannot be negative";
+                                        if (t > 110)
+                                          return "Messier catalog numbers are "
+                                              "only upto 110";
+                                        return null;
                                       },
                                       autovalidateMode: AutovalidateMode.always,
                                       onSaved: (value) =>
@@ -491,6 +512,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
     );
   }
 
+  /// Function to save data to DB
+  ///
+  /// Returns [true] if data was saved, else [false].
   Future<bool> saveToDB() async {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
@@ -516,6 +540,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
     return true;
   }
 
+  /// Get current address from GPS coordinates
+  ///
+  ///
   Future<Position> _getCurrentPosition() async {
     if (_responses['latitude'] != null && _responses['longitude'] != null)
       return null;
@@ -547,6 +574,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     return null;
   }
 
+  /// Get the list of user's equipment from DB
   Future<List<Equipment>> _loadEquipment(BuildContext context) async {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
@@ -563,11 +591,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
     }
   }
 
+  /// Perform initial data load operations
   Future<void> _loadData(BuildContext context) async {
-    await _getCurrentPosition();
-    await _loadEquipment(context);
+    await Future.wait([_getCurrentPosition(), _loadEquipment(context)]);
   }
 
+  /// Convert decimal degrees to string degree-minute-second format
   String _decimalDegreesToDMS(num numeric, String latOrLong) {
     bool isNegative = false;
     if (numeric < 0) {

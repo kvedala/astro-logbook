@@ -20,6 +20,7 @@ class SignInPage extends StatefulWidget {
   // }
 }
 
+/// variable to store google-signin state
 GoogleSignIn googleSignIn;
 
 class _SignInPageState extends State<SignInPage> {
@@ -48,6 +49,7 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
+  /// google sign-in scopes
   final scopes = <String>['email', 'profile'];
 
   @override
@@ -63,6 +65,7 @@ class _SignInPageState extends State<SignInPage> {
     super.dispose();
   }
 
+  /// perform sign-in by google
   void _googleSignIn(BuildContext context) async {
     if (isWebPlatform) {
       try {
@@ -118,6 +121,7 @@ class _SignInPageState extends State<SignInPage> {
     return digest.toString();
   }
 
+  /// Perform signin with apple ID
   void _appleSignIn() async {
     // To prevent replay attacks with the credential returned from Apple, we
     // include a nonce in the credential request. When signing in in with
@@ -240,6 +244,7 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
+  /// signout the current user from both google and Firebase
   void signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     if (googleSignIn != null) {

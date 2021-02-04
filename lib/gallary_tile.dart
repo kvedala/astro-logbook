@@ -52,6 +52,7 @@ class GallaryTile extends StatelessWidget {
     this.equipment,
   });
 
+  /// Generate a gallery tile using data from [ObservationData] object.
   GallaryTile.fromObservation(ObservationData data)
       : title = data.title,
         filePath = data.fileName,
@@ -116,6 +117,7 @@ class GallaryTile extends StatelessWidget {
   }
 }
 
+/// Page to display the details of observation
 class _ShowDetails extends StatelessWidget {
   final GallaryTile tile;
   final Map<String, dynamic> tableItems;
