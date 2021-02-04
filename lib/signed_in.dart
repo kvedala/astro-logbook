@@ -1,6 +1,8 @@
+import 'package:astro_log/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'sign_in.dart';
 import 'observations_gallery_page.dart';
 
 class SignedInPage extends StatelessWidget {
@@ -22,6 +24,19 @@ class SignedInPage extends StatelessWidget {
               style: TextStyle(fontSize: 18),
             ),
           ]),
+          actions: [
+            IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  if (googleSignIn != null) {
+                    if (await googleSignIn.isSignedIn())
+                      await googleSignIn.signOut();
+                  }
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, HomePageRoute, (route) => false);
+                })
+          ],
         ),
         body: TabBarView(
           children: [

@@ -20,17 +20,18 @@ class SignInPage extends StatefulWidget {
   // }
 }
 
+GoogleSignIn googleSignIn;
+
 class _SignInPageState extends State<SignInPage> {
   bool isWebPlatform = false;
   FirebaseAuth authInstance;
-  GoogleSignIn googleSignIn;
 
   void _initFirebaseAuth() async {
     if (authInstance == null) {
       authInstance = FirebaseAuth.instance;
       authInstance.authStateChanges().listen(
-            (user) => setState(() {}),
-            onDone: () => setState(() {}),
+            (user) => mounted ? setState(() {}) : null,
+            onDone: () => mounted ? setState(() {}) : null,
             // onError: () => setState(() {}),
             // cancelOnError: () => setState(() {}),
           );
@@ -209,7 +210,7 @@ class _SignInPageState extends State<SignInPage> {
             minimumSize: MaterialStateProperty.all(Size(150, 50)),
             textStyle: MaterialStateProperty.all(TextStyle(fontSize: 20)),
           ),
-          onPressed: () => Navigator.pushNamed(context, HomePageRoute),
+          onPressed: () => Navigator.pushNamed(context, SignedInPageRoute),
           icon: Icon(
             Icons.person_pin,
             size: 30,

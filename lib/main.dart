@@ -44,8 +44,9 @@ class MyHomePage extends StatelessWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return FirebaseAuth.instance.currentUser == null
-        ? SignInPage()
-        : SignedInPage();
+    // FirebaseAuth.instance.currentUser == null
+    //     ? Navigator.pushNamed(context, SignInPageRoute)
+    //     : Navigator.pushNamed(context, SignedInPageRoute);
+    return SignInPage();
   }
 }
