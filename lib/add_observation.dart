@@ -4,12 +4,13 @@ import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
+import 'package:location/location.dart' as gps;
 
 /// Convenient class for observational data
 class ObservationData {
@@ -244,7 +245,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 ),
                                 initialValue: _responses['latitude'].toString(),
                                 keyboardType: TextInputType.number,
-                                readOnly: true,
+                                // readOnly: true,
                                 validator: (value) {
                                   final number = num.tryParse(value);
                                   if (number == null) return "Not a number";
@@ -280,7 +281,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 initialValue:
                                     _responses['longitude'].toString(),
                                 keyboardType: TextInputType.number,
-                                readOnly: true,
+                                // readOnly: true,
                                 validator: (value) {
                                   final number = num.tryParse(value);
                                   if (number == null) return "Not a number";
@@ -301,32 +302,46 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
-                          child: DropdownButtonFormField(
-                            isExpanded: true,
-                            isDense: false,
-                            decoration: InputDecoration(
-                              labelText: "Location",
-                            ),
-                            value: _responses['location'],
-                            items: List.generate(
-                              _possibleLocations.length,
-                              (index) => DropdownMenuItem(
-                                value: _possibleLocations[index],
-                                child: Text(
-                                  _possibleLocations[index],
-                                  softWrap: true,
+                          child: _possibleLocations.length == 0
+                              ? TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: "Location - Enter Address",
+                                  ),
+                                  initialValue: _responses['location'],
+                                  keyboardType: TextInputType.streetAddress,
+                                  // readOnly: false,
+                                  validator: (value) =>
+                                      value.isEmpty ? "Cannot be empty" : null,
+                                  onSaved: (value) =>
+                                      _responses['location'] = value,
+                                )
+                              : DropdownButtonFormField(
+                                  isExpanded: true,
+                                  isDense: false,
+                                  decoration: InputDecoration(
+                                    labelText: "Location",
+                                  ),
+                                  value: _responses['location'],
+                                  items: List.generate(
+                                    _possibleLocations.length,
+                                    (index) => DropdownMenuItem(
+                                      value: _possibleLocations[index],
+                                      child: Text(
+                                        _possibleLocations[index],
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ),
+                                  onChanged: (newItem) => setState(
+                                      () => _responses['location'] = newItem),
+                                  validator: (value) => value == null
+                                      ? "Value cannot be null"
+                                      : (value.isEmpty
+                                          ? "Value cannot be empty"
+                                          : null),
+                                  onSaved: (value) =>
+                                      _responses['location'] = value,
                                 ),
-                              ),
-                            ),
-                            onChanged: (newItem) => setState(
-                                () => _responses['location'] = newItem),
-                            validator: (value) => value == null
-                                ? "Value cannot be null"
-                                : (value.isEmpty
-                                    ? "Value cannot be empty"
-                                    : null),
-                            onSaved: (value) => _responses['location'] = value,
-                          ),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
@@ -540,16 +555,28 @@ class _AddObservationPageState extends State<AddObservationPage> {
   /// Get current address from GPS coordinates
   ///
   ///
-  Future<Position> _getCurrentPosition() async {
+  Future<gps.LocationData> _getCurrentPosition() async {
     if (_responses['latitude'] != null && _responses['longitude'] != null)
       return null;
-    final permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse)
-      return Geolocator.getCurrentPosition()
+    final location = gps.Location();
+    bool isEnabled = await location.requestService();
+    if (!isEnabled) return null;
+
+    final permission = await location.requestPermission();
+    if (permission == gps.PermissionStatus.granted ||
+        permission == gps.PermissionStatus.grantedLimited)
+      return location.getLocation()
         ..then((value) async {
           _responses['latitude'] = value.latitude;
           _responses['longitude'] = value.longitude;
+          _responses['dateTime'] =
+              DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
+
+          if (kIsWeb) {
+            _possibleLocations = [];
+            return null;
+          }
+
           final places =
               await placemarkFromCoordinates(value.latitude, value.longitude);
           setState(() {
