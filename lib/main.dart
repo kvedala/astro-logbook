@@ -1,10 +1,8 @@
 import 'package:astro_log/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'sign_in.dart';
-import 'signed_in.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
