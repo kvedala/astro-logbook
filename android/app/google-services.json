@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "703059723550-j2o9b8ii4c6dt6k9het29r030747jq46.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vedala.holdings.astro_log",
+            "certificate_hash": "57d3be2e103cddccaffe03c851015543b0653c6b"
+          }
+        },
+        {
           "client_id": "703059723550-ug36q8ddotrr5kd73h6m7nidrp87d0ee.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -39,10 +47,10 @@
               "client_type": 3
             },
             {
-              "client_id": "703059723550-9cc75vk537icnv9qa4630o5s7jn40k0l.apps.googleusercontent.com",
+              "client_id": "703059723550-uklqrd49qjscdavti1ink1ol7uqbdf15.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.vedala.holdings"
+                "bundle_id": "com.vedala.holdings.astro-log"
               }
             }
           ]
