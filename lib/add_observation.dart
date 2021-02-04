@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,6 +19,7 @@ class ObservationData {
   num latitude;
   num longitude;
   String location;
+  Equipment equipment;
   DateTime dateTime;
   List<String> notes;
 
@@ -34,6 +36,7 @@ class ObservationData {
         latitude = _valueFromJSON(json, 'latitude'),
         longitude = _valueFromJSON(json, 'longitude'),
         location = _valueFromJSON(json, 'location'),
+        equipment = Equipment.fromReference(_valueFromJSON(json, 'equipment')),
         dateTime = _valueFromJSON(json, 'dateTime').toDate(),
         notes = List<String>.from(_valueFromJSON(json, 'notes'));
 
@@ -47,6 +50,7 @@ class ObservationData {
         'location': location,
         'dateTime': dateTime,
         'notes': notes,
+        'equipment': equipment.reference,
       };
 }
 
@@ -66,9 +70,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'location': null,
     'dateTime': null,
     'notes': <String>[],
+    'equipment': "",
   };
   final _filenameTextController = TextEditingController();
   List<String> _possibleLocations = [""];
+  List<Equipment> _equipments = [];
   String _isFileValid;
 
   @override
@@ -77,8 +83,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
       appBar: AppBar(
         title: Text("Record observation"),
       ),
-      body: FutureBuilder<Position>(
-        future: _getCurrentPosition(),
+      body: FutureBuilder(
+        future: _loadData(context),
         builder: (context, snapshot) => Container(
           padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
           child: snapshot.connectionState != ConnectionState.done
@@ -303,6 +309,35 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
+                          child: DropdownButtonFormField(
+                            isExpanded: true,
+                            isDense: false,
+                            decoration: InputDecoration(
+                              labelText: "Equipment used",
+                            ),
+                            value: _responses['equipment'],
+                            items: List.generate(
+                              _possibleLocations.length,
+                              (index) => DropdownMenuItem(
+                                value: _possibleLocations[index],
+                                child: Text(
+                                  _possibleLocations[index],
+                                  softWrap: true,
+                                ),
+                              ),
+                            ),
+                            onChanged: (newItem) => setState(
+                                () => _responses['location'] = newItem),
+                            validator: (value) => value == null
+                                ? "Value cannot be null"
+                                : (value.isEmpty
+                                    ? "Value cannot be empty"
+                                    : null),
+                            onSaved: (value) => _responses['location'] = value,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: TextFormField(
                             decoration: InputDecoration(
                               labelText: "Date & Time of observation",
@@ -502,6 +537,26 @@ class _AddObservationPageState extends State<AddObservationPage> {
           });
         });
     return null;
+  }
+
+  Future<List<Equipment>> _loadEquipment(BuildContext context) async {
+    final firestore = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+    try {
+      final docs = await firestore
+          .collection('users/' + auth.currentUser.uid + "/equipment")
+          .get();
+      docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
+      return _equipments;
+    } catch (e) {
+      // print(e);
+      return [];
+    }
+  }
+
+  Future<void> _loadData(BuildContext context) async {
+    await _getCurrentPosition();
+    await _loadEquipment(context);
   }
 
   String _decimalDegreesToDMS(num numeric, String latOrLong) {
