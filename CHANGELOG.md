@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1(4)
+
+* Fix google signin URL for iOS
+
 ## 1.2.1(3)
 
 * fix iOS builds
