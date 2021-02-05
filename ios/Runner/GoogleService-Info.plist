@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>703059723550-uklqrd49qjscdavti1ink1ol7uqbdf15.apps.googleusercontent.com</string>
+	<string>703059723550-kpkfa2mi3e8dtr5hhae5mbbr0e14teka.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.703059723550-uklqrd49qjscdavti1ink1ol7uqbdf15</string>
+	<string>com.googleusercontent.apps.703059723550-kpkfa2mi3e8dtr5hhae5mbbr0e14teka</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>703059723550-j2o9b8ii4c6dt6k9het29r030747jq46.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.vedala.holdings.astro-log</string>
+	<string>com.vedalaholdings.astrolog</string>
 	<key>PROJECT_ID</key>
 	<string>astronomy-log-book</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:703059723550:ios:2a9c99071bbc8d9a22750f</string>
+	<string>1:703059723550:ios:9c9e3749ce6bc3da22750f</string>
 </dict>
 </plist>
