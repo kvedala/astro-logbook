@@ -30,9 +30,10 @@ dependencies:
   file_picker: ^2.1.6
 
   firebase_core: ^0.7.0
-  firebase_auth: "^0.20.0+1"
   cloud_firestore: ^0.16.0
   firebase_storage: ^7.0.0
+  firebase_auth: "^0.20.0+1"
+  firebase_analytics: "^7.0.1"
 
   google_sign_in: ^4.5.9
   flutter_signin_button: ^1.1.0
