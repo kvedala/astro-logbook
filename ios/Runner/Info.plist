@@ -37,6 +37,8 @@
 	<string>437381314078679</string>
 	<key>FacebookDisplayName</key>
 	<string>Astronomy Log Boook</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
