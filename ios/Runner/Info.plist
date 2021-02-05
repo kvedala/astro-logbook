@@ -80,5 +80,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Please provide access to select and upload your chosen file.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you.</string>
 </dict>
 </plist>
