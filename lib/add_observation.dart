@@ -395,10 +395,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ),
                           IconButton(
                               icon: Icon(Icons.add_link),
-                              onPressed: () async =>
-                                  await Equipment.addEquipment(context)
-                                      ? setState(() {})
-                                      : null),
+                              onPressed: () async {
+                                if (await Equipment.addEquipment(context)) {
+                                  await _loadData(context);
+                                  setState(() {});
+                                }
+                              }),
                         ]),
                       ),
                       Padding(
@@ -581,13 +583,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
         permission == gps.PermissionStatus.grantedLimited) {
       final value = await location.getLocation();
       final temp = DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
-
-      setState(() {
-        _responses['latitude'] = value.latitude;
-        _responses['longitude'] = value.longitude;
-        _responses['dateTime'] =
-            DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
-      });
+      if (mounted)
+        setState(() {
+          _responses['latitude'] = value.latitude;
+          _responses['longitude'] = value.longitude;
+          _responses['dateTime'] =
+              DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
+        });
 
       if (kIsWeb) {
         _possibleLocations = [];
@@ -596,27 +598,30 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
       final places =
           await placemarkFromCoordinates(value.latitude, value.longitude);
-      setState(() {
-        _possibleLocations = List.generate(
-            places.length,
-            (index) =>
-                places[index].name +
-                ", " +
-                places[index].subLocality +
-                ", " +
-                places[index].locality +
-                ", " +
-                places[index].country +
-                " " +
-                places[index].postalCode,
-            growable: false);
-      });
+      if (mounted)
+        setState(() {
+          _possibleLocations = List.generate(
+              places.length,
+              (index) =>
+                  places[index].name +
+                  ", " +
+                  places[index].subLocality +
+                  ", " +
+                  places[index].locality +
+                  ", " +
+                  places[index].country +
+                  " " +
+                  places[index].postalCode,
+              growable: false);
+        });
     }
     return null;
   }
 
   /// Get the list of user's equipment from DB
   Future<void> _loadEquipment(BuildContext context) async {
+    if (_equipments.isNotEmpty) return;
+
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
     try {
@@ -625,7 +630,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
           .get();
       _equipments =
           docs.docs.map((query) => Equipment.fromQuery(query)).toList();
-      return _equipments;
+      return;
     } catch (e) {
       // print(e);
       return;
@@ -634,7 +639,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
   /// Perform initial data load operations
   Future<void> _loadData(BuildContext context) async {
-    if (_responses['location'] != null) return;
     await Future.wait([_getCurrentPosition(), _loadEquipment(context)]);
   }
 

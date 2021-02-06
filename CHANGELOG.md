@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1(5)
+
+* Fix add equipment bug inside add observation
+
 ## 1.2.1(4)
 
 * Fix google signin URL for iOS
