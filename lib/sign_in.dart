@@ -26,6 +26,7 @@ GoogleSignIn googleSignIn;
 class _SignInPageState extends State<SignInPage> {
   bool isWebPlatform = false;
   FirebaseAuth authInstance;
+  bool appleSignInAvailable = false;
 
   void _initFirebaseAuth() async {
     if (authInstance == null) {
@@ -45,6 +46,13 @@ class _SignInPageState extends State<SignInPage> {
       } on UnimplementedError catch (e) {
         print(e);
         return;
+      }
+
+      try {
+        appleSignInAvailable = await SignInWithApple.isAvailable();
+      } catch (e) {
+        print(e);
+        appleSignInAvailable = false;
       }
     }
   }
@@ -123,6 +131,28 @@ class _SignInPageState extends State<SignInPage> {
 
   /// Perform signin with apple ID
   void _appleSignIn() async {
+    if (!appleSignInAvailable) {
+      try {
+        // Create and configure an OAuthProvider for Sign In with Apple.
+        final provider = OAuthProvider("apple.com")
+          ..addScope('email')
+          ..addScope('name');
+
+        // Sign in the user with Firebase.
+        await FirebaseAuth.instance.signInWithPopup(provider);
+      } catch (e) {
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+                  title: Text("Error with Apple Sign In"),
+                  content: Text(e.toString()),
+                ));
+        Future.delayed(Duration(seconds: 2), () => Navigator.pop(context));
+      }
+      return;
+    }
+
     // To prevent replay attacks with the credential returned from Apple, we
     // include a nonce in the credential request. When signing in in with
     // Firebase, the nonce in the id token returned by Apple, is expected to
@@ -167,22 +197,32 @@ class _SignInPageState extends State<SignInPage> {
           onPressed: () => _googleSignIn(context),
           padding: EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        // !isWebPlatform
-        //     ? Padding(
-        //         padding: EdgeInsets.only(top: 10),
-        //         child: SignInButton(
-        //           Buttons.Apple,
-        //           text: 'Sign in with Apple',
-        //           // shape: ShapeBorder,
-        //           onPressed: _appleSignIn,
-        //           padding: EdgeInsets.all(10),
-        //           shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(15)),
-        //         ),
-        //       )
-        //     : SizedBox(),
+        Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: SignInButton(
+            Buttons.Apple,
+            text: 'Sign in with Apple',
+            // shape: ShapeBorder,
+            onPressed: _appleSignIn,
+            padding: EdgeInsets.all(10),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: SignInButton(
+            Buttons.Facebook,
+            text: 'Sign in with Facebook',
+            // shape: ShapeBorder,
+            onPressed: _appleSignIn,
+            padding: EdgeInsets.all(10),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
       ],
     );
   }
