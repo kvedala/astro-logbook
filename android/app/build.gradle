@@ -41,7 +41,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.vedala.holdings.astro_log"
+        applicationId "com.vedalaholdings.astro_log"
         minSdkVersion 28
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
