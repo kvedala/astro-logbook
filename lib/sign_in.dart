@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:astro_log/routes.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -140,6 +142,7 @@ class _SignInPageState extends State<SignInPage> {
 
         // Sign in the user with Firebase.
         await FirebaseAuth.instance.signInWithPopup(provider);
+        setState(() {});
       } catch (e) {
         showDialog(
             context: context,
@@ -187,6 +190,26 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
+  void _facebookSignIn() async {
+    try {
+      final AccessToken accessToken = await FacebookAuth.instance.login();
+
+      // Create a credential from the access token
+      final FacebookAuthCredential credential = FacebookAuthProvider.credential(
+        accessToken.token,
+      );
+      // Once signed in, return the UserCredential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+    } on FacebookAuthException catch (e) {
+      // handle the FacebookAuthException
+    } on FirebaseAuthException catch (e) {
+      // handle the FirebaseAuthException
+    } finally {
+      setState(() {});
+    }
+    return;
+  }
+
   Widget _signInPage(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -217,7 +240,7 @@ class _SignInPageState extends State<SignInPage> {
             Buttons.Facebook,
             text: 'Sign in with Facebook',
             // shape: ShapeBorder,
-            onPressed: _appleSignIn,
+            onPressed: _facebookSignIn,
             padding: EdgeInsets.all(10),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
