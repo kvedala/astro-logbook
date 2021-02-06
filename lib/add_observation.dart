@@ -397,7 +397,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               icon: Icon(Icons.add_link),
                               onPressed: () async {
                                 if (await Equipment.addEquipment(context)) {
-                                  await _loadData(context);
+                                  await _loadEquipment(context, force: true);
                                   setState(() {});
                                 }
                               }),
@@ -619,8 +619,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
   }
 
   /// Get the list of user's equipment from DB
-  Future<void> _loadEquipment(BuildContext context) async {
-    if (_equipments.isNotEmpty) return;
+  Future<void> _loadEquipment(BuildContext context,
+      {bool force = false}) async {
+    if (_equipments.isNotEmpty && !force) return;
 
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;

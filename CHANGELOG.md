@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1(6)
+
+* Force load equipments after adding a new equipment
+
 ## 1.2.1(5)
 
 * Fix add equipment bug inside add observation
