@@ -51,6 +51,9 @@ class ObservationData {
   /// Sky visibility at the time of observation
   int visibility;
 
+  /// Sky transparency at the time of observation
+  int transparency;
+
   /// list of notes and observations
   List<String> notes;
 
@@ -464,6 +467,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         Expanded(
                           child: SliderOption("Visibility",
                               (value) => _responses['visibility'] = value,
+                              minValue: 1, maxValue: 5, divisions: 4),
+                        ),
+                        Expanded(
+                          child: SliderOption("Transparency",
+                              (value) => _responses['transparency'] = value,
                               minValue: 1, maxValue: 5, divisions: 4),
                         ),
                       ]),

@@ -43,6 +43,9 @@ class GallaryTile extends StatelessWidget {
   /// Sky visibility at the time of observation
   int visibility;
 
+  /// Sky transparency at the time of observation
+  int transparency;
+
   /// [Equipment] details
   final Equipment equipment;
 
@@ -57,6 +60,7 @@ class GallaryTile extends StatelessWidget {
     this.ngc,
     this.seeing,
     this.visibility,
+    this.transparency,
     this.notes,
     this.location,
     this.equipment,
@@ -72,6 +76,7 @@ class GallaryTile extends StatelessWidget {
         ngc = data.ngc,
         seeing = data.seeing,
         visibility = data.visibility,
+        transparency = data.transparency,
         notes = data.notes,
         latitude = data.latitude,
         longitude = data.longitude,
@@ -143,6 +148,9 @@ class _ShowDetails extends StatelessWidget {
           'Seeing': tile.seeing == null ? "Unknown" : tile.seeing.toString(),
           'Visibility':
               tile.visibility == null ? "Unknown" : tile.visibility.toString(),
+          'transparency': tile.transparency == null
+              ? "Unknown"
+              : tile.transparency.toString(),
           'Location': tile.location,
           'Latitude': _decimalDegreesToDMS(tile.latitude, 'lat'),
           'Longitude': _decimalDegreesToDMS(tile.longitude, 'long'),
