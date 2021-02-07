@@ -22,14 +22,11 @@ class SliderOption extends StatefulWidget {
 
 class _SliderOptionState extends State<SliderOption> {
   @override
-  void initState() {
-    super.initState();
-    if (widget.value < widget.minValue) widget.value = widget.minValue;
-    if (widget.value > widget.maxValue) widget.value = widget.maxValue;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (widget.value < widget.minValue)
+      widget.value = widget.minValue;
+    else if (widget.value > widget.maxValue) widget.value = widget.maxValue;
+
     return Container(
       child: Row(
         children: [
