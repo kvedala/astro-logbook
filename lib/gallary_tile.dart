@@ -140,8 +140,9 @@ class _ShowDetails extends StatelessWidget {
           'Date & Time': DateFormat.yMMMd().format(tile.time) +
               " " +
               DateFormat.Hm().format(tile.time),
-          'Seeing': tile.seeing ?? "Unknown",
-          'Visibility': tile.visibility ?? "Unknown",
+          'Seeing': tile.seeing == null ? "Unknown" : tile.seeing.toString(),
+          'Visibility':
+              tile.visibility == null ? "Unknown" : tile.visibility.toString(),
           'Location': tile.location,
           'Latitude': _decimalDegreesToDMS(tile.latitude, 'lat'),
           'Longitude': _decimalDegreesToDMS(tile.longitude, 'long'),
