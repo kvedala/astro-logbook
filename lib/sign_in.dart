@@ -279,10 +279,10 @@ class _SignInPageState extends State<SignInPage> {
           onPressed: () =>
               Navigator.popAndPushNamed(context, SignedInPageRoute),
           icon: Icon(
-            Icons.person_pin,
+            Icons.book_rounded,
             size: 30,
           ),
-          label: Text("User Profile"),
+          label: Text("My Logbook"),
         ),
         SizedBox.fromSize(
           size: Size(30, 30),
