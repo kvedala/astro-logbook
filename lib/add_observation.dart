@@ -98,15 +98,20 @@ class _AddObservationPageState extends State<AddObservationPage> {
   List<String> _possibleLocations = [""];
   List<Equipment> _equipments = [];
   String _isFileValid;
+  final TextEditingController _dateTimeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadData(context);
+    _dateTimeController.text = _responses['longitude'] == null
+        ? ""
+        : _responses['longitude'].toString();
   }
 
   @override
   Widget build(BuildContext context) {
+    print((_responses['dateTime']));
     return
         //  FutureBuilder(
         //   future: _responses['longitude'] == null
@@ -268,6 +273,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 if (numeric == null) return;
                                 setState(
                                     () => _responses['latitude'] = numeric);
+                                _updateAddresses();
                               },
                             ),
                           ),
@@ -306,9 +312,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               onChanged: (value) {
                                 final numeric = num.tryParse(value);
                                 if (numeric == null) return;
-                                setState(() {
-                                  _responses['longitude'] = numeric;
-                                });
+                                setState(
+                                    () => _responses['longitude'] = numeric);
+                                _updateAddresses();
                                 // longitudeWidget.build(context);
                               },
                             ),
@@ -409,25 +415,26 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           decoration: InputDecoration(
                             labelText: "Date & Time of observation",
                           ),
-                          initialValue: _responses['dateTime'] == null
-                              ? ""
-                              : DateFormat('dd MMM, yyyy HH:mm')
-                                  .format(_responses['dateTime']),
+                          controller: _dateTimeController,
                           readOnly: true,
                           onTap: () async {
                             final date = await showDatePicker(
                                 context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2010),
+                                initialDate: _responses['dateTime'],
+                                firstDate: DateTime(1900),
                                 lastDate: DateTime.now());
                             if (date == null) return;
                             final time = await showTimePicker(
-                                context: context, initialTime: TimeOfDay.now());
+                                context: context,
+                                initialTime: TimeOfDay.fromDateTime(
+                                    _responses['dateTime']));
                             if (time == null) return;
-                            setState(() {
-                              _responses['dateTime'] = DateTime(date.year,
-                                  date.month, date.day, time.hour, time.minute);
-                            });
+
+                            _responses['dateTime'] = DateTime(date.year,
+                                date.month, date.day, time.hour, time.minute);
+                            setState(() => _dateTimeController.text =
+                                DateFormat('dd MMM, yyyy HH:mm')
+                                    .format(_responses['dateTime']));
                           },
                           validator: (value) =>
                               value.isEmpty ? "Cannot be empty" : null,
@@ -596,8 +603,15 @@ class _AddObservationPageState extends State<AddObservationPage> {
         return null;
       }
 
-      final places =
-          await placemarkFromCoordinates(value.latitude, value.longitude);
+      await _updateAddresses();
+    }
+    return null;
+  }
+
+  Future<void> _updateAddresses() async {
+    try {
+      final places = await placemarkFromCoordinates(
+          _responses['latitude'], _responses['longitude']);
       if (mounted)
         setState(() {
           _possibleLocations = List.generate(
@@ -614,8 +628,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
                   places[index].postalCode,
               growable: false);
         });
+    } catch (e) {
+      print(e);
+      _possibleLocations = [];
     }
-    return null;
   }
 
   /// Get the list of user's equipment from DB
