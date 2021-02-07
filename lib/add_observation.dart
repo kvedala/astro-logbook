@@ -1,5 +1,7 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -111,7 +113,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
   @override
   Widget build(BuildContext context) {
-    print((_responses['dateTime']));
     return
         //  FutureBuilder(
         //   future: _responses['longitude'] == null
@@ -631,6 +632,20 @@ class _AddObservationPageState extends State<AddObservationPage> {
     } catch (e) {
       print(e);
       _possibleLocations = [];
+      // final responses = await http.get(Uri.https(
+      //     'maps.googleapis.com',
+      //     '/maps/api/'
+      //         "geocode/json",
+      //     {
+      //       "latlng": "${_responses['latitude']},"
+      //           "${_responses['longitude']}",
+      //       'key': "AIzaSyDCPJfmW4Nn0U3qVgT_KatItS0I9nIJZIs"
+      //     }));
+      // if (responses.statusCode != 200) {
+      //   _possibleLocations = [];
+      //   return;
+      // }
+      // inspect(responses);
     }
   }
 

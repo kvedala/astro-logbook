@@ -50,3 +50,4 @@ app.*.map.json
 images/
 .firebase
 *firebase*
+lib/my_keys.dart
