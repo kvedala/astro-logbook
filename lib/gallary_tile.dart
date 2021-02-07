@@ -148,7 +148,7 @@ class _ShowDetails extends StatelessWidget {
           'Seeing': tile.seeing == null ? "Unknown" : tile.seeing.toString(),
           'Visibility':
               tile.visibility == null ? "Unknown" : tile.visibility.toString(),
-          'transparency': tile.transparency == null
+          'Transparency': tile.transparency == null
               ? "Unknown"
               : tile.transparency.toString(),
           'Location': tile.location,
@@ -180,8 +180,7 @@ class _ShowDetails extends StatelessWidget {
         centerTitle: true,
       ),
       body: Column(children: [
-        SingleChildScrollView(
-          padding: EdgeInsets.all(10),
+        Expanded(
           child: Column(children: [
             Table(
               columnWidths: {0: FixedColumnWidth(120)},
@@ -212,20 +211,25 @@ class _ShowDetails extends StatelessWidget {
               padding: EdgeInsets.all(10),
               child: Text("Notes:", style: TextStyle(fontSize: 20)),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: tile.notes.length,
-              itemBuilder: (context, index) => ListTile(
-                leading: Text("${index + 1}"),
-                title: Text(tile.notes[index]),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: tile.notes.length,
+                itemBuilder: (context, index) => ListTile(
+                  leading: Text("${index + 1}"),
+                  title: Text(tile.notes[index]),
+                ),
               ),
-            )
+            ),
           ]),
         ),
-        ElevatedButton.icon(
-          icon: Icon(Icons.delete_forever_rounded),
-          label: Text("Delete observation"),
-          onPressed: () => _deleteObservation(context),
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 5),
+          child: ElevatedButton.icon(
+            icon: Icon(Icons.delete_forever_rounded),
+            label: Text("Delete observation"),
+            onPressed: () => _deleteObservation(context),
+          ),
         ),
       ]),
     );
