@@ -17,24 +17,33 @@ class ObservationsGallary extends StatelessWidget {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: size.width > 845
-                    ? 6
-                    : size.width >= 670
-                        ? 4
-                        : size.width >= 550
-                            ? 3
-                            : 2,
+          : Column(children: [
+              Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child:
+                      Text("Number of Observations: ${snap.data.docs.length}")),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: size.width > 845
+                        ? 6
+                        : size.width >= 670
+                            ? 4
+                            : size.width >= 550
+                                ? 3
+                                : 2,
+                  ),
+                  shrinkWrap: true,
+                  itemCount: snap.data.docs.length,
+                  itemBuilder: (context, index) => snap.data == null
+                      ? SizedBox()
+                      : GallaryTile.fromObservation(
+                          ObservationData.fromJSON(
+                              snap.data.docs[index].data()),
+                        ),
+                ),
               ),
-              shrinkWrap: true,
-              itemCount: snap.data.docs.length,
-              itemBuilder: (context, index) => snap.data == null
-                  ? SizedBox()
-                  : GallaryTile.fromObservation(
-                      ObservationData.fromJSON(snap.data.docs[index].data()),
-                    ),
-            ),
+            ]),
     );
   }
 
