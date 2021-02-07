@@ -204,11 +204,11 @@ class _ShowDetails extends StatelessWidget {
                   .toList(),
             ),
             Container(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
               child: tile.equipment == null ? SizedBox() : tile.equipment,
             ),
             Container(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
               child: Text("Notes:", style: TextStyle(fontSize: 20)),
             ),
             Expanded(

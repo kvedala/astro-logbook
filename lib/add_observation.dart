@@ -462,17 +462,26 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         Expanded(
                           child: SliderOption(
                               "Seeing", (value) => _responses['seeing'] = value,
-                              minValue: 1, maxValue: 5, divisions: 4),
+                              value: _responses['seeing'] ?? 0,
+                              minValue: 1,
+                              maxValue: 5,
+                              divisions: 4),
                         ),
                         Expanded(
                           child: SliderOption("Visibility",
                               (value) => _responses['visibility'] = value,
-                              minValue: 1, maxValue: 5, divisions: 4),
+                              value: _responses['visibility'] ?? 0,
+                              minValue: 1,
+                              maxValue: 5,
+                              divisions: 4),
                         ),
                         Expanded(
                           child: SliderOption("Transparency",
                               (value) => _responses['transparency'] = value,
-                              minValue: 1, maxValue: 5, divisions: 4),
+                              value: _responses['transparency'] ?? 0,
+                              minValue: 1,
+                              maxValue: 5,
+                              divisions: 4),
                         ),
                       ]),
                       Padding(
