@@ -2,7 +2,7 @@
 
 ## 1.3.4(0)
 
-* Added seeing & visibility options
+* Added seeing, visibility and transparency options
 
 ## 1.3.3(0)
 
