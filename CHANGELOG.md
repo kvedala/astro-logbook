@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0(2)
+
+* Fixed datetime
+* Fixed android bundle ID
+
+## 1.3.0(0)
+
+* Added Apple and Facebook SignIn
+
 ## 1.2.1(6)
 
 * Force load equipments after adding a new equipment
