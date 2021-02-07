@@ -14,6 +14,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
+import 'slider_widget.dart';
+
 /// Convenient class for observational data
 class ObservationData {
   /// Title of observation
@@ -43,6 +45,12 @@ class ObservationData {
   /// Date and time of observation
   DateTime dateTime;
 
+  /// Sky seeing at the time of observation
+  int seeing;
+
+  /// Sky visibility at the time of observation
+  int visibility;
+
   /// list of notes and observations
   List<String> notes;
 
@@ -54,6 +62,8 @@ class ObservationData {
   ObservationData.fromJSON(Map<String, dynamic> json)
       : title = _valueFromJSON(json, 'title'),
         ngc = _valueFromJSON(json, 'ngc'),
+        visibility = _valueFromJSON(json, 'visibility'),
+        seeing = _valueFromJSON(json, 'seeing'),
         messier = _valueFromJSON(json, 'messier'),
         fileName = _valueFromJSON(json, 'fileName'),
         latitude = _valueFromJSON(json, 'latitude'),
@@ -66,6 +76,8 @@ class ObservationData {
   Map<String, dynamic> toJSON() => {
         'title': title,
         'ngc': ngc,
+        'seeing': seeing,
+        'visibility': visibility,
         'messier': messier,
         'fileName': fileName,
         'latitude': latitude,
@@ -87,6 +99,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
   final Map<String, dynamic> _responses = {
     'title': "",
     'ngc': null,
+    'visibility': null,
+    'seeing': null,
     'messier': null,
     // 'fileName': "",
     'latitude': null,
@@ -441,6 +455,18 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               value.isEmpty ? "Cannot be empty" : null,
                         ),
                       ),
+                      Row(children: [
+                        Expanded(
+                          child: SliderOption(
+                              "Seeing", (value) => _responses['seeing'] = value,
+                              minValue: 1, maxValue: 5, divisions: 4),
+                        ),
+                        Expanded(
+                          child: SliderOption("Visibility",
+                              (value) => _responses['visibility'] = value,
+                              minValue: 1, maxValue: 5, divisions: 4),
+                        ),
+                      ]),
                       Padding(
                         padding: EdgeInsets.only(top: 5),
                         child: Row(

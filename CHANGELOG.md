@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.4(0)
+
+* Added seeing & visibility options
+
+## 1.3.3(0)
+
+* update signed in Welcome Page
+
 ## 1.3.0(2)
 
 * Fixed datetime
