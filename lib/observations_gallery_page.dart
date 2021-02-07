@@ -1,6 +1,5 @@
 import 'package:astro_log/add_observation.dart';
 import 'package:astro_log/gallary_tile.dart';
-import 'package:astro_log/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

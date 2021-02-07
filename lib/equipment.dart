@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// Get and display equipment details.
 class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
-  DocumentReference reference;
+  final DocumentReference reference;
 
   /// DB equipment document details
   Map<String, dynamic> data;
@@ -24,9 +24,8 @@ class Equipment extends StatelessWidget {
         data = snap.data();
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference ref) {
+  Equipment.fromReference(DocumentReference ref) : reference = ref {
     if (ref != null) {
-      reference = ref;
       _buildDetailsFromRef(ref);
     }
   }

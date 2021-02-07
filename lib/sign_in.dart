@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:astro_log/routes.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
