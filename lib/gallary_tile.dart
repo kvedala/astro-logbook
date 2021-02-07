@@ -37,6 +37,12 @@ class GallaryTile extends StatelessWidget {
   /// Address of the location
   final String location;
 
+  /// Sky seeing at the time of observation
+  int seeing;
+
+  /// Sky visibility at the time of observation
+  int visibility;
+
   /// [Equipment] details
   final Equipment equipment;
 
@@ -49,6 +55,8 @@ class GallaryTile extends StatelessWidget {
     this.longitude,
     this.messier,
     this.ngc,
+    this.seeing,
+    this.visibility,
     this.notes,
     this.location,
     this.equipment,
@@ -62,6 +70,8 @@ class GallaryTile extends StatelessWidget {
         time = data.dateTime,
         messier = data.messier,
         ngc = data.ngc,
+        seeing = data.seeing,
+        visibility = data.visibility,
         notes = data.notes,
         latitude = data.latitude,
         longitude = data.longitude,
@@ -130,6 +140,8 @@ class _ShowDetails extends StatelessWidget {
           'Date & Time': DateFormat.yMMMd().format(tile.time) +
               " " +
               DateFormat.Hm().format(tile.time),
+          'Seeing': tile.seeing ?? "Unknown",
+          'Visibility': tile.visibility ?? "Unknown",
           'Location': tile.location,
           'Latitude': _decimalDegreesToDMS(tile.latitude, 'lat'),
           'Longitude': _decimalDegreesToDMS(tile.longitude, 'long'),
