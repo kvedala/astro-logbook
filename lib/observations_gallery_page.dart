@@ -17,6 +17,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
   final stringSearchController = TextEditingController();
   final dateSearchController = TextEditingController();
   DateTimeRange dateSearchRange;
+  bool clickOnClear = false;
 
   @override
   void initState() {
@@ -80,6 +81,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
               child: TextField(
                 controller: dateSearchController,
                 keyboardType: TextInputType.datetime,
+                readOnly: true,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search by Date",
@@ -89,13 +91,20 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                     child: IconButton(
                       padding: EdgeInsets.all(0),
                       icon: Icon(Icons.clear_rounded, size: 15),
-                      onPressed: () =>
-                          setState(() => dateSearchController.clear()),
+                      onPressed: () => setState(() {
+                        clickOnClear = true;
+                        dateSearchController.clear();
+                        dateSearchRange = null;
+                      }),
                     ),
                   ),
                 ),
                 onChanged: (value) => setState(() {}),
                 onTap: () async {
+                  if (clickOnClear) {
+                    clickOnClear = false;
+                    return;
+                  }
                   dateSearchRange = await showDateRangePicker(
                     context: context,
                     initialDateRange: dateSearchRange ?? null,
@@ -109,6 +118,8 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                         DateFormat.yMMMd().format(dateSearchRange.start) +
                             " - " +
                             DateFormat.yMMMd().format(dateSearchRange.end));
+                  else
+                    setState(() => dateSearchController.clear());
                 },
               ),
             ),

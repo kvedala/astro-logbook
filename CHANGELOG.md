@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.5(3)
+
+* bug fixed with date range search
+
 ## 1.3.5(2)
 
 * Replace date searc hwith date range search
