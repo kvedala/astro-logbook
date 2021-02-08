@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.5(0)
+
+* Filter observations gallery by Messier or NGC# or by date
+
 ## 1.3.4(0)
 
 * Added seeing, visibility and transparency options
