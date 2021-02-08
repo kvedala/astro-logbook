@@ -16,6 +16,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
   final messierSearchController = TextEditingController();
   final stringSearchController = TextEditingController();
   final dateSearchController = TextEditingController();
+  DateTimeRange dateSearchRange;
 
   @override
   void initState() {
@@ -95,23 +96,19 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 ),
                 onChanged: (value) => setState(() {}),
                 onTap: () async {
-                  DateTime initialDate;
-                  try {
-                    initialDate =
-                        DateFormat.yMMMd().parse(dateSearchController.text);
-                  } catch (e) {
-                    initialDate = DateTime.now();
-                  }
-                  final selectedDate = await showDatePicker(
+                  dateSearchRange = await showDateRangePicker(
                     context: context,
-                    initialDate: initialDate,
-                    firstDate: DateTime(1900),
+                    initialDateRange: dateSearchRange ?? null,
+                    firstDate: DateTime(1950),
                     lastDate: DateTime.now(),
-                    fieldLabelText: "Search by date",
+                    fieldStartLabelText: "From date",
+                    fieldEndLabelText: "End date",
                   );
-                  if (selectedDate != null)
+                  if (dateSearchRange != null)
                     setState(() => dateSearchController.text =
-                        DateFormat.yMMMd().format(selectedDate));
+                        DateFormat.yMMMd().format(dateSearchRange.start) +
+                            " - " +
+                            DateFormat.yMMMd().format(dateSearchRange.end));
                 },
               ),
             ),
@@ -162,30 +159,11 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
 
-    if (dateSearchController.text.isNotEmpty) {
-      DateTime startDate;
-      try {
-        startDate = DateFormat.yMMMd().parse(dateSearchController.text);
-      } catch (e) {
-        startDate = null;
-      }
-      if (startDate == null)
-        return firestore
-            .collection('users/' + auth.currentUser.uid + '/observations')
-            .where('messier',
-                isEqualTo: int.tryParse(messierSearchController.text))
-            .where('ngc', isEqualTo: int.tryParse(ngcSearchController.text))
-            // .where('title', arrayContains: stringSearchController.text)
-            // .where('notes', arrayContains: stringSearchController)
-            // .orderBy('dateTime', descending: true)
-            .snapshots(includeMetadataChanges: true);
-      startDate = DateTime(startDate.year, startDate.month, startDate.day);
-      final endDate =
-          DateTime(startDate.year, startDate.month, startDate.day + 1);
+    if (dateSearchRange != null) {
       return firestore
           .collection('users/' + auth.currentUser.uid + '/observations')
-          .where('dateTime', isGreaterThanOrEqualTo: startDate)
-          .where('dateTime', isLessThanOrEqualTo: endDate)
+          .where('dateTime', isGreaterThanOrEqualTo: dateSearchRange.start)
+          .where('dateTime', isLessThanOrEqualTo: dateSearchRange.end)
           // .orderBy('dateTime', descending: true)
           .snapshots(includeMetadataChanges: true);
     } else if (messierSearchController.text.isNotEmpty ||
