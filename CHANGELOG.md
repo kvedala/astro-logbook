@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.5(1)
+
+* Allow ovservation tile data scroll
+* Allow clear date filter
+
 ## 1.3.5(0)
 
 * Filter observations gallery by Messier or NGC# or by date

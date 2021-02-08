@@ -94,7 +94,7 @@ class GallaryTile extends StatelessWidget {
         child: GridTile(
           // header: Text(title),
           // footer: Text(time.toString()),
-          child: Container(
+          child: SingleChildScrollView(
             padding: EdgeInsets.all(10),
             child: Column(
               mainAxisSize: MainAxisSize.min,

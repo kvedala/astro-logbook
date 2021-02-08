@@ -80,8 +80,19 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 controller: dateSearchController,
                 keyboardType: TextInputType.datetime,
                 decoration: InputDecoration(
-                    icon: Icon(Icons.search_rounded, color: Colors.red),
-                    labelText: "Search by Date"),
+                  prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
+                  labelText: "Search by Date",
+                  suffix: SizedBox(
+                    height: 15,
+                    width: 15,
+                    child: IconButton(
+                      padding: EdgeInsets.all(0),
+                      icon: Icon(Icons.clear_rounded, size: 15),
+                      onPressed: () =>
+                          setState(() => dateSearchController.clear()),
+                    ),
+                  ),
+                ),
                 onChanged: (value) => setState(() {}),
                 onTap: () async {
                   DateTime initialDate;
@@ -92,11 +103,12 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                     initialDate = DateTime.now();
                   }
                   final selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: initialDate,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                      fieldLabelText: "Search by date");
+                    context: context,
+                    initialDate: initialDate,
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                    fieldLabelText: "Search by date",
+                  );
                   if (selectedDate != null)
                     setState(() => dateSearchController.text =
                         DateFormat.yMMMd().format(selectedDate));
