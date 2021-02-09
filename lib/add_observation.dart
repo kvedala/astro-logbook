@@ -628,12 +628,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final permission = await location.requestPermission();
     if (permission == gps.PermissionStatus.granted ||
         permission == gps.PermissionStatus.grantedLimited) {
-      final value = await location.getLocation();
+      final value = await location
+          .getLocation()
+          .timeout(Duration(seconds: 5), onTimeout: () => null);
       final temp = DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
       if (mounted)
         setState(() {
-          _responses['latitude'] = value.latitude;
-          _responses['longitude'] = value.longitude;
+          _responses['latitude'] = value == null ? 0 : value.latitude;
+          _responses['longitude'] = value == null ? 0 : value.longitude;
           _responses['dateTime'] =
               DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
         });
