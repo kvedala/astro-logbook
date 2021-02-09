@@ -40,13 +40,13 @@ class GallaryTile extends StatelessWidget {
   final String location;
 
   /// Sky seeing at the time of observation
-  int seeing;
+  final int seeing;
 
   /// Sky visibility at the time of observation
-  int visibility;
+  final int visibility;
 
   /// Sky transparency at the time of observation
-  int transparency;
+  final int transparency;
 
   /// [Equipment] details
   final Equipment equipment;

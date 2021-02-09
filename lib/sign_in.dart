@@ -200,9 +200,11 @@ class _SignInPageState extends State<SignInPage> {
       // Once signed in, return the UserCredential
       await FirebaseAuth.instance.signInWithCredential(credential);
     } on FacebookAuthException catch (e) {
+      print(e);
       // handle the FacebookAuthException
     } on FirebaseAuthException catch (e) {
       // handle the FirebaseAuthException
+      print(e);
     } finally {
       setState(() {});
     }

@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+
+import 'utils.dart';
 
 /// Page to display the observations as a gallery
 class ObservationsGallary extends StatefulWidget {
@@ -115,9 +116,9 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                   );
                   if (dateSearchRange != null)
                     setState(() => dateSearchController.text =
-                        DateFormat.yMMMd().format(dateSearchRange.start) +
+                        dateSearchRange.start.yMMMd +
                             " - " +
-                            DateFormat.yMMMd().format(dateSearchRange.end));
+                            dateSearchRange.end.yMMMd);
                   else
                     setState(() => dateSearchController.clear());
                 },

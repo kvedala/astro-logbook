@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -112,10 +109,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'notes': <String>[],
     'equipment': null,
   };
-  final _filenameTextController = TextEditingController();
+
+  // final _filenameTextController = TextEditingController();
   List<String> _possibleLocations = [""];
   List<Equipment> _equipments = [];
-  String _isFileValid;
+  // String _isFileValid;
   final TextEditingController _dateTimeController = TextEditingController();
 
   @override
@@ -462,7 +460,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           child: SliderOption(
                             "Seeing",
                             (value) => _responses['seeing'] = value,
-                            value: _responses['seeing'] ?? 0,
+                            initialValue: _responses['seeing'] ?? 0,
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
@@ -473,7 +471,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           child: SliderOption(
                             "Visibility",
                             (value) => _responses['visibility'] = value,
-                            value: _responses['visibility'] ?? 0,
+                            initialValue: _responses['visibility'] ?? 0,
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
@@ -484,7 +482,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           child: SliderOption(
                             "Transparency",
                             (value) => _responses['transparency'] = value,
-                            value: _responses['transparency'] ?? 0,
+                            initialValue: _responses['transparency'] ?? 0,
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
@@ -606,16 +604,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
     try {
-      // final userDoc =
-      //     await firestore.collection('user').doc(auth.currentUser.uid).get();
-      // if (!userDoc.exists)
-      //   await firestore
-      //       .collection('user/' +
-      //           auth.currentUser.uid +
-      //           DateFormat.yMd().format(_responses['dateTime']))
-      //       .doc(DateFormat.Hm().format(_responses['dateTime']))
-      //       .set(_responses);
-      // else
       await firestore
           .collection('users/' + auth.currentUser.uid + "/observations")
           .add(_responses);
@@ -725,31 +713,31 @@ class _AddObservationPageState extends State<AddObservationPage> {
     await Future.wait([_getCurrentPosition(), _loadEquipment(context)]);
   }
 
-  void _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-    if (result == null) return;
+  // void _pickFile() async {
+  //   final result = await FilePicker.platform.pickFiles(
+  //     type: FileType.image,
+  //   );
+  //   if (result == null) return;
 
-    final path = result.paths[0];
-    _responses['fileName'] = path;
-    _isFileValid = (await File(path).exists()) ? null : "File does not exist";
-    // final fileStats = await File(path).stat();
-    // await showDialog(
-    //   context: context,
-    //   builder: (context) => AlertDialog(
-    //     content: Container(
-    //       child: Column(
-    //         children: [
-    //           Text("File size: " +
-    //               (fileStats.size / (1024 * 1024)).toStringAsFixed(2) +
-    //               "MB"),
-    //           Text("File modified: ${fileStats.modified}"),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
-    setState(() => _filenameTextController.text = path);
-  }
+  //   final path = result.paths[0];
+  //   _responses['fileName'] = path;
+  // _isFileValid = (await File(path).exists()) ? null : "File does not exist";
+  // final fileStats = await File(path).stat();
+  // await showDialog(
+  //   context: context,
+  //   builder: (context) => AlertDialog(
+  //     content: Container(
+  //       child: Column(
+  //         children: [
+  //           Text("File size: " +
+  //               (fileStats.size / (1024 * 1024)).toStringAsFixed(2) +
+  //               "MB"),
+  //           Text("File modified: ${fileStats.modified}"),
+  //         ],
+  //       ),
+  //     ),
+  //   ),
+  // );
+  //   setState(() => _filenameTextController.text = path);
+  // }
 }

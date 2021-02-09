@@ -1,3 +1,6 @@
+import 'package:intl/intl.dart';
+
+/// Convert decimal degrees to string degree-minute-second format
 String decimalDegreesToDMS(num numeric, String latOrLong) {
   bool isNegative = false;
   if (numeric < 0) {
@@ -12,4 +15,25 @@ String decimalDegreesToDMS(num numeric, String latOrLong) {
       (latOrLong == 'lat'
           ? (isNegative ? "S" : "N")
           : (isNegative ? "W" : "E"));
+}
+
+extension CapExtension on String {
+  /// convert first word to uppercacse
+  String get inCaps => '${this[0].toUpperCase()}${this.substring(1)}';
+
+  /// convert first letter of every word to uppercase
+  String get capitalizeFirstofEach =>
+      this.split(" ").map((str) => str.inCaps).join(" ");
+}
+
+extension CheckExtension on DateTime {
+  /// Check if between [startDate] and [endDate]
+  bool isBetween(DateTime startDate, DateTime endDate) =>
+      this.isBefore(endDate) && this.isAfter(startDate);
+
+  /// Extract the date from a [DateTime] instance
+  DateTime get date => DateFormat.yMd().parse(DateFormat.yMd().format(this));
+
+  /// Get [DateFormat.yMMMd] representation of the date
+  String get yMMMd => DateFormat.yMMMd().format(this);
 }

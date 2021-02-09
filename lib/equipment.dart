@@ -8,7 +8,7 @@ class Equipment extends StatelessWidget {
   final DocumentReference reference;
 
   /// DB equipment document details
-  Map<String, dynamic> data;
+  final Map<String, dynamic> _data;
 
   /// Generate equipment from a DB query snapshot
   ///
@@ -21,10 +21,12 @@ class Equipment extends StatelessWidget {
   /// ````
   Equipment.fromQuery(QueryDocumentSnapshot snap)
       : reference = snap.reference,
-        data = snap.data();
+        _data = snap.data();
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference ref) : reference = ref {
+  Equipment.fromReference(DocumentReference ref)
+      : reference = ref,
+        _data = {} {
     if (ref != null) {
       _buildDetailsFromRef(ref);
     }
@@ -32,19 +34,19 @@ class Equipment extends StatelessWidget {
 
   void _buildDetailsFromRef(DocumentReference ref) async {
     final doc = await FirebaseFirestore.instance.doc(ref.path).get();
-    data = doc.data();
+    doc.data().forEach((key, value) => _data[key] = value);
   }
 
   @override
   Widget build(BuildContext context) {
-    return data == null
+    return _data == null
         ? Text("Telescope data not found")
         : ListTile(
-            title: Text(data['telescope'] +
-                " (${data['aperture']}mm, f/" +
-                (data['focalLength'] / data['aperture']).toStringAsFixed(1) +
+            title: Text(_data['telescope'] +
+                " (${_data['aperture']}mm, f/" +
+                (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
                 ")"),
-            subtitle: Text(data['mount']),
+            subtitle: Text(_data['mount']),
           );
   }
 
