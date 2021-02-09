@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
 import 'slider_widget.dart';
+import 'utils.dart';
 
 /// Convenient class for observational data
 class ObservationData {
@@ -296,7 +297,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           Text(
                             _responses['latitude'] == null
                                 ? ""
-                                : _decimalDegreesToDMS(
+                                : decimalDegreesToDMS(
                                     _responses['latitude'], 'lat'),
                             style: TextStyle(fontSize: 14),
                           ),
@@ -338,7 +339,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           Text(
                             _responses['longitude'] == null
                                 ? ""
-                                : _decimalDegreesToDMS(
+                                : decimalDegreesToDMS(
                                     _responses['longitude'], 'long'),
                             style: TextStyle(fontSize: 14),
                           ),
@@ -722,24 +723,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
   /// Perform initial data load operations
   Future<void> _loadData(BuildContext context) async {
     await Future.wait([_getCurrentPosition(), _loadEquipment(context)]);
-  }
-
-  /// Convert decimal degrees to string degree-minute-second format
-  String _decimalDegreesToDMS(num numeric, String latOrLong) {
-    if (numeric == null) return "";
-    bool isNegative = false;
-    if (numeric < 0) {
-      isNegative = true;
-      numeric = -numeric;
-    }
-    int degree = numeric.toDouble().floor();
-    int minute = ((numeric - degree) * 60).toDouble().floor();
-    double seconds = (((numeric - degree).toDouble() * 60) - minute) * 60;
-
-    return "$degree\xb0 $minute\' ${seconds.toStringAsFixed(1)}\" " +
-        (latOrLong == 'lat'
-            ? (isNegative ? "S" : "N")
-            : (isNegative ? "W" : "E"));
   }
 
   void _pickFile() async {

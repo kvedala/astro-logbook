@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'utils.dart';
+
 /// Widget to display tile in the gallery view
 class GallaryTile extends StatelessWidget {
   /// path of image file, if any
@@ -152,25 +154,9 @@ class _ShowDetails extends StatelessWidget {
               ? "Unknown"
               : tile.transparency.toString(),
           'Location': tile.location,
-          'Latitude': _decimalDegreesToDMS(tile.latitude, 'lat'),
-          'Longitude': _decimalDegreesToDMS(tile.longitude, 'long'),
+          'Latitude': decimalDegreesToDMS(tile.latitude, 'lat'),
+          'Longitude': decimalDegreesToDMS(tile.longitude, 'long'),
         };
-
-  static String _decimalDegreesToDMS(num numeric, String latOrLong) {
-    bool isNegative = false;
-    if (numeric < 0) {
-      isNegative = true;
-      numeric = -numeric;
-    }
-    int degree = numeric.toDouble().floor();
-    int minute = ((numeric - degree) * 60).toDouble().floor();
-    double seconds = (((numeric - degree).toDouble() * 60) - minute) * 60;
-
-    return "$degree\xb0 $minute\' ${seconds.toStringAsFixed(1)}\" " +
-        (latOrLong == 'lat'
-            ? (isNegative ? "S" : "N")
-            : (isNegative ? "W" : "E"));
-  }
 
   @override
   Widget build(BuildContext context) {
