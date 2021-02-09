@@ -726,14 +726,15 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
   /// Convert decimal degrees to string degree-minute-second format
   String _decimalDegreesToDMS(num numeric, String latOrLong) {
+    if (numeric == null) return "";
     bool isNegative = false;
     if (numeric < 0) {
       isNegative = true;
       numeric = -numeric;
     }
-    int degree = numeric.floor();
-    int minute = ((numeric - degree) * 60).floor();
-    double seconds = (((numeric - degree) * 60) - minute) * 60;
+    int degree = numeric.toDouble().floor();
+    int minute = ((numeric - degree) * 60).toDouble().floor();
+    double seconds = (((numeric - degree).toDouble() * 60) - minute) * 60;
 
     return "$degree\xb0 $minute\' ${seconds.toStringAsFixed(1)}\" " +
         (latOrLong == 'lat'
