@@ -31,7 +31,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
 
     return Column(children: [
       Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 0),
         child: Row(
           children: [
             Expanded(
@@ -40,17 +40,14 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 keyboardType: TextInputType.numberWithOptions(
                     decimal: false, signed: false),
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
+                  // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search Messier",
-                  suffix: SizedBox(
-                    height: 15,
-                    width: 15,
-                    child: IconButton(
-                      padding: EdgeInsets.all(0),
-                      icon: Icon(Icons.clear_rounded, size: 15),
-                      onPressed: () =>
-                          setState(() => messierSearchController.clear()),
-                    ),
+                  suffix: IconButton(
+                    padding: EdgeInsets.all(0),
+                    iconSize: 20,
+                    icon: Icon(Icons.clear_rounded),
+                    onPressed: () =>
+                        setState(() => messierSearchController.clear()),
                   ),
                 ),
                 onChanged: (value) => setState(() {}),
@@ -62,17 +59,14 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 keyboardType: TextInputType.numberWithOptions(
                     decimal: false, signed: false),
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
+                  // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search NGC",
-                  suffix: SizedBox(
-                    height: 15,
-                    width: 15,
-                    child: IconButton(
-                      padding: EdgeInsets.all(0),
-                      icon: Icon(Icons.clear_rounded, size: 15),
-                      onPressed: () =>
-                          setState(() => ngcSearchController.clear()),
-                    ),
+                  suffix: IconButton(
+                    padding: EdgeInsets.all(0),
+                    iconSize: 20,
+                    icon: Icon(Icons.clear_rounded),
+                    onPressed: () =>
+                        setState(() => ngcSearchController.clear()),
                   ),
                 ),
                 onChanged: (value) => setState(() {}),
@@ -84,20 +78,17 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 keyboardType: TextInputType.datetime,
                 readOnly: true,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
+                  // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search by Date",
-                  suffix: SizedBox(
-                    height: 15,
-                    width: 15,
-                    child: IconButton(
-                      padding: EdgeInsets.all(0),
-                      icon: Icon(Icons.clear_rounded, size: 15),
-                      onPressed: () => setState(() {
-                        clickOnClear = true;
-                        dateSearchController.clear();
-                        dateSearchRange = null;
-                      }),
-                    ),
+                  suffix: IconButton(
+                    padding: EdgeInsets.all(0),
+                    iconSize: 20,
+                    icon: Icon(Icons.clear_rounded),
+                    onPressed: () => setState(() {
+                      clickOnClear = true;
+                      dateSearchController.clear();
+                      dateSearchRange = null;
+                    }),
                   ),
                 ),
                 onChanged: (value) => setState(() {}),
