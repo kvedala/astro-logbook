@@ -183,13 +183,15 @@ class Equipment extends StatelessWidget {
   }
 
   Widget _buildTile(DocumentSnapshot data) {
+    final Map<String, dynamic> _data = data.data();
+
     return ListTile(
       visualDensity: VisualDensity.compact,
-      title: Text(data.get('telescope') +
-          " (${data.get('aperture')}mm, f/" +
-          (data.get('focalLength') / data.get('aperture')).toStringAsFixed(1) +
+      title: Text(_data['telescope'] +
+          " (${_data['aperture']}mm, f/" +
+          (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
           ")"),
-      subtitle: Text(data.get('mount')),
+      subtitle: Text(_data['mount']),
     );
   }
 }
