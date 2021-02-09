@@ -1,6 +1,7 @@
 import 'package:astro_log/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'sign_in.dart';
 import 'observations_gallery_page.dart';
@@ -19,10 +20,12 @@ class _SignedInPageState extends State<SignedInPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
+    SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     _tabController.removeListener(_handleTabIndex);
     _tabController.dispose();
     super.dispose();

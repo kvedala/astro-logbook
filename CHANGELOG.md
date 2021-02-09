@@ -3,6 +3,7 @@
 ## 1.3.5(4)
 
 * bug fixed with slider bars in "add observation"
+* make full-screen in gallary mode to hide status bars
 
 ## 1.3.5(3)
 
