@@ -7,9 +7,6 @@ class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
   final DocumentReference reference;
 
-  /// DB equipment document details
-  Map<String, dynamic> data;
-
   /// Generate equipment from a DB query snapshot
   ///
   /// Helful to get equipment directly from dB query result
@@ -19,33 +16,13 @@ class Equipment extends StatelessWidget {
   ///     .get();
   /// docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
   /// ````
-  Equipment.fromQuery(QueryDocumentSnapshot snap)
-      : reference = snap.reference,
-        data = snap.data();
+  Equipment.fromQuery(QueryDocumentSnapshot snap) : reference = snap.reference {
+    reference.get()..then((value) => _data.add(value));
+  }
 
   /// Build equipment from a DB reference
   Equipment.fromReference(DocumentReference ref) : reference = ref {
-    if (ref != null) {
-      _buildDetailsFromRef(ref);
-    }
-  }
-
-  void _buildDetailsFromRef(DocumentReference ref) async {
-    final doc = await FirebaseFirestore.instance.doc(ref.path).get();
-    data = doc.data();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return data == null
-        ? Text("Telescope data not found")
-        : ListTile(
-            title: Text(data['telescope'] +
-                " (${data['aperture']}mm, f/" +
-                (data['focalLength'] / data['aperture']).toStringAsFixed(1) +
-                ")"),
-            subtitle: Text(data['mount']),
-          );
+    reference.get()..then((value) => _data.add(value));
   }
 
   /// Procedure to add a new equipment in the user DB
@@ -62,7 +39,7 @@ class Equipment extends StatelessWidget {
     };
 
     final _equipmentKey = GlobalKey<FormState>();
-    bool returnVal = false;
+    bool _returnVal = false;
 
     await showDialog(
       context: context,
@@ -176,7 +153,7 @@ class Equipment extends StatelessWidget {
                   .add(data)
                   .whenComplete(() {
                 Navigator.pop(context);
-                returnVal = true;
+                _returnVal = true;
               });
             },
           )
@@ -184,6 +161,37 @@ class Equipment extends StatelessWidget {
       ),
     );
 
-    return returnVal;
+    return _returnVal;
+  }
+
+  final List<DocumentSnapshot> _data = [];
+
+  @override
+  Widget build(BuildContext context) {
+    // if (_data['telescope'] == null) print("got here");
+    return _data.isEmpty
+        ? FutureBuilder<DocumentSnapshot>(
+            future: reference.get()..then((value) => _data.add(value)),
+            builder: (context, snap) =>
+                snap.connectionState != ConnectionState.done
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : _buildTile(snap.data),
+          )
+        : _buildTile(_data[0]);
+  }
+
+  Widget _buildTile(DocumentSnapshot data) {
+    final Map<String, dynamic> _data = data.data();
+
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      title: Text(_data['telescope'] +
+          " (${_data['aperture']}mm, f/" +
+          (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
+          ")"),
+      subtitle: Text(_data['mount']),
+    );
   }
 }

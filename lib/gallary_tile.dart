@@ -3,7 +3,8 @@ import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
+import 'utils.dart';
 
 /// Widget to display tile in the gallery view
 class GallaryTile extends StatelessWidget {
@@ -38,13 +39,13 @@ class GallaryTile extends StatelessWidget {
   final String location;
 
   /// Sky seeing at the time of observation
-  int seeing;
+  final int seeing;
 
   /// Sky visibility at the time of observation
-  int visibility;
+  final int visibility;
 
   /// Sky transparency at the time of observation
-  int transparency;
+  final int transparency;
 
   /// [Equipment] details
   final Equipment equipment;
@@ -117,10 +118,7 @@ class GallaryTile extends StatelessWidget {
                         style: TextStyle(fontSize: 15),
                       ),
                 Text(
-                  "Observation Date: " +
-                      DateFormat.yMMMd().format(time) +
-                      " " +
-                      DateFormat.Hm().format(time),
+                  "Observation Date: " + time.yMMMd + " " + time.hourMinute,
                   style: TextStyle(fontSize: 15),
                 ),
               ],
@@ -142,9 +140,7 @@ class _ShowDetails extends StatelessWidget {
       : tableItems = {
           'Messier': tile.messier == null ? "-" : tile.messier.toString(),
           'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
-          'Date & Time': DateFormat.yMMMd().format(tile.time) +
-              " " +
-              DateFormat.Hm().format(tile.time),
+          'Date & Time': tile.time.yMMMd + " " + tile.time.hourMinute,
           'Seeing': tile.seeing == null ? "Unknown" : tile.seeing.toString(),
           'Visibility':
               tile.visibility == null ? "Unknown" : tile.visibility.toString(),
@@ -152,25 +148,9 @@ class _ShowDetails extends StatelessWidget {
               ? "Unknown"
               : tile.transparency.toString(),
           'Location': tile.location,
-          'Latitude': _decimalDegreesToDMS(tile.latitude, 'lat'),
-          'Longitude': _decimalDegreesToDMS(tile.longitude, 'long'),
+          'Latitude': decimalDegreesToDMS(tile.latitude, 'lat'),
+          'Longitude': decimalDegreesToDMS(tile.longitude, 'long'),
         };
-
-  static String _decimalDegreesToDMS(num numeric, String latOrLong) {
-    bool isNegative = false;
-    if (numeric < 0) {
-      isNegative = true;
-      numeric = -numeric;
-    }
-    int degree = numeric.floor();
-    int minute = ((numeric - degree) * 60).floor();
-    double seconds = (((numeric - degree) * 60) - minute) * 60;
-
-    return "$degree\xb0 $minute\' ${seconds.toStringAsFixed(1)}\" " +
-        (latOrLong == 'lat'
-            ? (isNegative ? "S" : "N")
-            : (isNegative ? "W" : "E"));
-  }
 
   @override
   Widget build(BuildContext context) {

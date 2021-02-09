@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
 import 'slider_widget.dart';
+import 'utils.dart';
 
 /// Convenient class for observational data
 class ObservationData {
@@ -111,10 +109,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'notes': <String>[],
     'equipment': null,
   };
-  final _filenameTextController = TextEditingController();
+
+  // final _filenameTextController = TextEditingController();
   List<String> _possibleLocations = [""];
   List<Equipment> _equipments = [];
-  String _isFileValid;
+  // String _isFileValid;
   final TextEditingController _dateTimeController = TextEditingController();
 
   @override
@@ -296,7 +295,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           Text(
                             _responses['latitude'] == null
                                 ? ""
-                                : _decimalDegreesToDMS(
+                                : decimalDegreesToDMS(
                                     _responses['latitude'], 'lat'),
                             style: TextStyle(fontSize: 14),
                           ),
@@ -338,7 +337,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           Text(
                             _responses['longitude'] == null
                                 ? ""
-                                : _decimalDegreesToDMS(
+                                : decimalDegreesToDMS(
                                     _responses['longitude'], 'long'),
                             style: TextStyle(fontSize: 14),
                           ),
@@ -461,7 +460,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           child: SliderOption(
                             "Seeing",
                             (value) => _responses['seeing'] = value,
-                            value: _responses['seeing'] ?? 0,
+                            initialValue: _responses['seeing'] ?? 0,
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
@@ -472,7 +471,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           child: SliderOption(
                             "Visibility",
                             (value) => _responses['visibility'] = value,
-                            value: _responses['visibility'] ?? 0,
+                            initialValue: _responses['visibility'] ?? 0,
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
@@ -483,7 +482,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           child: SliderOption(
                             "Transparency",
                             (value) => _responses['transparency'] = value,
-                            value: _responses['transparency'] ?? 0,
+                            initialValue: _responses['transparency'] ?? 0,
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
@@ -605,16 +604,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
     try {
-      // final userDoc =
-      //     await firestore.collection('user').doc(auth.currentUser.uid).get();
-      // if (!userDoc.exists)
-      //   await firestore
-      //       .collection('user/' +
-      //           auth.currentUser.uid +
-      //           DateFormat.yMd().format(_responses['dateTime']))
-      //       .doc(DateFormat.Hm().format(_responses['dateTime']))
-      //       .set(_responses);
-      // else
       await firestore
           .collection('users/' + auth.currentUser.uid + "/observations")
           .add(_responses);
@@ -633,18 +622,19 @@ class _AddObservationPageState extends State<AddObservationPage> {
     if (_responses['latitude'] != null && _responses['longitude'] != null)
       return null;
     final location = gps.Location();
-    bool isEnabled = await location.requestService();
-    if (!isEnabled) return null;
+    if (!await location.requestService()) return null;
 
     final permission = await location.requestPermission();
     if (permission == gps.PermissionStatus.granted ||
         permission == gps.PermissionStatus.grantedLimited) {
-      final value = await location.getLocation();
+      final value = await location
+          .getLocation()
+          .timeout(Duration(seconds: 5), onTimeout: () => null);
       final temp = DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
       if (mounted)
         setState(() {
-          _responses['latitude'] = value.latitude;
-          _responses['longitude'] = value.longitude;
+          _responses['latitude'] = value == null ? 0 : value.latitude;
+          _responses['longitude'] = value == null ? 0 : value.longitude;
           _responses['dateTime'] =
               DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
         });
@@ -724,48 +714,31 @@ class _AddObservationPageState extends State<AddObservationPage> {
     await Future.wait([_getCurrentPosition(), _loadEquipment(context)]);
   }
 
-  /// Convert decimal degrees to string degree-minute-second format
-  String _decimalDegreesToDMS(num numeric, String latOrLong) {
-    bool isNegative = false;
-    if (numeric < 0) {
-      isNegative = true;
-      numeric = -numeric;
-    }
-    int degree = numeric.floor();
-    int minute = ((numeric - degree) * 60).floor();
-    double seconds = (((numeric - degree) * 60) - minute) * 60;
+  // void _pickFile() async {
+  //   final result = await FilePicker.platform.pickFiles(
+  //     type: FileType.image,
+  //   );
+  //   if (result == null) return;
 
-    return "$degree\xb0 $minute\' ${seconds.toStringAsFixed(1)}\" " +
-        (latOrLong == 'lat'
-            ? (isNegative ? "S" : "N")
-            : (isNegative ? "W" : "E"));
-  }
-
-  void _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-    if (result == null) return;
-
-    final path = result.paths[0];
-    _responses['fileName'] = path;
-    _isFileValid = (await File(path).exists()) ? null : "File does not exist";
-    // final fileStats = await File(path).stat();
-    // await showDialog(
-    //   context: context,
-    //   builder: (context) => AlertDialog(
-    //     content: Container(
-    //       child: Column(
-    //         children: [
-    //           Text("File size: " +
-    //               (fileStats.size / (1024 * 1024)).toStringAsFixed(2) +
-    //               "MB"),
-    //           Text("File modified: ${fileStats.modified}"),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
-    setState(() => _filenameTextController.text = path);
-  }
+  //   final path = result.paths[0];
+  //   _responses['fileName'] = path;
+  // _isFileValid = (await File(path).exists()) ? null : "File does not exist";
+  // final fileStats = await File(path).stat();
+  // await showDialog(
+  //   context: context,
+  //   builder: (context) => AlertDialog(
+  //     content: Container(
+  //       child: Column(
+  //         children: [
+  //           Text("File size: " +
+  //               (fileStats.size / (1024 * 1024)).toStringAsFixed(2) +
+  //               "MB"),
+  //           Text("File modified: ${fileStats.modified}"),
+  //         ],
+  //       ),
+  //     ),
+  //   ),
+  // );
+  //   setState(() => _filenameTextController.text = path);
+  // }
 }

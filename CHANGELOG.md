@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.6(0)
+
+* restrict slider icon size
+* integer bug fix in degree conversion
+* added 5 sec timeout for get GPS location
+* optimize equipment widget
+* optimize more
+* simplify icon buttons
+
 ## 1.3.5(4)
 
 * bug fixed with slider bars in "add observation"

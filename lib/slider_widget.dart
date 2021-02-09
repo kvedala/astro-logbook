@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 class SliderOption extends StatefulWidget {
   final String title;
-  num value;
+  final num initialValue;
   final int divisions;
   final num minValue;
   final num maxValue;
@@ -12,7 +12,7 @@ class SliderOption extends StatefulWidget {
 
   SliderOption(this.title, this.onChange,
       {Key key,
-      this.value = 0,
+      this.initialValue = 0,
       this.minValue = 0,
       this.maxValue = 1.0,
       this.divisions = 1,
@@ -23,27 +23,37 @@ class SliderOption extends StatefulWidget {
 }
 
 class _SliderOptionState extends State<SliderOption> {
+  num value;
+
+  @override
+  void initState() {
+    super.initState();
+    value = widget.initialValue;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.value < widget.minValue)
-      widget.value = widget.minValue;
-    else if (widget.value > widget.maxValue) widget.value = widget.maxValue;
+    if (value < widget.minValue)
+      value = widget.minValue;
+    else if (value > widget.maxValue) value = widget.maxValue;
 
     return InputDecorator(
       decoration: InputDecoration(
-          labelText: widget.title + ": ${widget.value}",
-          prefixIcon: Icon(
-            widget.prefixIcon,
-            color: Colors.red,
-          )),
+        labelText: widget.title + ": $value",
+        prefixIcon: Icon(
+          widget.prefixIcon,
+          color: Colors.red,
+        ),
+        prefixIconConstraints: BoxConstraints.loose(Size(10, 10)),
+      ),
       child: Slider(
-        value: widget.value,
+        value: value,
         min: widget.minValue,
         max: widget.maxValue,
         divisions: widget.divisions,
-        onChanged: (value) {
-          widget.onChange(value);
-          setState(() => widget.value = value);
+        onChanged: (newValue) {
+          widget.onChange(newValue);
+          setState(() => value = newValue);
         },
       ),
     );
