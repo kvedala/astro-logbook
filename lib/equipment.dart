@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 /// Get and display equipment details.
 class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
   final DocumentReference reference;
-
-  /// DB equipment document details
-  final Map<String, dynamic> _data;
 
   /// Generate equipment from a DB query snapshot
   ///
@@ -19,36 +17,30 @@ class Equipment extends StatelessWidget {
   ///     .get();
   /// docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
   /// ````
-  Equipment.fromQuery(QueryDocumentSnapshot snap)
-      : reference = snap.reference,
-        _data = snap.data();
+  Equipment.fromQuery(QueryDocumentSnapshot snap) : reference = snap.reference;
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference ref)
-      : reference = ref,
-        _data = {} {
-    if (ref != null) {
-      _buildDetailsFromRef(ref);
-    }
-  }
-
-  void _buildDetailsFromRef(DocumentReference ref) async {
-    final doc = await FirebaseFirestore.instance.doc(ref.path).get();
-    doc.data().forEach((key, value) => _data[key] = value);
-  }
+  Equipment.fromReference(DocumentReference ref) : reference = ref;
 
   @override
   Widget build(BuildContext context) {
-    return _data == null
-        ? Text("Telescope data not found")
-        : ListTile(
-            visualDensity: VisualDensity.compact,
-            title: Text(_data['telescope'] +
-                " (${_data['aperture']}mm, f/" +
-                (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
-                ")"),
-            subtitle: Text(_data['mount']),
-          );
+    // if (_data['telescope'] == null) print("got here");
+    return FutureBuilder<DocumentSnapshot>(
+      future: reference.get(),
+      builder: (context, snap) => snap.connectionState != ConnectionState.done
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListTile(
+              visualDensity: VisualDensity.compact,
+              title: Text(snap.data.get('telescope') +
+                  " (${snap.data.get('aperture')}mm, f/" +
+                  (snap.data.get('focalLength') / snap.data.get('aperture'))
+                      .toStringAsFixed(1) +
+                  ")"),
+              subtitle: Text(snap.data.get('mount')),
+            ),
+    );
   }
 
   /// Procedure to add a new equipment in the user DB
