@@ -622,8 +622,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     if (_responses['latitude'] != null && _responses['longitude'] != null)
       return null;
     final location = gps.Location();
-    bool isEnabled = await location.requestService();
-    if (!isEnabled) return null;
+    if (!await location.requestService()) return null;
 
     final permission = await location.requestPermission();
     if (permission == gps.PermissionStatus.granted ||
