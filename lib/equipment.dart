@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 /// Get and display equipment details.
@@ -17,30 +16,13 @@ class Equipment extends StatelessWidget {
   ///     .get();
   /// docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
   /// ````
-  Equipment.fromQuery(QueryDocumentSnapshot snap) : reference = snap.reference;
+  Equipment.fromQuery(QueryDocumentSnapshot snap) : reference = snap.reference {
+    reference.get()..then((value) => _data.add(value));
+  }
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference ref) : reference = ref;
-
-  @override
-  Widget build(BuildContext context) {
-    // if (_data['telescope'] == null) print("got here");
-    return FutureBuilder<DocumentSnapshot>(
-      future: reference.get(),
-      builder: (context, snap) => snap.connectionState != ConnectionState.done
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListTile(
-              visualDensity: VisualDensity.compact,
-              title: Text(snap.data.get('telescope') +
-                  " (${snap.data.get('aperture')}mm, f/" +
-                  (snap.data.get('focalLength') / snap.data.get('aperture'))
-                      .toStringAsFixed(1) +
-                  ")"),
-              subtitle: Text(snap.data.get('mount')),
-            ),
-    );
+  Equipment.fromReference(DocumentReference ref) : reference = ref {
+    reference.get()..then((value) => _data.add(value));
   }
 
   /// Procedure to add a new equipment in the user DB
@@ -180,5 +162,34 @@ class Equipment extends StatelessWidget {
     );
 
     return _returnVal;
+  }
+
+  final List<DocumentSnapshot> _data = [];
+
+  @override
+  Widget build(BuildContext context) {
+    // if (_data['telescope'] == null) print("got here");
+    return _data.isEmpty
+        ? FutureBuilder<DocumentSnapshot>(
+            future: reference.get()..then((value) => _data.add(value)),
+            builder: (context, snap) =>
+                snap.connectionState != ConnectionState.done
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : _buildTile(snap.data),
+          )
+        : _buildTile(_data[0]);
+  }
+
+  Widget _buildTile(DocumentSnapshot data) {
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      title: Text(data.get('telescope') +
+          " (${data.get('aperture')}mm, f/" +
+          (data.get('focalLength') / data.get('aperture')).toStringAsFixed(1) +
+          ")"),
+      subtitle: Text(data.get('mount')),
+    );
   }
 }
