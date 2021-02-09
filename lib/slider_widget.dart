@@ -31,11 +31,13 @@ class _SliderOptionState extends State<SliderOption> {
 
     return InputDecorator(
       decoration: InputDecoration(
-          labelText: widget.title + ": ${widget.value}",
-          prefixIcon: Icon(
-            widget.prefixIcon,
-            color: Colors.red,
-          )),
+        labelText: widget.title + ": ${widget.value}",
+        prefixIcon: Icon(
+          widget.prefixIcon,
+          color: Colors.red,
+        ),
+        prefixIconConstraints: BoxConstraints.loose(Size(10, 10)),
+      ),
       child: Slider(
         value: widget.value,
         min: widget.minValue,
