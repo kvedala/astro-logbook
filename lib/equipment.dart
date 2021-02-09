@@ -42,6 +42,7 @@ class Equipment extends StatelessWidget {
     return _data == null
         ? Text("Telescope data not found")
         : ListTile(
+            visualDensity: VisualDensity.compact,
             title: Text(_data['telescope'] +
                 " (${_data['aperture']}mm, f/" +
                 (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
@@ -64,7 +65,7 @@ class Equipment extends StatelessWidget {
     };
 
     final _equipmentKey = GlobalKey<FormState>();
-    bool returnVal = false;
+    bool _returnVal = false;
 
     await showDialog(
       context: context,
@@ -178,7 +179,7 @@ class Equipment extends StatelessWidget {
                   .add(data)
                   .whenComplete(() {
                 Navigator.pop(context);
-                returnVal = true;
+                _returnVal = true;
               });
             },
           )
@@ -186,6 +187,6 @@ class Equipment extends StatelessWidget {
       ),
     );
 
-    return returnVal;
+    return _returnVal;
   }
 }
