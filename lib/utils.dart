@@ -36,4 +36,7 @@ extension CheckExtension on DateTime {
 
   /// Get [DateFormat.yMMMd] representation of the date
   String get yMMMd => DateFormat.yMMMd().format(this);
+
+  /// Get [DateFormat.Hm] representation of the time
+  String get hourMinute => DateFormat.Hm().format(this);
 }

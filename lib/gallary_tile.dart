@@ -3,7 +3,6 @@ import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'utils.dart';
 
@@ -119,10 +118,7 @@ class GallaryTile extends StatelessWidget {
                         style: TextStyle(fontSize: 15),
                       ),
                 Text(
-                  "Observation Date: " +
-                      DateFormat.yMMMd().format(time) +
-                      " " +
-                      DateFormat.Hm().format(time),
+                  "Observation Date: " + time.yMMMd + " " + time.hourMinute,
                   style: TextStyle(fontSize: 15),
                 ),
               ],
@@ -144,9 +140,7 @@ class _ShowDetails extends StatelessWidget {
       : tableItems = {
           'Messier': tile.messier == null ? "-" : tile.messier.toString(),
           'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
-          'Date & Time': DateFormat.yMMMd().format(tile.time) +
-              " " +
-              DateFormat.Hm().format(tile.time),
+          'Date & Time': tile.time.yMMMd + " " + tile.time.hourMinute,
           'Seeing': tile.seeing == null ? "Unknown" : tile.seeing.toString(),
           'Visibility':
               tile.visibility == null ? "Unknown" : tile.visibility.toString(),
