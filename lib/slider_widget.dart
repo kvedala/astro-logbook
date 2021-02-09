@@ -8,13 +8,15 @@ class SliderOption extends StatefulWidget {
   final num minValue;
   final num maxValue;
   final void Function(num) onChange;
+  final IconData prefixIcon;
 
   SliderOption(this.title, this.onChange,
       {Key key,
       this.value = 0,
       this.minValue = 0,
       this.maxValue = 1.0,
-      this.divisions = 1})
+      this.divisions = 1,
+      this.prefixIcon})
       : super(key: key);
 
   _SliderOptionState createState() => _SliderOptionState();
@@ -27,21 +29,22 @@ class _SliderOptionState extends State<SliderOption> {
       widget.value = widget.minValue;
     else if (widget.value > widget.maxValue) widget.value = widget.maxValue;
 
-    return Container(
-      child: Row(
-        children: [
-          Text(widget.title + ": ${widget.value}"),
-          Slider(
-            value: widget.value,
-            min: widget.minValue,
-            max: widget.maxValue,
-            divisions: widget.divisions,
-            onChanged: (value) {
-              widget.onChange(value);
-              setState(() => widget.value = value);
-            },
-          ),
-        ],
+    return InputDecorator(
+      decoration: InputDecoration(
+          labelText: widget.title + ": ${widget.value}",
+          prefixIcon: Icon(
+            widget.prefixIcon,
+            color: Colors.red,
+          )),
+      child: Slider(
+        value: widget.value,
+        min: widget.minValue,
+        max: widget.maxValue,
+        divisions: widget.divisions,
+        onChanged: (value) {
+          widget.onChange(value);
+          setState(() => widget.value = value);
+        },
       ),
     );
   }

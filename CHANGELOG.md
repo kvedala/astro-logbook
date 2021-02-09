@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.5(4)
+
+* bug fixed with slider bars in "add observation"
+
 ## 1.3.5(3)
 
 * bug fixed with date range search
