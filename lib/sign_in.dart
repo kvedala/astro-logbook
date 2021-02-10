@@ -46,7 +46,7 @@ class _SignInPageState extends State<SignInPage> {
 
       } on UnimplementedError catch (e) {
         print(e);
-        return;
+        // return;
       }
 
       try {
@@ -167,11 +167,11 @@ class _SignInPageState extends State<SignInPage> {
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
-        webAuthenticationOptions: WebAuthenticationOptions(
-          clientId: 'ca.ahainc.health-login',
-          redirectUri:
-              Uri.parse('https://health-ocr.firebaseapp.com/__/auth/handler'),
-        ),
+        // webAuthenticationOptions: WebAuthenticationOptions(
+        //   clientId: 'com.vedalaholdings.astrologbook',
+        //   redirectUri: Uri.parse(
+        //       'https://astronomy-log-book.firebaseapp.com/__/auth/handler'),
+        // ),
         nonce: nonce,
       );
       final oauthCredential = OAuthProvider("apple.com").credential(
@@ -180,7 +180,13 @@ class _SignInPageState extends State<SignInPage> {
       );
 
       // inspect(oauthCredential);
+
       await authInstance.signInWithCredential(oauthCredential);
+
+      if (appleCredential.givenName != null)
+        await FirebaseAuth.instance.currentUser.updateProfile(
+            displayName:
+                "${appleCredential.givenName} ${appleCredential.familyName}");
 
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);

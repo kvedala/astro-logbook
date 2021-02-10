@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.6(1)
+
+* fix getting user full name with AppleSignIn
+
 ## 1.3.6(0)
 
 * restrict slider icon size
