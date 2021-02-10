@@ -15,48 +15,60 @@ import 'utils.dart';
 /// Convenient class for observational data
 class ObservationData {
   /// Title of observation
-  String title;
+  final String title;
 
   /// NGC catalog number
-  int ngc;
+  final int ngc;
 
   /// Messier catalog number
-  int messier;
+  final int messier;
 
   /// Path of any image file to add
-  String fileName;
+  final String fileName;
 
   /// latitude of location of observation
-  num latitude;
+  final num latitude;
 
   /// longitude of location of observation
-  num longitude;
+  final num longitude;
 
   /// Address of location of observation
-  String location;
+  final String location;
 
   /// [Equipment] details for observation
-  Equipment equipment;
+  final Equipment equipment;
 
   /// Date and time of observation
-  DateTime dateTime;
+  final DateTime dateTime;
 
   /// Sky seeing at the time of observation
-  int seeing;
+  final int seeing;
 
   /// Sky visibility at the time of observation
-  int visibility;
+  final int visibility;
 
   /// Sky transparency at the time of observation
-  int transparency;
+  final int transparency;
 
   /// list of notes and observations
-  List<String> notes;
+  final List<String> notes;
 
   static dynamic _valueFromJSON(Map<String, dynamic> json, String key) =>
       json.containsKey(key) ? json[key] : null;
 
-  ObservationData(this.title);
+  // ObservationData(this.title,
+  //     {this.dateTime,
+  //     this.equipment,
+  //     this.fileName,
+  //     this.latitude,
+  //     this.location,
+  //     this.longitude,
+  //     this.messier,
+  //     this.ngc,
+  //     this.notes,
+  //     this.seeing,
+  //     this.transparency,
+  //     this.visibility});
 
   ObservationData.fromJSON(Map<String, dynamic> json)
       : title = _valueFromJSON(json, 'title'),
@@ -619,8 +631,6 @@ class _AddObservationPageState extends State<AddObservationPage> {
   }
 
   /// Get current address from GPS coordinates
-  ///
-  ///
   Future<void> _getCurrentPosition() async {
     if (_responses['latitude'] != null && _responses['longitude'] != null)
       return null;
