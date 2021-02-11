@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0(0)
+
+* Added Equipment gallery
+* Ability to add, remove and edit equipment details
+  from the gallery
+
 ## 1.3.6(3)
 
 * fix bug - non-integer values of seeing, visibility & transp.

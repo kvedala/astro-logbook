@@ -7,6 +7,8 @@ class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
   final DocumentReference reference;
 
+  final void Function() onTap;
+
   /// Generate equipment from a DB query snapshot
   ///
   /// Helful to get equipment directly from dB query result
@@ -16,24 +18,27 @@ class Equipment extends StatelessWidget {
   ///     .get();
   /// docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
   /// ````
-  Equipment.fromQuery(QueryDocumentSnapshot snap) : reference = snap.reference {
+  Equipment.fromQuery(QueryDocumentSnapshot snap, {this.onTap})
+      : reference = snap.reference {
     reference.get()..then((value) => _data.add(value));
   }
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference ref) : reference = ref {
+  Equipment.fromReference(DocumentReference ref, {this.onTap})
+      : reference = ref {
     reference.get()..then((value) => _data.add(value));
   }
 
   /// Procedure to add a new equipment in the user DB
   ///
   /// Returns [true] if new equipment was added else, [false].
-  static Future<bool> addEquipment(BuildContext context) async {
+  static Future<bool> addEquipment(BuildContext context,
+      {Map<String, dynamic> inData, DocumentReference reference}) async {
     Map<String, dynamic> data = {
-      'telescope': "",
-      'aperture': null,
-      'focalLength': null,
-      'mount': "",
+      'telescope': inData == null ? "" : inData['telescope'],
+      'aperture': inData == null ? null : inData['aperture'],
+      'focalLength': inData == null ? null : inData['focalLength'],
+      'mount': inData == null ? "" : inData['mount'],
       // 'filters': <String>[],
       // 'camera': "",
     };
@@ -142,19 +147,27 @@ class Equipment extends StatelessWidget {
           ),
           ElevatedButton.icon(
             icon: Icon(Icons.done_rounded),
-            label: Text("Add"),
+            label: Text(reference == null ? "Add" : "Update"),
             onPressed: () async {
               if (!_equipmentKey.currentState.validate()) return;
               _equipmentKey.currentState.save();
-              await FirebaseFirestore.instance
-                  .collection('users/' +
-                      FirebaseAuth.instance.currentUser.uid +
-                      '/equipments')
-                  .add(data)
-                  .whenComplete(() {
-                Navigator.pop(context);
-                _returnVal = true;
-              });
+              reference == null
+                  ? await FirebaseFirestore.instance
+                      .collection('users/' +
+                          FirebaseAuth.instance.currentUser.uid +
+                          '/equipments')
+                      .add(data)
+                      .whenComplete(() {
+                      Navigator.pop(context);
+                      _returnVal = true;
+                    })
+                  : await FirebaseFirestore.instance
+                      .doc(reference.path)
+                      .update(data)
+                      .whenComplete(() {
+                      Navigator.pop(context);
+                      _returnVal = true;
+                    });
             },
           )
         ],
@@ -192,6 +205,7 @@ class Equipment extends StatelessWidget {
           (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
           ")"),
       subtitle: Text(_data['mount']),
+      onTap: onTap,
     );
   }
 }

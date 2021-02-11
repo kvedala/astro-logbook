@@ -1,3 +1,5 @@
+import 'package:astro_log/equipment.dart';
+import 'package:astro_log/equipment_gallery.dart';
 import 'package:astro_log/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +17,13 @@ class _SignedInPageState extends State<SignedInPage>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
 
+  static const tabNames = ["Observations", "Photography", "Equipment"];
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
+    _tabController =
+        TabController(length: tabNames.length, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     SystemChrome.setEnabledSystemUIOverlays([]);
   }
@@ -49,20 +54,15 @@ class _SignedInPageState extends State<SignedInPage>
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
-            Tab(
-              child: Text(
-                "Observations",
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-            Tab(
-              child: Text(
-                "Photography",
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-          ],
+          tabs: tabNames
+              .map(
+                (name) => Tab(
+                  child: Text(name
+                      // style: TextStyle(fontSize: 18),
+                      ),
+                ),
+              )
+              .toList(),
         ),
         actions: [
           IconButton(
@@ -82,6 +82,7 @@ class _SignedInPageState extends State<SignedInPage>
         children: [
           ObservationsGallary(),
           PhotographyGallary(),
+          EquipmentGallery(),
         ],
       ),
       floatingActionButton: _bottomButtons(context),
@@ -89,21 +90,35 @@ class _SignedInPageState extends State<SignedInPage>
   }
 
   Widget _bottomButtons(BuildContext context) {
-    return _tabController.index == 0
-        ? FloatingActionButton(
-            heroTag: "add_observation",
-            child: Icon(Icons.add_rounded),
-            onPressed: () =>
-                Navigator.pushNamed(context, AddObservationPageRoute),
-          )
-        : FloatingActionButton(
-            shape: StadiumBorder(),
-            onPressed: null,
-            backgroundColor: Colors.redAccent,
-            child: Icon(
-              Icons.edit,
-              size: 20.0,
-            ),
-          );
+    switch (_tabController.index) {
+      case 0:
+        return FloatingActionButton(
+          heroTag: "add_observation",
+          child: Icon(Icons.add_rounded),
+          onPressed: () =>
+              Navigator.pushNamed(context, AddObservationPageRoute),
+        );
+
+      case 1:
+        return FloatingActionButton(
+          heroTag: 'add_photograph',
+          shape: StadiumBorder(),
+          onPressed: null,
+          backgroundColor: Colors.redAccent,
+          child: Icon(
+            Icons.edit,
+            size: 20.0,
+          ),
+        );
+      case 2:
+        return FloatingActionButton(
+          heroTag: "add_equipment",
+          child: Icon(Icons.add_rounded),
+          onPressed: () async => await Equipment.addEquipment(context),
+        );
+
+      default:
+        return null;
+    }
   }
 }
