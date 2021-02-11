@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.6(2)
+
+* fix bug - non-integer values of seeing, visibility & transp. - only for old data
+* addded delete confirmation
+
 ## 1.3.6(1)
 
 * fix getting user full name with AppleSignIn

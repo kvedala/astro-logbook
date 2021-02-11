@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 /// Convert decimal degrees to string degree-minute-second format
@@ -40,3 +41,25 @@ extension CheckExtension on DateTime {
   /// Get [DateFormat.Hm] representation of the time
   String get hourMinute => DateFormat.Hm().format(this);
 }
+
+/// Modal dialog at bottom to confirm tile dimissal
+///
+/// Asks for confirmation when a [Dismissible] widget needs to be deleted.
+Future<bool> confirmDeleteTile(BuildContext context) =>
+    showModalBottomSheet<bool>(
+      context: context,
+      builder: (context) => ButtonBar(
+        children: [
+          ElevatedButton.icon(
+            icon: Icon(Icons.done_all_rounded),
+            label: Text("Delete"),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+          ElevatedButton.icon(
+            icon: Icon(Icons.cancel_rounded),
+            label: Text("Cancel"),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+        ],
+      ),
+    );

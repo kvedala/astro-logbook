@@ -208,7 +208,9 @@ class _ShowDetails extends StatelessWidget {
           child: ElevatedButton.icon(
             icon: Icon(Icons.delete_forever_rounded),
             label: Text("Delete observation"),
-            onPressed: () => _deleteObservation(context),
+            onPressed: () async => await confirmDeleteTile(context)
+                ? _deleteObservation(context)
+                : null,
           ),
         ),
       ]),
