@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.6(3)
+
+* fix bug - non-integer values of seeing, visibility & transp.
+
 ## 1.3.6(2)
 
 * fix bug - non-integer values of seeing, visibility & transp. - only for old data

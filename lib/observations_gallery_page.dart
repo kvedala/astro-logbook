@@ -20,10 +20,10 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
   DateTimeRange dateSearchRange;
   bool clickOnClear = false;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +143,14 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                                         : 2,
                           ),
                           shrinkWrap: true,
-                          itemCount: snap.data.docs.length,
+                          // itemCount: snap.data.docs.length,
                           itemBuilder: (context, index) =>
-                              GallaryTile.fromObservation(
-                            ObservationData.fromJSON(
-                                snap.data.docs[index].data()),
-                          ),
+                              index < snap.data.docs.length
+                                  ? GallaryTile.fromObservation(
+                                      ObservationData.fromJSON(
+                                          snap.data.docs[index].data()),
+                                    )
+                                  : null,
                         ),
                       );
             }

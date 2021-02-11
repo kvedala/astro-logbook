@@ -42,13 +42,13 @@ class ObservationData {
   final DateTime dateTime;
 
   /// Sky seeing at the time of observation
-  final int seeing;
+  final num seeing;
 
   /// Sky visibility at the time of observation
-  final int visibility;
+  final num visibility;
 
   /// Sky transparency at the time of observation
-  final int transparency;
+  final num transparency;
 
   /// list of notes and observations
   final List<String> notes;

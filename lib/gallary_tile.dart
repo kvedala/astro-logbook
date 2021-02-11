@@ -39,13 +39,13 @@ class GallaryTile extends StatelessWidget {
   final String location;
 
   /// Sky seeing at the time of observation
-  final int seeing;
+  final num seeing;
 
   /// Sky visibility at the time of observation
-  final int visibility;
+  final num visibility;
 
   /// Sky transparency at the time of observation
-  final int transparency;
+  final num transparency;
 
   /// [Equipment] details
   final Equipment equipment;
@@ -141,12 +141,14 @@ class _ShowDetails extends StatelessWidget {
           'Messier': tile.messier == null ? "-" : tile.messier.toString(),
           'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
           'Date & Time': tile.time.yMMMd + " " + tile.time.hourMinute,
-          'Seeing': tile.seeing == null ? "Unknown" : tile.seeing.toString(),
-          'Visibility':
-              tile.visibility == null ? "Unknown" : tile.visibility.toString(),
+          'Seeing':
+              tile.seeing == null ? "Unknown" : tile.seeing.toInt().toString(),
+          'Visibility': tile.visibility == null
+              ? "Unknown"
+              : tile.visibility.toInt().toString(),
           'Transparency': tile.transparency == null
               ? "Unknown"
-              : tile.transparency.toString(),
+              : tile.transparency.toInt().toString(),
           'Location': tile.location,
           'Latitude': decimalDegreesToDMS(tile.latitude, 'lat'),
           'Longitude': decimalDegreesToDMS(tile.longitude, 'long'),
