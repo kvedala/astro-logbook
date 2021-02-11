@@ -73,9 +73,9 @@ class ObservationData {
   ObservationData.fromJSON(Map<String, dynamic> json)
       : title = _valueFromJSON(json, 'title'),
         ngc = _valueFromJSON(json, 'ngc'),
-        visibility = (_valueFromJSON(json, 'visibility')).toInt(),
-        seeing = (_valueFromJSON(json, 'seeing')).toInt(),
-        transparency = (_valueFromJSON(json, 'transparency')).toInt(),
+        visibility = (_valueFromJSON(json, 'visibility')),
+        seeing = (_valueFromJSON(json, 'seeing')),
+        transparency = (_valueFromJSON(json, 'transparency')),
         messier = _valueFromJSON(json, 'messier'),
         fileName = _valueFromJSON(json, 'fileName'),
         latitude = _valueFromJSON(json, 'latitude'),
