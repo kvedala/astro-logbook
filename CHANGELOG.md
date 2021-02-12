@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1(0)
+
+* Added ability to add more notes to an observation.
+
 ## 1.5.0(0)
 
 * Added ability to edit observation notes that are already
