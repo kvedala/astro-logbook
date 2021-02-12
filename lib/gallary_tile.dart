@@ -215,7 +215,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
             ),
             Container(
               padding: EdgeInsets.all(5),
-              child: Text("Notes:", style: TextStyle(fontSize: 20)),
+              child: Row(
+                children: [
+                  Text("Notes:", style: TextStyle(fontSize: 20)),
+                  IconButton(
+                      icon: Icon(Icons.add_box_rounded), onPressed: _addNote)
+                ],
+              ),
             ),
             Expanded(
               child: ListView.builder(
@@ -238,16 +244,57 @@ class _ShowDetailsState extends State<_ShowDetails> {
         ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: 5),
-          child: ElevatedButton.icon(
-            icon: Icon(Icons.delete_forever_rounded),
-            label: Text("Delete observation"),
-            onPressed: () async => await confirmDeleteTile(context)
-                ? _deleteObservation(context)
-                : null,
+          child: ButtonBar(
+            children: [
+              ElevatedButton.icon(
+                icon: Icon(Icons.close_rounded),
+                label: Text("Close details"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              ElevatedButton.icon(
+                icon: Icon(Icons.delete_forever_rounded),
+                label: Text("Delete observation"),
+                onPressed: () async => await confirmDeleteTile(context)
+                    ? _deleteObservation(context)
+                    : null,
+              ),
+            ],
           ),
         ),
       ]),
     );
+  }
+
+  void _addNote() async {
+    final textController = TextEditingController();
+    bool response = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Add note"),
+        content: Container(
+          child: TextField(
+            controller: textController,
+            textCapitalization: TextCapitalization.sentences,
+            maxLines: 5,
+            minLines: 2,
+          ),
+        ),
+        actions: [
+          ElevatedButton.icon(
+            icon: Icon(Icons.done),
+            label: Text("Ok"),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+          ElevatedButton.icon(
+            icon: Icon(Icons.cancel),
+            label: Text("Cancel"),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+        ],
+      ),
+    );
+
+    if (response) setState(() => widget.tile.notes.add(textController.text));
   }
 
   void _editNote(BuildContext context, int index) async {
