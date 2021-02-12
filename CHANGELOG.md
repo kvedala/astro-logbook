@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0(0)
+
+* Added ability to edit observation notes that are already
+  saved in the cloud.
+
 ## 1.4.0(0)
 
 * Added Equipment gallery

@@ -123,7 +123,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
           builder: (context, snap) {
             switch (snap.connectionState) {
               case ConnectionState.none:
-              case ConnectionState.waiting:
+                // case ConnectionState.waiting:
                 return Center(
                   child: CircularProgressIndicator(),
                 );
@@ -144,13 +144,15 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                           ),
                           shrinkWrap: true,
                           // itemCount: snap.data.docs.length,
-                          itemBuilder: (context, index) =>
-                              index < snap.data.docs.length
-                                  ? GallaryTile.fromObservation(
-                                      ObservationData.fromJSON(
-                                          snap.data.docs[index].data()),
-                                    )
-                                  : null,
+                          itemBuilder: (context, index) => index <
+                                  snap.data.docs.length
+                              ? GallaryTile.fromObservation(
+                                  ObservationData.fromJSON(
+                                    snap.data.docs[index].data(),
+                                  ),
+                                  reference: snap.data.docs[index].reference,
+                                )
+                              : null,
                         ),
                       );
             }

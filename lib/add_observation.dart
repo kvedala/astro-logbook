@@ -53,6 +53,9 @@ class ObservationData {
   /// list of notes and observations
   final List<String> notes;
 
+  /// dB document reference
+  final DocumentReference reference;
+
   static dynamic _valueFromJSON(Map<String, dynamic> json, String key) =>
       json.containsKey(key) ? json[key] : null;
 
@@ -70,7 +73,7 @@ class ObservationData {
   //     this.transparency,
   //     this.visibility});
 
-  ObservationData.fromJSON(Map<String, dynamic> json)
+  ObservationData.fromJSON(Map<String, dynamic> json, {this.reference})
       : title = _valueFromJSON(json, 'title'),
         ngc = _valueFromJSON(json, 'ngc'),
         visibility = (_valueFromJSON(json, 'visibility')),
@@ -99,6 +102,7 @@ class ObservationData {
         'dateTime': dateTime,
         'notes': notes,
         'equipment': equipment.reference,
+        'reference': reference,
       };
 }
 
@@ -122,7 +126,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'location': null,
     'dateTime': null,
     'notes': <String>[],
-    'equipment': null,
+    'equipment': null
   };
 
   // final _filenameTextController = TextEditingController();

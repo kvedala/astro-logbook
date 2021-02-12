@@ -3,6 +3,7 @@ import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import 'utils.dart';
 
@@ -50,6 +51,9 @@ class GallaryTile extends StatelessWidget {
   /// [Equipment] details
   final Equipment equipment;
 
+  /// dB document reference
+  final DocumentReference reference;
+
   GallaryTile(
     this.title, {
     this.filePath,
@@ -65,10 +69,11 @@ class GallaryTile extends StatelessWidget {
     this.notes,
     this.location,
     this.equipment,
+    this.reference,
   });
 
   /// Generate a gallery tile using data from [ObservationData] object.
-  GallaryTile.fromObservation(ObservationData data)
+  GallaryTile.fromObservation(ObservationData data, {this.reference})
       : title = data.title,
         filePath = data.fileName,
         image = null,
@@ -125,17 +130,27 @@ class GallaryTile extends StatelessWidget {
             ),
           ),
         ),
-        onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (context) => _ShowDetails(this))),
+        onTap: () async {
+          final List<String> originalNotes = List.from(notes);
+          await Navigator.push(context,
+              MaterialPageRoute(builder: (context) => _ShowDetails(this)));
+          if (!UnorderedIterableEquality<String>()
+              .equals(originalNotes, notes)) {
+            reference.update({'notes': notes});
+            debugPrint("${reference.path}: Updating the DB notes.");
+          } else
+            debugPrint("${reference.path}: NOT Updating the DB notes.");
+        },
       ),
     );
   }
 }
 
 /// Page to display the details of observation
-class _ShowDetails extends StatelessWidget {
+class _ShowDetails extends StatefulWidget {
   final GallaryTile tile;
   final Map<String, dynamic> tableItems;
+
   _ShowDetails(this.tile)
       : tableItems = {
           'Messier': tile.messier == null ? "-" : tile.messier.toString(),
@@ -154,40 +169,49 @@ class _ShowDetails extends StatelessWidget {
           'Longitude': decimalDegreesToDMS(tile.longitude, 'long'),
         };
 
+  _ShowDetailsState createState() => _ShowDetailsState();
+}
+
+class _ShowDetailsState extends State<_ShowDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(tile.title),
+        title: Text(widget.tile.title),
         centerTitle: true,
       ),
       body: Column(children: [
         Expanded(
           child: Column(children: [
-            Table(
-              columnWidths: {0: FixedColumnWidth(120)},
-              children: tableItems.entries
-                  .map(
-                    (e) => TableRow(
-                      children: e == null
-                          ? []
-                          : [
-                              TableCell(
-                                child: SizedBox(
-                                  child: Text(e.key,
-                                      style: TextStyle(fontSize: 18)),
-                                  height: 25,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Table(
+                columnWidths: {0: FixedColumnWidth(120)},
+                children: widget.tableItems.entries
+                    .map(
+                      (e) => TableRow(
+                        children: e == null
+                            ? []
+                            : [
+                                TableCell(
+                                  child: SizedBox(
+                                    child: Text(e.key,
+                                        style: TextStyle(fontSize: 18)),
+                                    height: 25,
+                                  ),
                                 ),
-                              ),
-                              Text(e.value, style: TextStyle(fontSize: 18)),
-                            ],
-                    ),
-                  )
-                  .toList(),
+                                Text(e.value, style: TextStyle(fontSize: 18)),
+                              ],
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
             Container(
               padding: EdgeInsets.all(5),
-              child: tile.equipment == null ? SizedBox() : tile.equipment,
+              child: widget.tile.equipment == null
+                  ? SizedBox()
+                  : widget.tile.equipment,
             ),
             Container(
               padding: EdgeInsets.all(5),
@@ -196,10 +220,17 @@ class _ShowDetails extends StatelessWidget {
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: tile.notes.length,
-                itemBuilder: (context, index) => ListTile(
-                  leading: Text("${index + 1}"),
-                  title: Text(tile.notes[index]),
+                itemCount: widget.tile.notes.length,
+                itemBuilder: (context, index) => Dismissible(
+                  key: Key(widget.tile.notes[index]),
+                  background: Container(color: Colors.red.shade700),
+                  child: ListTile(
+                    leading: Text("${index + 1}"),
+                    title: Text(widget.tile.notes[index]),
+                    onTap: () => _editNote(context, index),
+                  ),
+                  confirmDismiss: (dir) => confirmDeleteTile(context),
+                  onDismissed: (dir) => widget.tile.notes.removeAt(index),
                 ),
               ),
             ),
@@ -219,14 +250,48 @@ class _ShowDetails extends StatelessWidget {
     );
   }
 
+  void _editNote(BuildContext context, int index) async {
+    final textController =
+        TextEditingController(text: widget.tile.notes[index]);
+    bool response = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Edit note"),
+        content: Container(
+          child: TextField(
+            controller: textController,
+            textCapitalization: TextCapitalization.sentences,
+            maxLines: 5,
+            minLines: 2,
+          ),
+        ),
+        actions: [
+          ElevatedButton.icon(
+            icon: Icon(Icons.done),
+            label: Text("Ok"),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+          ElevatedButton.icon(
+            icon: Icon(Icons.cancel),
+            label: Text("Cancel"),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+        ],
+      ),
+    );
+
+    if (response)
+      setState(() => widget.tile.notes[index] = textController.text);
+  }
+
   void _deleteObservation(BuildContext context) async {
     final store = FirebaseFirestore.instance;
     final collectionPath =
         'users/' + FirebaseAuth.instance.currentUser.uid + '/observations/';
     final result = await store
         .collection(collectionPath)
-        .where('title', isEqualTo: tile.title)
-        .where('dateTime', isEqualTo: tile.time)
+        .where('title', isEqualTo: widget.tile.title)
+        .where('dateTime', isEqualTo: widget.tile.time)
         .get();
     if (result.size != 1) {
       showDialog(
