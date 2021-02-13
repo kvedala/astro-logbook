@@ -65,6 +65,8 @@ class CheckList extends StatelessWidget {
                     'users/${FirebaseAuth.instance.currentUser.uid}/checklist')
                 .snapshots(),
             builder: (context, snap) {
+              if (!snap.hasData)
+                return Center(child: CircularProgressIndicator());
               items.clear();
               items.addAll(snap.data.docs.expand((doc) => [
                     CheckListItem(
@@ -73,19 +75,17 @@ class CheckList extends StatelessWidget {
                       initialValue: doc.get('value'),
                     ),
                   ]));
-              return !snap.hasData
-                  ? Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      itemCount: snap.data.size,
-                      itemBuilder: (context, index) => Dismissible(
-                        key: Key(snap.data.docs[index].toString()),
-                        background: Container(color: Colors.red),
-                        confirmDismiss: (dir) => confirmDeleteTile(context),
-                        child: items[index],
-                        onDismissed: (dir) async =>
-                            await snap.data.docs[index].reference.delete(),
-                      ),
-                    );
+              return ListView.builder(
+                itemCount: snap.data.size,
+                itemBuilder: (context, index) => Dismissible(
+                  key: Key(snap.data.docs[index].toString()),
+                  background: Container(color: Colors.red),
+                  confirmDismiss: (dir) => confirmDeleteTile(context),
+                  child: items[index],
+                  onDismissed: (dir) async =>
+                      await snap.data.docs[index].reference.delete(),
+                ),
+              );
             },
           ),
         ),
