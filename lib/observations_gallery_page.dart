@@ -50,11 +50,17 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                     padding: EdgeInsets.all(0),
                     iconSize: 20,
                     icon: Icon(Icons.clear_rounded),
-                    onPressed: () =>
-                        setState(() => messierSearchController.clear()),
+                    onPressed: () {
+                      setState(() => messierSearchController.clear());
+                      FocusScope.of(context).unfocus();
+                    },
                   ),
                 ),
-                onChanged: (value) => setState(() {}),
+                onChanged: (value) {
+                  setState(() {});
+                  Future.delayed(
+                      Duration(seconds: 2), FocusScope.of(context).unfocus);
+                },
               ),
             ),
             Expanded(
@@ -70,11 +76,17 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                     padding: EdgeInsets.all(0),
                     iconSize: 20,
                     icon: Icon(Icons.clear_rounded),
-                    onPressed: () =>
-                        setState(() => ngcSearchController.clear()),
+                    onPressed: () {
+                      setState(() => ngcSearchController.clear());
+                      FocusScope.of(context).unfocus();
+                    },
                   ),
                 ),
-                onChanged: (value) => setState(() {}),
+                onChanged: (value) {
+                  setState(() {});
+                  Future.delayed(
+                      Duration(seconds: 2), FocusScope.of(context).unfocus);
+                },
               ),
             ),
             Expanded(
