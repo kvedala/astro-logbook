@@ -29,8 +29,9 @@ class _CheckListItemState extends State<CheckListItem> {
       value: widget.data['value'],
       checkColor: Colors.red,
       activeColor: Colors.grey.shade800,
-      onChanged: (val) {
+      onChanged: (val) async {
         setState(() => widget.data['value'] = val);
+        await widget.reference.update({'value': val});
         if (widget.onChanged != null) widget.onChanged(val);
       },
     );

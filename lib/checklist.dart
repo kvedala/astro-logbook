@@ -54,9 +54,9 @@ class CheckList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Text(DateTime.now().yMMMd, style: TextStyle(fontSize: 20)),
-      ]),
+      // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Text(DateTime.now().yMMMd, style: TextStyle(fontSize: 20)),
+      // ]),
       Form(
         child: Expanded(
           child: StreamBuilder<QuerySnapshot>(
@@ -68,39 +68,22 @@ class CheckList extends StatelessWidget {
                 ? Center(child: CircularProgressIndicator())
                 : ListView.builder(
                     itemCount: snap.data.size,
-                    itemBuilder: (context, index) => CheckListItem(
-                      snap.data.docs[index].get('title'),
-                      initialValue: snap.data.docs[index].get('value'),
-                      reference: snap.data.docs[index].reference,
-                      onChanged: (val) async {
-                        // val
-                        //     ? countController.text =
-                        //         (int.parse(countController.text) + 1).toString()
-                        //     : countController.text =
-                        //         (int.parse(countController.text) - 1)
-                        //             .toString();
-                        await snap.data.docs[index].reference
-                            .update({'value': val});
-                      },
+                    itemBuilder: (context, index) => Dismissible(
+                      key: Key(snap.data.docs[index].toString()),
+                      background: Container(color: Colors.red),
+                      confirmDismiss: (dir) => confirmDeleteTile(context),
+                      child: CheckListItem(
+                        snap.data.docs[index].get('title'),
+                        reference: snap.data.docs[index].reference,
+                        initialValue: snap.data.docs[index].get('value'),
+                      ),
+                      onDismissed: (dir) async =>
+                          await snap.data.docs[index].reference.delete(),
                     ),
                   ),
           ),
         ),
       ),
-      // ElevatedButton.icon(
-      //   icon: Icon(Icons.save_alt_rounded),
-      //   label: Text("Save Checklist"),
-      //   onPressed: () async {
-      //     final batch = FirebaseFirestore.instance.batch();
-      //     items.forEach((item) {
-      //       if (item.hasChanged) {
-      //         batch.set(item.reference, item.data);
-      //         print("${item.title}: change-");
-      //       }
-      //     });
-      //     await batch.commit();
-      //   },
-      // ),
     ]);
   }
 }
