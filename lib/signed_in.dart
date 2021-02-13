@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'checklist.dart';
 import 'sign_in.dart';
 import 'observations_gallery_page.dart';
 
@@ -13,11 +14,33 @@ class SignedInPage extends StatefulWidget {
   _SignedInPageState createState() => _SignedInPageState();
 }
 
+class MyTab {
+  final String name;
+  final Widget display;
+  final void Function(BuildContext) floaterFunc;
+
+  MyTab(this.name, this.display, this.floaterFunc);
+}
+
 class _SignedInPageState extends State<SignedInPage>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
 
-  static const tabNames = ["Observations", "Photography", "Equipment"];
+  static final tabNames = [
+    MyTab(
+        "Observations",
+        ObservationsGallary(),
+        (BuildContext context) =>
+            Navigator.pushNamed(context, AddObservationPageRoute)),
+    MyTab(
+      "Equipment",
+      EquipmentGallery(),
+      (BuildContext context) async => await Equipment.addEquipment(context),
+    ),
+    MyTab("Checklist", CheckList(FirebaseAuth.instance.currentUser.uid),
+        CheckList.addCheckListItem),
+    MyTab("Photography", PhotographyGallary(), (BuildContext context) {}),
+  ];
 
   @override
   void initState() {
@@ -56,8 +79,8 @@ class _SignedInPageState extends State<SignedInPage>
           controller: _tabController,
           tabs: tabNames
               .map(
-                (name) => Tab(
-                  child: Text(name
+                (tab) => Tab(
+                  child: Text(tab.name
                       // style: TextStyle(fontSize: 18),
                       ),
                 ),
@@ -79,46 +102,17 @@ class _SignedInPageState extends State<SignedInPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          ObservationsGallary(),
-          PhotographyGallary(),
-          EquipmentGallery(),
-        ],
+        children: tabNames
+            .map(
+              (tab) => tab.display,
+            )
+            .toList(),
       ),
-      floatingActionButton: _bottomButtons(context),
+      floatingActionButton: FloatingActionButton(
+        heroTag: "add_${tabNames[_tabController.index].name}",
+        child: Icon(Icons.add_rounded),
+        onPressed: () => tabNames[_tabController.index].floaterFunc(context),
+      ),
     );
-  }
-
-  Widget _bottomButtons(BuildContext context) {
-    switch (_tabController.index) {
-      case 0:
-        return FloatingActionButton(
-          heroTag: "add_observation",
-          child: Icon(Icons.add_rounded),
-          onPressed: () =>
-              Navigator.pushNamed(context, AddObservationPageRoute),
-        );
-
-      case 1:
-        return FloatingActionButton(
-          heroTag: 'add_photograph',
-          shape: StadiumBorder(),
-          onPressed: null,
-          backgroundColor: Colors.redAccent,
-          child: Icon(
-            Icons.edit,
-            size: 20.0,
-          ),
-        );
-      case 2:
-        return FloatingActionButton(
-          heroTag: "add_equipment",
-          child: Icon(Icons.add_rounded),
-          onPressed: () async => await Equipment.addEquipment(context),
-        );
-
-      default:
-        return null;
-    }
   }
 }
