@@ -34,6 +34,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     return Column(children: [
       Container(
         padding: EdgeInsets.symmetric(vertical: 0),
+        height: 60,
         child: Row(
           children: [
             Expanded(
@@ -44,6 +45,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search Messier",
+                  isDense: true,
                   suffix: IconButton(
                     padding: EdgeInsets.all(0),
                     iconSize: 20,
@@ -63,6 +65,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search NGC",
+                  isDense: true,
                   suffix: IconButton(
                     padding: EdgeInsets.all(0),
                     iconSize: 20,
@@ -82,6 +85,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                   labelText: "Search by Date",
+                  isDense: true,
                   suffix: IconButton(
                     padding: EdgeInsets.all(0),
                     iconSize: 20,
