@@ -47,8 +47,7 @@ class _SignedInPageState extends State<SignedInPage>
       EquipmentGallery(),
       (BuildContext context) async => await Equipment.addEquipment(context),
     ),
-    MyTab("Checklist", CheckList(FirebaseAuth.instance.currentUser.uid),
-        CheckList.addCheckListItem),
+    MyTab("Checklist", CheckList(), CheckList.addCheckListItem),
     MyTab("Photography", PhotographyGallary(), (BuildContext context) {}),
   ];
 
