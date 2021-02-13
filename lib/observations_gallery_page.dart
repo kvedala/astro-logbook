@@ -37,14 +37,15 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
         height: 60,
         child: Row(
           children: [
-            Expanded(
+            Container(
+              width: 100,
               child: TextField(
                 controller: messierSearchController,
                 keyboardType: TextInputType.numberWithOptions(
                     decimal: false, signed: false),
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                  labelText: "Search Messier",
+                  labelText: "Messier#",
                   isDense: true,
                   suffix: IconButton(
                     padding: EdgeInsets.all(0),
@@ -63,14 +64,15 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 },
               ),
             ),
-            Expanded(
+            Container(
+              width: 100,
               child: TextField(
                 controller: ngcSearchController,
                 keyboardType: TextInputType.numberWithOptions(
                     decimal: false, signed: false),
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                  labelText: "Search NGC",
+                  labelText: "NGC#",
                   isDense: true,
                   suffix: IconButton(
                     padding: EdgeInsets.all(0),
@@ -96,7 +98,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                 readOnly: true,
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                  labelText: "Search by Date",
+                  labelText: "Date Range",
                   isDense: true,
                   suffix: IconButton(
                     padding: EdgeInsets.all(0),
@@ -106,6 +108,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                       clickOnClear = true;
                       dateSearchController.clear();
                       dateSearchRange = null;
+                      FocusScope.of(context).unfocus();
                     }),
                   ),
                 ),

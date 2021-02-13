@@ -67,6 +67,7 @@ class CheckList extends StatelessWidget {
             builder: (context, snap) {
               if (!snap.hasData)
                 return Center(child: CircularProgressIndicator());
+
               items.clear();
               items.addAll(snap.data.docs.expand((doc) => [
                     CheckListItem(
