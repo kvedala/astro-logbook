@@ -9,6 +9,8 @@ import 'utils.dart';
 
 /// Page to display the observations as a gallery
 class ObservationsGallary extends StatefulWidget {
+  const ObservationsGallary({Key key}) : super(key: key);
+
   _ObservationsGallaryState createState() => _ObservationsGallaryState();
 }
 
@@ -198,6 +200,8 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
 
 /// Page to display the observations as a gallery
 class PhotographyGallary extends StatelessWidget {
+  const PhotographyGallary({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(

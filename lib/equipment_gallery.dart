@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class EquipmentGallery extends StatelessWidget {
+  const EquipmentGallery({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final userID = FirebaseAuth.instance.currentUser.uid;
