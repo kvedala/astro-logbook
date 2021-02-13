@@ -50,6 +50,11 @@ Future<bool> confirmDeleteTile(BuildContext context) =>
       context: context,
       builder: (context) => ButtonBar(
         children: [
+          // Expanded(
+          //     child: Text(
+          //   "Confirm deletion:",
+          //   style: TextStyle(fontSize: 16),
+          // )),
           ElevatedButton.icon(
             icon: Icon(Icons.done_all_rounded),
             label: Text("Delete"),
