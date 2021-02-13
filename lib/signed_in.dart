@@ -20,6 +20,7 @@ class SignedInPage extends StatefulWidget {
 /// * [display] the main content to display in the scaffold body
 /// * [floaterFunc] to define the function of the floating button
 class MyTab {
+  final Icon icon;
   final String name;
   final Widget display;
   final void Function(BuildContext) floaterFunc;
@@ -29,7 +30,7 @@ class MyTab {
   /// * [name] title to display on top
   /// * [display] the main content to display in the scaffold body
   /// * [floaterFunc] to define the function of the floating button
-  MyTab(this.name, this.display, this.floaterFunc);
+  MyTab(this.icon, this.name, this.display, this.floaterFunc);
 }
 
 class _SignedInPageState extends State<SignedInPage>
@@ -38,17 +39,21 @@ class _SignedInPageState extends State<SignedInPage>
 
   static final tabNames = [
     MyTab(
+        Icon(Icons.comment),
         "Observations",
         ObservationsGallary(),
         (BuildContext context) =>
             Navigator.pushNamed(context, AddObservationPageRoute)),
     MyTab(
+      Icon(Icons.settings_outlined),
       "Equipment",
       EquipmentGallery(),
       (BuildContext context) async => await Equipment.addEquipment(context),
     ),
-    MyTab("Checklist", CheckList(), CheckList.addCheckListItem),
-    MyTab("Photography", PhotographyGallary(), (BuildContext context) {}),
+    MyTab(Icon(Icons.library_add_check), "Checklist", CheckList(),
+        CheckList.addCheckListItem),
+    MyTab(Icon(Icons.photo_camera), "Photography", PhotographyGallary(),
+        (BuildContext context) {}),
   ];
 
   @override
@@ -82,16 +87,21 @@ class _SignedInPageState extends State<SignedInPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(FirebaseAuth.instance.currentUser.displayName),
+        title: Column(children: [
+          Text(FirebaseAuth.instance.currentUser.displayName),
+          Text(
+            tabNames[_tabController.index].name,
+            style: TextStyle(fontSize: 18),
+          ),
+        ]),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
           tabs: tabNames
               .map(
                 (tab) => Tab(
-                  child: Text(tab.name
-                      // style: TextStyle(fontSize: 18),
-                      ),
+                  // child: Text(tab.name),
+                  child: tab.icon,
                 ),
               )
               .toList(),
