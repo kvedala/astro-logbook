@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0(0)
+
+* Replaced text tabs with icon tabs. The current tab title
+  is now shown below the name
+* Added checklist tracking
+* Swipe to delete a checklist item
+* Optimize search filters in observation gallery
+
 ## 1.5.1(0)
 
 * Added ability to add more notes to an observation.
