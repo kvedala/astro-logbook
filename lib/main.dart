@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
             iconTheme: IconThemeData(color: Colors.red),
             inputDecorationTheme:
                 InputDecorationTheme(labelStyle: TextStyle(color: Colors.red)),
+            unselectedWidgetColor: Colors.red,
 
             colorScheme: ColorScheme.dark(
               primary: Colors.red.shade800,
