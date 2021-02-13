@@ -14,11 +14,21 @@ class SignedInPage extends StatefulWidget {
   _SignedInPageState createState() => _SignedInPageState();
 }
 
+/// Container to define tab properties
+///
+/// * [name] title to display on top
+/// * [display] the main content to display in the scaffold body
+/// * [floaterFunc] to define the function of the floating button
 class MyTab {
   final String name;
   final Widget display;
   final void Function(BuildContext) floaterFunc;
 
+  /// Container to define tab properties
+  ///
+  /// * [name] title to display on top
+  /// * [display] the main content to display in the scaffold body
+  /// * [floaterFunc] to define the function of the floating button
   MyTab(this.name, this.display, this.floaterFunc);
 }
 
