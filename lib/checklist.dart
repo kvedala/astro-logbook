@@ -64,25 +64,45 @@ class CheckList extends StatelessWidget {
                 .collection(
                     'users/${FirebaseAuth.instance.currentUser.uid}/checklist')
                 .snapshots(),
-            builder: (context, snap) => !snap.hasData
-                ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: snap.data.size,
-                    itemBuilder: (context, index) => Dismissible(
-                      key: Key(snap.data.docs[index].toString()),
-                      background: Container(color: Colors.red),
-                      confirmDismiss: (dir) => confirmDeleteTile(context),
-                      child: CheckListItem(
-                        snap.data.docs[index].get('title'),
-                        reference: snap.data.docs[index].reference,
-                        initialValue: snap.data.docs[index].get('value'),
-                      ),
-                      onDismissed: (dir) async =>
-                          await snap.data.docs[index].reference.delete(),
+            builder: (context, snap) {
+              items.clear();
+              items.addAll(snap.data.docs.expand((doc) => [
+                    CheckListItem(
+                      doc.get('title'),
+                      reference: doc.reference,
+                      initialValue: doc.get('value'),
                     ),
-                  ),
+                  ]));
+              return !snap.hasData
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: snap.data.size,
+                      itemBuilder: (context, index) => Dismissible(
+                        key: Key(snap.data.docs[index].toString()),
+                        background: Container(color: Colors.red),
+                        confirmDismiss: (dir) => confirmDeleteTile(context),
+                        child: items[index],
+                        onDismissed: (dir) async =>
+                            await snap.data.docs[index].reference.delete(),
+                      ),
+                    );
+            },
           ),
         ),
+      ),
+      ElevatedButton.icon(
+        icon: Icon(Icons.save_alt_rounded),
+        label: Text("Save Checklist"),
+        onPressed: () async {
+          final batch = FirebaseFirestore.instance.batch();
+          items.forEach((item) {
+            if (item.hasChanged) {
+              batch.set(item.reference, item.data);
+              print("${item.title}: change-");
+            }
+          });
+          await batch.commit();
+        },
       ),
     ]);
   }
