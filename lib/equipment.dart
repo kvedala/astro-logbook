@@ -31,9 +31,17 @@ class Equipment extends StatelessWidget {
 
   /// Procedure to add a new equipment in the user DB
   ///
+  /// if available, load data from the given [inData] map
+  /// Keep the DB [reference] of the equipment details object
   /// Returns [true] if new equipment was added else, [false].
   static Future<bool> addEquipment(BuildContext context,
-      {Map<String, dynamic> inData, DocumentReference reference}) async {
+      {
+
+      /// if available, load data from the given map
+      Map<String, dynamic> inData,
+
+      /// Keep the DB reference of the equipment details object
+      DocumentReference reference}) async {
     Map<String, dynamic> data = {
       'telescope': inData == null ? "" : inData['telescope'],
       'aperture': inData == null ? null : inData['aperture'],
@@ -181,7 +189,7 @@ class Equipment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // if (_data['telescope'] == null) print("got here");
+    // if (_data['telescope'] == null) debugPrint("got here");
     return _data.isEmpty
         ? FutureBuilder<DocumentSnapshot>(
             future: reference.get()..then((value) => _data.add(value)),

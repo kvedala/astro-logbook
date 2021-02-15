@@ -187,14 +187,14 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
 
-    if (dateSearchRange != null) {
+    if (dateSearchRange != null)
       return firestore
           .collection('users/' + auth.currentUser.uid + '/observations')
           .where('dateTime', isGreaterThanOrEqualTo: dateSearchRange.start)
           .where('dateTime', isLessThanOrEqualTo: dateSearchRange.end)
           // .orderBy('dateTime', descending: true)
           .snapshots(includeMetadataChanges: true);
-    } else if (messierSearchController.text.isNotEmpty ||
+    else if (messierSearchController.text.isNotEmpty ||
         ngcSearchController.text.isNotEmpty)
       return firestore
           .collection('users/' + auth.currentUser.uid + '/observations')

@@ -99,7 +99,7 @@ class CheckList extends StatelessWidget {
           items.forEach((item) {
             if (item.hasChanged) {
               batch.set(item.reference, item.data);
-              print("${item.title}: change-");
+              debugPrint("${item.title}: change-");
             }
           });
           await batch.commit();

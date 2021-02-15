@@ -148,7 +148,10 @@ class GallaryTile extends StatelessWidget {
 
 /// Page to display the details of observation
 class _ShowDetails extends StatefulWidget {
+  /// [GallaryTile] to show details of
   final GallaryTile tile;
+
+  /// convenient lookup table to display as table rows
   final Map<String, dynamic> tableItems;
 
   _ShowDetails(this.tile)

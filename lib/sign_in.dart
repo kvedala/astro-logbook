@@ -45,14 +45,14 @@ class _SignInPageState extends State<SignInPage> {
         // });
 
       } on UnimplementedError catch (e) {
-        print(e);
+        debugPrint(e.message);
         // return;
       }
 
       try {
         appleSignInAvailable = await SignInWithApple.isAvailable();
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
         appleSignInAvailable = false;
       }
     }
@@ -84,7 +84,7 @@ class _SignInPageState extends State<SignInPage> {
         setState(() {});
         // Navigator.popAndPushNamed(context, HomePageRoute);
       } catch (e) {
-        print(e);
+        debugPrint(e);
       }
 
       return;
@@ -109,7 +109,7 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
-      print(error);
+      debugPrint(error);
     }
   }
 
@@ -191,10 +191,11 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
-      print(error);
+      debugPrint(error);
     }
   }
 
+  /// signin with facebook
   void _facebookSignIn() async {
     try {
       final AccessToken accessToken = await FacebookAuth.instance.login();
@@ -206,11 +207,11 @@ class _SignInPageState extends State<SignInPage> {
       // Once signed in, return the UserCredential
       await FirebaseAuth.instance.signInWithCredential(credential);
     } on FacebookAuthException catch (e) {
-      print(e);
+      debugPrint(e.message);
       // handle the FacebookAuthException
     } on FirebaseAuthException catch (e) {
       // handle the FirebaseAuthException
-      print(e);
+      debugPrint(e.message);
     } finally {
       setState(() {});
     }

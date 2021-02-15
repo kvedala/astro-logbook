@@ -627,10 +627,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
           .collection('users/' + auth.currentUser.uid + "/observations")
           .add(_responses);
     } catch (e) {
-      // print(e);
+      // debugPrint(e);
       return false;
     }
-    // print("Success");
+    // debugPrint("Success");
     return true;
   }
 
@@ -687,7 +687,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
               growable: false);
         });
     } catch (e) {
-      print(e);
+      debugPrint(e);
       _possibleLocations = [];
       // final responses = await http.get(Uri.https(
       //     'maps.googleapis.com',
@@ -721,7 +721,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
           docs.docs.map((query) => Equipment.fromQuery(query)).toList();
       return;
     } catch (e) {
-      // print(e);
+      // debugPrint(e);
       return;
     }
   }

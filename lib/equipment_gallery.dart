@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+/// Widget to show a gallery of equipments and add as needed
 class EquipmentGallery extends StatelessWidget {
   const EquipmentGallery({Key key}) : super(key: key);
 

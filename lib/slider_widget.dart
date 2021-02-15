@@ -1,15 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+/// A slider widget wrapper
 class SliderOption extends StatefulWidget {
+  /// title of the slider
   final String title;
+
+  /// initial value of the slider
   final num initialValue;
+
+  /// number of divisions
   final int divisions;
+
+  /// minimum slider value
   final num minValue;
+
+  /// maximum slider value
   final num maxValue;
+
+  /// Register callback function when slider value changes
   final void Function(num) onChange;
+
+  /// prefix icon to display
   final IconData prefixIcon;
 
+  /// A slider widget wrapper
   SliderOption(this.title, this.onChange,
       {Key key,
       this.initialValue = 0,

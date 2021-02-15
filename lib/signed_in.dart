@@ -16,6 +16,7 @@ class SignedInPage extends StatefulWidget {
 
 /// Container to define tab properties
 ///
+/// * [icon] widget to display for the tab
 /// * [name] title to display on top
 /// * [display] the main content to display in the scaffold body
 /// * [floaterFunc] to define the function of the floating button
@@ -27,6 +28,7 @@ class MyTab {
 
   /// Container to define tab properties
   ///
+  /// * [icon] widget to display for the tab
   /// * [name] title to display on top
   /// * [display] the main content to display in the scaffold body
   /// * [floaterFunc] to define the function of the floating button
