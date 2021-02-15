@@ -24,7 +24,7 @@ class CheckList extends StatelessWidget {
         title: Text("Add checklist item"),
         content: TextField(
           controller: textController,
-          maxLength: 5,
+          maxLines: 5,
         ),
         actions: [
           ElevatedButton.icon(

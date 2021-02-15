@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1(0)
+
+* Bug Fix: Add checklist item string limit to 5 lines maximum.
+
 ## 1.6.0(0)
 
 * Replaced text tabs with icon tabs. The current tab title
