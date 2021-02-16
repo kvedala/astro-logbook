@@ -1,11 +1,11 @@
-import 'package:astro_log/add_observation.dart';
-import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
 import 'utils.dart';
+import 'equipment.dart';
+import 'add_observation.dart';
 
 /// Tracks the gallery tiles that are currently selected
 List<DocumentReference> selectedTiles = [];
@@ -383,6 +383,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
         builder: (context) => Center(
               child: CircularProgressIndicator(),
             ));
+    selectedTiles.remove(result.docs[0].reference);
     await store.doc(collectionPath + result.docs[0].id).delete();
     Navigator.pop(context);
     Navigator.pop(context);

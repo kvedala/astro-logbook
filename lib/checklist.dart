@@ -1,10 +1,10 @@
-import 'package:astro_log/checklist_item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'utils.dart';
+import 'checklist_item.dart';
 
 /// Body of checklist tab
 class CheckList extends StatelessWidget {
