@@ -164,7 +164,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                                         : 2,
                           ),
                           shrinkWrap: true,
-                          // itemCount: snap.data.docs.length,
+                          itemCount: snap.data.docs.length,
                           itemBuilder: (context, index) => index <
                                   snap.data.docs.length
                               ? GallaryTile.fromObservation(
@@ -194,6 +194,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
           .where('dateTime', isLessThanOrEqualTo: dateSearchRange.end)
           // .orderBy('dateTime', descending: true)
           .snapshots(includeMetadataChanges: true);
+    // .get();
     else if (messierSearchController.text.isNotEmpty ||
         ngcSearchController.text.isNotEmpty)
       return firestore
@@ -204,12 +205,12 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
           // .where('title', arrayContains: stringSearchController.text)
           // .where('notes', arrayContains: stringSearchController)
           // .orderBy('dateTime', descending: true)
-          .snapshots(includeMetadataChanges: true);
+          .snapshots();
     else
       return firestore
           .collection('users/' + auth.currentUser.uid + '/observations')
           .orderBy('dateTime', descending: true)
-          .snapshots(includeMetadataChanges: true);
+          .snapshots();
     // .map<List<ObservationData>>(
     //     (snapshot) => snapshot.docs.map<ObservationData>((doc) {
     //           return ObservationData.fromJSON(doc.data());

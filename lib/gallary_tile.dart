@@ -7,8 +7,11 @@ import 'package:collection/collection.dart';
 
 import 'utils.dart';
 
+/// Tracks the gallery tiles that are currently selected
+List<DocumentReference> selectedTiles = [];
+
 /// Widget to display tile in the gallery view
-class GallaryTile extends StatelessWidget {
+class GallaryTile extends StatefulWidget {
   /// path of image file, if any
   final String filePath;
 
@@ -54,6 +57,7 @@ class GallaryTile extends StatelessWidget {
   /// dB document reference
   final DocumentReference reference;
 
+  /// Widget to display tile in the gallery view
   GallaryTile(
     this.title, {
     this.filePath,
@@ -89,17 +93,29 @@ class GallaryTile extends StatelessWidget {
         location = data.location,
         equipment = data.equipment;
 
+  _GallaryTileState createState() => _GallaryTileState();
+
+  // final Map<String, dynamic> state = {'isChecked': false};
+}
+
+class _GallaryTileState extends State<GallaryTile> {
+  bool get isSelected => selectedTiles.any((ref) => ref == widget.reference);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(),
         borderRadius: BorderRadius.circular(15),
+        color: isSelected ? Colors.red.withAlpha(80) : null,
       ),
       child: InkWell(
         child: GridTile(
-          // header: Text(title),
+          // header: Checkbox(
+          //     value: checked,
+          //     onChanged: (val) => setState(() => checked = val)),
           // footer: Text(time.toString()),
+
           child: SingleChildScrollView(
             padding: EdgeInsets.all(10),
             child: Column(
@@ -107,23 +123,26 @@ class GallaryTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  title,
+                  widget.title,
                   style: TextStyle(fontSize: 20),
                 ),
-                messier == null
+                widget.messier == null
                     ? SizedBox()
                     : Text(
-                        "Messier# $messier",
+                        "Messier# ${widget.messier}",
                         style: TextStyle(fontSize: 15),
                       ),
-                ngc == null
+                widget.ngc == null
                     ? SizedBox()
                     : Text(
-                        "NGC# $ngc",
+                        "NGC# ${widget.ngc}",
                         style: TextStyle(fontSize: 15),
                       ),
                 Text(
-                  "Observation Date: " + time.yMMMd + " " + time.hourMinute,
+                  "Observation Date: " +
+                      widget.time.yMMMd +
+                      " " +
+                      widget.time.hourMinute,
                   style: TextStyle(fontSize: 15),
                 ),
               ],
@@ -131,15 +150,20 @@ class GallaryTile extends StatelessWidget {
           ),
         ),
         onTap: () async {
-          final List<String> originalNotes = List.from(notes);
+          final List<String> originalNotes = List.from(widget.notes);
           await Navigator.push(context,
-              MaterialPageRoute(builder: (context) => _ShowDetails(this)));
+              MaterialPageRoute(builder: (context) => _ShowDetails(widget)));
           if (!UnorderedIterableEquality<String>()
-              .equals(originalNotes, notes)) {
-            reference.update({'notes': notes});
-            debugPrint("${reference.path}: Updating the DB notes.");
+              .equals(originalNotes, widget.notes)) {
+            widget.reference.update({'notes': widget.notes});
+            debugPrint("${widget.reference.path}: Updating the DB notes.");
           } else
-            debugPrint("${reference.path}: NOT Updating the DB notes.");
+            debugPrint("${widget.reference.path}: NOT Updating the DB notes.");
+        },
+        onLongPress: () {
+          setState(() => isSelected
+              ? selectedTiles.remove(widget.reference)
+              : selectedTiles.add(widget.reference));
         },
       ),
     );
