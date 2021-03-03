@@ -142,7 +142,10 @@ class _GallaryTileState extends State<GallaryTile> {
                   "Observation Date: " +
                       widget.time.yMMMd +
                       " " +
-                      widget.time.hourMinute,
+                      widget.time.hourMinute +
+                      " (" +
+                      widget.time.timeZoneName +
+                      ")",
                   style: TextStyle(fontSize: 15),
                 ),
               ],
@@ -182,7 +185,12 @@ class _ShowDetails extends StatefulWidget {
       : tableItems = {
           'Messier': tile.messier == null ? "-" : tile.messier.toString(),
           'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
-          'Date & Time': tile.time.yMMMd + " " + tile.time.hourMinute,
+          'Date & Time': tile.time.yMMMd +
+              " " +
+              tile.time.hourMinute +
+              " (" +
+              tile.time.timeZoneName +
+              ")",
           'Seeing':
               tile.seeing == null ? "Unknown" : tile.seeing.toInt().toString(),
           'Visibility': tile.visibility == null

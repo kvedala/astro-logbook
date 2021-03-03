@@ -84,7 +84,7 @@ class _SignInPageState extends State<SignInPage> {
         setState(() {});
         // Navigator.popAndPushNamed(context, HomePageRoute);
       } catch (e) {
-        debugPrint(e);
+        debugPrint(e.message);
       }
 
       return;
