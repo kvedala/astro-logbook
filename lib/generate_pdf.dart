@@ -80,9 +80,7 @@ class GeneratePDF extends StatelessWidget {
 
   pw.Widget _observation2Tile(
       Map<String, dynamic> data, Map<String, dynamic> equipment) {
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(
-        data['dateTime'].millisecondsSinceEpoch,
-        isUtc: true);
+    final DateTime dateTime = data['dateTime'].toDate();
 
     return pw.Container(
       decoration: pw.BoxDecoration(
