@@ -24,8 +24,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  pdf: ^2.1.0
   intl: ^0.16.1
   location: ^3.2.4
+  printing: ^4.1.0
   geocoding: ^1.0.5
   # file_picker: ^2.1.6
 

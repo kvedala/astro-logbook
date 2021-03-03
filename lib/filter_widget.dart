@@ -1,3 +1,5 @@
+import 'package:astro_log/gallary_tile.dart';
+import 'package:astro_log/generate_pdf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -55,6 +57,20 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
                 });
                 widget.callback();
               },
+            ),
+            IconButton(
+              icon: Icon(Icons.picture_as_pdf),
+              onPressed: () => selectedTiles.isNotEmpty
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GeneratePDF(selectedTiles)))
+                  : showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text("No observations selected!"),
+                      ),
+                    ),
             ),
           ],
         ),
