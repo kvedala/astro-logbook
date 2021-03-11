@@ -8,7 +8,7 @@ Pre-built applications are available and utilize the cloud resources hosted by t
 It is also, however, easy to build this app for yourself so that you alone are in control of the data, unless you 
 want to distribute your version of the app.
 
-The program is written in [flutter](flutter.dev) and can be compiled for Android, iOS and Web platforms.
+The program is written in [Dart](https://dart.dev)([Flutter](https://flutter.dev)) and can be compiled for Android, iOS and Web platforms.
 The installation requirements and steps for each platform is provided below.
 
 ## Requirements
