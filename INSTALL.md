@@ -2,8 +2,8 @@
 
 Pre-built applications are available and utilize the cloud resources hosted by the author (myself). These are:
 1. Web version: https://astrolog.vedala.holdings
-2. Since in BETA and to avoid [DoS attacks](https://en.wikipedia.org/wiki/Denial-of-service_attack), 
-the android and iOS builds can be obtained on request.
+2. Android: https://play.google.com/store/apps/details?id=com.vedalaholdings.astro_log
+3. iOS: https://appdistribution.firebase.dev/i/8c0b75f66438e0ed 
 
 It is also, however, easy to build this app for yourself so that you alone are in control of the data, unless you 
 want to distribute your version of the app.
