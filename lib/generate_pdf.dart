@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -40,10 +41,10 @@ class GeneratePDF extends StatelessWidget {
     List<Map<String, dynamic>> outData = [];
 
     selectedTiles.forEach((element) async {
-      final DocumentSnapshot data =
-          await element.get(GetOptions(source: Source.cache));
-      final DocumentSnapshot equipment =
-          await data.data()['equipment'].get(GetOptions(source: Source.cache));
+      final DocumentSnapshot data = await element.get(
+          GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));
+      final DocumentSnapshot equipment = await data.data()['equipment'].get(
+          GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));
       outData.add({
         'data': data.data(),
         'equipment': equipment.data(),
