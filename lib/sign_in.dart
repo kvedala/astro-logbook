@@ -184,9 +184,8 @@ class _SignInPageState extends State<SignInPage> {
       await authInstance.signInWithCredential(oauthCredential);
 
       if (appleCredential.givenName != null)
-        await FirebaseAuth.instance.currentUser.updateProfile(
-            displayName:
-                "${appleCredential.givenName} ${appleCredential.familyName}");
+        await FirebaseAuth.instance.currentUser.updateDisplayName(
+            "${appleCredential.givenName} ${appleCredential.familyName}");
 
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);
