@@ -41,7 +41,7 @@ class GeneratePDF extends StatelessWidget {
     List<Map<String, dynamic>> outData = [];
 
     selectedTiles.forEach((element) async {
-      final DocumentSnapshot data = await element.get(
+      final DocumentSnapshot<Map<String, dynamic>> data = await element.get(
           GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));
       final DocumentSnapshot equipment = await data.data()['equipment'].get(
           GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));

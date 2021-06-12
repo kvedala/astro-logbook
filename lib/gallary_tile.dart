@@ -377,20 +377,25 @@ class _ShowDetailsState extends State<_ShowDetails> {
         .get();
     if (result.size != 1) {
       showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-                title: Text("Unable to delete the object."),
-              ));
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Column(children: [
+            Text("Unable to delete the object."),
+            Text(result.toString()),
+          ]),
+        ),
+      );
       return await Future.delayed(
           Duration(seconds: 1), () => Navigator.pop(context));
     }
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => Center(
-              child: CircularProgressIndicator(),
-            ));
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
     selectedTiles.remove(result.docs[0].reference);
     await store.doc(collectionPath + result.docs[0].id).delete();
     Navigator.pop(context);

@@ -198,16 +198,16 @@ class _SignInPageState extends State<SignInPage> {
   /// signin with facebook
   void _facebookSignIn() async {
     try {
-      final AccessToken accessToken = await FacebookAuth.instance.login();
+      final accessToken = await FacebookAuth.instance.login();
 
       // Create a credential from the access token
       final FacebookAuthCredential credential = FacebookAuthProvider.credential(
-        accessToken.token,
+        accessToken.message,
       );
       // Once signed in, return the UserCredential
       await FirebaseAuth.instance.signInWithCredential(credential);
-    } on FacebookAuthException catch (e) {
-      debugPrint(e.message);
+      // } on Facebo catch (e) {
+      //   debugPrint(e.message);
       // handle the FacebookAuthException
     } on FirebaseAuthException catch (e) {
       // handle the FirebaseAuthException
