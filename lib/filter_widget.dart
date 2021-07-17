@@ -12,7 +12,7 @@ final Map<String, dynamic> searchState = {
   'string': "",
   'date': null,
   'onlySearch': false,
-  'selectedTab': 0,
+  'selectedTab': -1,
 };
 
 /// Filter buttons
