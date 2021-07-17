@@ -154,13 +154,22 @@ class GeneratePDF extends StatelessWidget {
             pw.TableRow(
               children: [
                 pw.Text("Sky conditions"),
-                pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text("Seeing:       ${data['seeing']}"),
-                      pw.Text("Visibility:   ${data['visibility']}"),
-                      pw.Text("Transparency: ${data['transparency']}"),
-                    ]),
+                pw.Table(columnWidths: {
+                  0: pw.FixedColumnWidth(5)
+                }, children: [
+                  pw.TableRow(children: [
+                    pw.Text("Seeing:"),
+                    pw.Text("${data['seeing']}")
+                  ]),
+                  pw.TableRow(children: [
+                    pw.Text("Visibility:"),
+                    pw.Text("${data['visibility']}")
+                  ]),
+                  pw.TableRow(children: [
+                    pw.Text("Transparency:"),
+                    pw.Text("${data['transparency']}")
+                  ]),
+                ]),
               ],
             ),
           ]),
