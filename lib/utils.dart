@@ -45,7 +45,7 @@ extension CheckExtension on DateTime {
 /// Modal dialog at bottom to confirm tile dimissal
 ///
 /// Asks for confirmation when a [Dismissible] widget needs to be deleted.
-Future<bool> confirmDeleteTile(BuildContext context) =>
+Future<bool?> confirmDeleteTile(BuildContext context) =>
     showModalBottomSheet<bool>(
       context: context,
       builder: (context) => ButtonBar(

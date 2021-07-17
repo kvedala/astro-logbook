@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 /// Get and display equipment details.
 class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
-  final DocumentReference reference;
+  final DocumentReference? reference;
 
-  final void Function() onTap;
+  final void Function()? onTap;
 
   /// Generate equipment from a DB query snapshot
   ///
@@ -20,13 +20,13 @@ class Equipment extends StatelessWidget {
   /// ````
   Equipment.fromQuery(QueryDocumentSnapshot snap, {this.onTap})
       : reference = snap.reference {
-    reference.get()..then((value) => _data.add(value));
+    reference!.get()..then((value) => _data.add(value));
   }
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference ref, {this.onTap})
+  Equipment.fromReference(DocumentReference? ref, {this.onTap})
       : reference = ref {
-    reference.get()..then((value) => _data.add(value));
+    reference!.get()..then((value) => _data.add(value));
   }
 
   /// Procedure to add a new equipment in the user DB
@@ -38,10 +38,10 @@ class Equipment extends StatelessWidget {
       {
 
       /// if available, load data from the given map
-      Map<String, dynamic> inData,
+      Map<String, dynamic>? inData,
 
       /// Keep the DB reference of the equipment details object
-      DocumentReference reference}) async {
+      DocumentReference? reference}) async {
     Map<String, dynamic> data = {
       'telescope': inData == null ? "" : inData['telescope'],
       'aperture': inData == null ? null : inData['aperture'],
@@ -94,14 +94,14 @@ class Equipment extends StatelessWidget {
                     keyboardType: TextInputType.numberWithOptions(),
                     readOnly: false,
                     validator: (value) {
-                      num number = num.tryParse(value);
+                      num? number = num.tryParse(value!);
                       return number == null
                           ? "Not a valid number"
                           : number < 0
                               ? "Cannot be negative"
                               : null;
                     },
-                    onSaved: (value) => data['aperture'] = num.parse(value),
+                    onSaved: (value) => data['aperture'] = num.parse(value!),
                   ),
                 ),
                 Padding(
@@ -116,14 +116,14 @@ class Equipment extends StatelessWidget {
                     keyboardType: TextInputType.numberWithOptions(),
                     readOnly: false,
                     validator: (value) {
-                      num number = num.tryParse(value);
+                      num? number = num.tryParse(value!);
                       return number == null
                           ? "Not a valid number"
                           : number < 0
                               ? "Cannot be negative"
                               : null;
                     },
-                    onSaved: (value) => data['focalLength'] = num.parse(value),
+                    onSaved: (value) => data['focalLength'] = num.parse(value!),
                   ),
                 ),
                 Padding(
@@ -157,12 +157,12 @@ class Equipment extends StatelessWidget {
             icon: Icon(Icons.done_rounded),
             label: Text(reference == null ? "Add" : "Update"),
             onPressed: () async {
-              if (!_equipmentKey.currentState.validate()) return;
-              _equipmentKey.currentState.save();
+              if (!_equipmentKey.currentState!.validate()) return;
+              _equipmentKey.currentState!.save();
               reference == null
                   ? await FirebaseFirestore.instance
                       .collection('users/' +
-                          FirebaseAuth.instance.currentUser.uid +
+                          FirebaseAuth.instance.currentUser!.uid +
                           '/equipments')
                       .add(data)
                       .whenComplete(() {
@@ -192,19 +192,19 @@ class Equipment extends StatelessWidget {
     // if (_data['telescope'] == null) debugPrint("got here");
     return _data.isEmpty
         ? FutureBuilder<DocumentSnapshot>(
-            future: reference.get()..then((value) => _data.add(value)),
+            future: reference!.get()..then((value) => _data.add(value)),
             builder: (context, snap) =>
                 snap.connectionState != ConnectionState.done
                     ? Center(
                         child: CircularProgressIndicator(),
                       )
-                    : _buildTile(snap.data),
+                    : _buildTile(snap.data!),
           )
         : _buildTile(_data[0]);
   }
 
   Widget _buildTile(DocumentSnapshot data) {
-    final Map<String, dynamic> _data = data.data();
+    final Map<String, dynamic> _data = data.data() as Map<String, dynamic>;
 
     return ListTile(
       visualDensity: VisualDensity.compact,

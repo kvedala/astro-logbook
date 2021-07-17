@@ -8,54 +8,54 @@ import 'equipment.dart';
 import 'add_observation.dart';
 
 /// Tracks the gallery tiles that are currently selected
-List<DocumentReference> selectedTiles = [];
+List<DocumentReference?> selectedTiles = [];
 
 /// Widget to display tile in the gallery view
 class GallaryTile extends StatefulWidget {
   /// path of image file, if any
-  final String filePath;
+  final String? filePath;
 
   /// title of the tile
-  final String title;
+  final String? title;
 
   /// [Image] to display on the tile
-  final Image image;
+  final Image? image;
 
   /// Time of observation or image
-  final DateTime time;
+  final DateTime? time;
 
   /// Messier catalog number, if any
-  final int messier;
+  final int? messier;
 
   /// NGC catalog number, if any
-  final int ngc;
+  final int? ngc;
 
   /// Notes taken for the observation/photograph
-  final List<String> notes;
+  final List<String>? notes;
 
   /// Observation latitude
-  final num latitude;
+  final num? latitude;
 
   /// Observation longitude
-  final num longitude;
+  final num? longitude;
 
   /// Address of the location
-  final String location;
+  final String? location;
 
   /// Sky seeing at the time of observation
-  final num seeing;
+  final num? seeing;
 
   /// Sky visibility at the time of observation
-  final num visibility;
+  final num? visibility;
 
   /// Sky transparency at the time of observation
-  final num transparency;
+  final num? transparency;
 
   /// [Equipment] details
-  final Equipment equipment;
+  final Equipment? equipment;
 
   /// dB document reference
-  final DocumentReference reference;
+  final DocumentReference? reference;
 
   /// Widget to display tile in the gallery view
   GallaryTile(
@@ -123,7 +123,7 @@ class _GallaryTileState extends State<GallaryTile> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  widget.title,
+                  widget.title!,
                   style: TextStyle(fontSize: 20),
                 ),
                 widget.messier == null
@@ -140,11 +140,11 @@ class _GallaryTileState extends State<GallaryTile> {
                       ),
                 Text(
                   "Observation Date: " +
-                      widget.time.yMMMd +
+                      widget.time!.yMMMd +
                       " " +
-                      widget.time.hourMinute +
+                      widget.time!.hourMinute +
                       " (" +
-                      widget.time.timeZoneName +
+                      widget.time!.timeZoneName +
                       ")",
                   style: TextStyle(fontSize: 15),
                 ),
@@ -153,15 +153,15 @@ class _GallaryTileState extends State<GallaryTile> {
           ),
         ),
         onTap: () async {
-          final List<String> originalNotes = List.from(widget.notes);
+          final List<String> originalNotes = List.from(widget.notes!);
           await Navigator.push(context,
               MaterialPageRoute(builder: (context) => _ShowDetails(widget)));
           if (!UnorderedIterableEquality<String>()
               .equals(originalNotes, widget.notes)) {
-            widget.reference.update({'notes': widget.notes});
-            debugPrint("${widget.reference.path}: Updating the DB notes.");
+            widget.reference!.update({'notes': widget.notes});
+            debugPrint("${widget.reference!.path}: Updating the DB notes.");
           } else
-            debugPrint("${widget.reference.path}: NOT Updating the DB notes.");
+            debugPrint("${widget.reference!.path}: NOT Updating the DB notes.");
         },
         onLongPress: () {
           setState(() => isSelected
@@ -185,23 +185,23 @@ class _ShowDetails extends StatefulWidget {
       : tableItems = {
           'Messier': tile.messier == null ? "-" : tile.messier.toString(),
           'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
-          'Date & Time': tile.time.yMMMd +
+          'Date & Time': tile.time!.yMMMd +
               " " +
-              tile.time.hourMinute +
+              tile.time!.hourMinute +
               " (" +
-              tile.time.timeZoneName +
+              tile.time!.timeZoneName +
               ")",
           'Seeing':
-              tile.seeing == null ? "Unknown" : tile.seeing.toInt().toString(),
+              tile.seeing == null ? "Unknown" : tile.seeing!.toInt().toString(),
           'Visibility': tile.visibility == null
               ? "Unknown"
-              : tile.visibility.toInt().toString(),
+              : tile.visibility!.toInt().toString(),
           'Transparency': tile.transparency == null
               ? "Unknown"
-              : tile.transparency.toInt().toString(),
+              : tile.transparency!.toInt().toString(),
           'Location': tile.location,
-          'Latitude': decimalDegreesToDMS(tile.latitude, 'lat'),
-          'Longitude': decimalDegreesToDMS(tile.longitude, 'long'),
+          'Latitude': decimalDegreesToDMS(tile.latitude!, 'lat'),
+          'Longitude': decimalDegreesToDMS(tile.longitude!, 'long'),
         };
 
   _ShowDetailsState createState() => _ShowDetailsState();
@@ -212,7 +212,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.tile.title),
+        title: Text(widget.tile.title!),
         centerTitle: true,
       ),
       body: Column(children: [
@@ -225,18 +225,16 @@ class _ShowDetailsState extends State<_ShowDetails> {
                 children: widget.tableItems.entries
                     .map(
                       (e) => TableRow(
-                        children: e == null
-                            ? []
-                            : [
-                                TableCell(
-                                  child: SizedBox(
-                                    child: Text(e.key,
-                                        style: TextStyle(fontSize: 18)),
-                                    height: 25,
-                                  ),
-                                ),
-                                Text(e.value, style: TextStyle(fontSize: 18)),
-                              ],
+                        children: [
+                          TableCell(
+                            child: SizedBox(
+                              child:
+                                  Text(e.key, style: TextStyle(fontSize: 18)),
+                              height: 25,
+                            ),
+                          ),
+                          Text(e.value, style: TextStyle(fontSize: 18)),
+                        ],
                       ),
                     )
                     .toList(),
@@ -261,17 +259,17 @@ class _ShowDetailsState extends State<_ShowDetails> {
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: widget.tile.notes.length,
+                itemCount: widget.tile.notes!.length,
                 itemBuilder: (context, index) => Dismissible(
-                  key: Key(widget.tile.notes[index]),
+                  key: Key(widget.tile.notes![index]),
                   background: Container(color: Colors.red.shade700),
                   child: ListTile(
                     leading: Text("${index + 1}"),
-                    title: Text(widget.tile.notes[index]),
+                    title: Text(widget.tile.notes![index]),
                     onTap: () => _editNote(context, index),
                   ),
                   confirmDismiss: (dir) => confirmDeleteTile(context),
-                  onDismissed: (dir) => widget.tile.notes.removeAt(index),
+                  onDismissed: (dir) => widget.tile.notes!.removeAt(index),
                 ),
               ),
             ),
@@ -289,7 +287,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
               ElevatedButton.icon(
                 icon: Icon(Icons.delete_forever_rounded),
                 label: Text("Delete observation"),
-                onPressed: () async => await confirmDeleteTile(context)
+                onPressed: () async => (await confirmDeleteTile(context))!
                     ? _deleteObservation(context)
                     : null,
               ),
@@ -302,7 +300,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
 
   void _addNote() async {
     final textController = TextEditingController();
-    bool response = await showDialog(
+    final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Add note"),
@@ -329,13 +327,14 @@ class _ShowDetailsState extends State<_ShowDetails> {
       ),
     );
 
-    if (response) setState(() => widget.tile.notes.add(textController.text));
+    if (response ?? false)
+      setState(() => widget.tile.notes!.add(textController.text));
   }
 
   void _editNote(BuildContext context, int index) async {
     final textController =
-        TextEditingController(text: widget.tile.notes[index]);
-    bool response = await showDialog(
+        TextEditingController(text: widget.tile.notes![index]);
+    final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Edit note"),
@@ -362,14 +361,14 @@ class _ShowDetailsState extends State<_ShowDetails> {
       ),
     );
 
-    if (response)
-      setState(() => widget.tile.notes[index] = textController.text);
+    if (response ?? false)
+      setState(() => widget.tile.notes![index] = textController.text);
   }
 
   void _deleteObservation(BuildContext context) async {
     final store = FirebaseFirestore.instance;
     final collectionPath =
-        'users/' + FirebaseAuth.instance.currentUser.uid + '/observations/';
+        'users/' + FirebaseAuth.instance.currentUser!.uid + '/observations/';
     final result = await store
         .collection(collectionPath)
         .where('title', isEqualTo: widget.tile.title)

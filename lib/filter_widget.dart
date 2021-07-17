@@ -117,7 +117,7 @@ class SearchFilterRow extends StatefulWidget {
   final void Function() callback;
 
   _SearchFilterRowState createState() => _SearchFilterRowState();
-  SearchFilterRow(this.callback, {Key key}) : super(key: key);
+  SearchFilterRow(this.callback, {Key? key}) : super(key: key);
 
   // String get ngc => _searchState['ngc'];
   // String get messier => _searchState['messier'];
@@ -130,7 +130,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
   final messierSearchController = TextEditingController();
   final stringSearchController = TextEditingController();
   final dateSearchController = TextEditingController();
-  DateTimeRange dateSearchRange;
+  DateTimeRange? dateSearchRange;
   bool clickOnClear = false;
 
   void _updateNGC() => searchState['ngc'] = ngcSearchController.text;
@@ -262,9 +262,9 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                 );
                 if (dateSearchRange != null)
                   setState(() => dateSearchController.text =
-                      dateSearchRange.start.yMMMd +
+                      dateSearchRange!.start.yMMMd +
                           " - " +
-                          dateSearchRange.end.yMMMd);
+                          dateSearchRange!.end.yMMMd);
                 else
                   setState(() => dateSearchController.clear());
                 widget.callback();

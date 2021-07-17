@@ -22,11 +22,11 @@ class SliderOption extends StatefulWidget {
   final void Function(num) onChange;
 
   /// prefix icon to display
-  final IconData prefixIcon;
+  final IconData? prefixIcon;
 
   /// A slider widget wrapper
   SliderOption(this.title, this.onChange,
-      {Key key,
+      {Key? key,
       this.initialValue = 0,
       this.minValue = 0,
       this.maxValue = 1.0,
@@ -38,7 +38,7 @@ class SliderOption extends StatefulWidget {
 }
 
 class _SliderOptionState extends State<SliderOption> {
-  num value;
+  late num value;
 
   @override
   void initState() {
@@ -62,9 +62,9 @@ class _SliderOptionState extends State<SliderOption> {
         prefixIconConstraints: BoxConstraints.loose(Size(10, 10)),
       ),
       child: Slider(
-        value: value,
-        min: widget.minValue,
-        max: widget.maxValue,
+        value: value as double,
+        min: widget.minValue as double,
+        max: widget.maxValue as double,
         divisions: widget.divisions,
         onChanged: (newValue) {
           widget.onChange(newValue);

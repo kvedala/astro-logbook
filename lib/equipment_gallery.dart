@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 
 /// Widget to show a gallery of equipments and add as needed
 class EquipmentGallery extends StatelessWidget {
-  const EquipmentGallery({Key key}) : super(key: key);
+  const EquipmentGallery({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final userID = FirebaseAuth.instance.currentUser.uid;
+    final userID = FirebaseAuth.instance.currentUser!.uid;
     return Column(
       children: [
         StreamBuilder(
@@ -24,26 +24,26 @@ class EquipmentGallery extends StatelessWidget {
                     )
                   : ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snap.data.size,
+                      itemCount: snap.data!.size,
                       itemBuilder: (context, index) => Dismissible(
-                        key: Key(snap.data.docs[index].id),
+                        key: Key(snap.data!.docs[index].id),
                         background: Container(color: Colors.red.withAlpha(100)),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                               border: Border.all(),
                               borderRadius: BorderRadius.circular(10)),
                           child: Equipment.fromReference(
-                            snap.data.docs[index].reference,
+                            snap.data!.docs[index].reference,
                             onTap: () => Equipment.addEquipment(context,
-                                inData: snap.data.docs[index].data(),
-                                reference: snap.data.docs[index].reference),
+                                inData: snap.data!.docs[index].data() as Map<String, dynamic>?,
+                                reference: snap.data!.docs[index].reference),
                           ),
                         ),
                         confirmDismiss: (dir) async {
                           final doc = await FirebaseFirestore.instance
                               .collection('users/$userID/observations')
                               .where('equipment',
-                                  isEqualTo: snap.data.docs[index].reference)
+                                  isEqualTo: snap.data!.docs[index].reference)
                               .limit(1)
                               .get();
                           if (doc.size == 0) return confirmDeleteTile(context);
@@ -65,7 +65,7 @@ class EquipmentGallery extends StatelessWidget {
                         },
                         onDismissed: (dir) async {
                           FirebaseFirestore.instance
-                              .doc(snap.data.docs[index].reference.path)
+                              .doc(snap.data!.docs[index].reference.path)
                               .delete();
                         },
                       ),

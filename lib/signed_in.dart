@@ -37,7 +37,7 @@ class MyTab {
 
 class _SignedInPageState extends State<SignedInPage>
     with SingleTickerProviderStateMixin {
-  TabController _tabController;
+  TabController? _tabController;
 
   static final tabNames = [
     MyTab(
@@ -63,15 +63,15 @@ class _SignedInPageState extends State<SignedInPage>
     super.initState();
     _tabController =
         TabController(length: tabNames.length, vsync: this, initialIndex: 0);
-    _tabController.addListener(_handleTabIndex);
+    _tabController!.addListener(_handleTabIndex);
     SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    _tabController.removeListener(_handleTabIndex);
-    _tabController.dispose();
+    _tabController!.removeListener(_handleTabIndex);
+    _tabController!.dispose();
     super.dispose();
   }
 
@@ -90,9 +90,9 @@ class _SignedInPageState extends State<SignedInPage>
     return Scaffold(
       appBar: AppBar(
         title: Column(children: [
-          Text(FirebaseAuth.instance.currentUser.displayName),
+          Text(FirebaseAuth.instance.currentUser!.displayName!),
           Text(
-            tabNames[_tabController.index].name,
+            tabNames[_tabController!.index].name,
             style: TextStyle(fontSize: 18),
           ),
         ]),
@@ -114,8 +114,8 @@ class _SignedInPageState extends State<SignedInPage>
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 if (googleSignIn != null) {
-                  if (await googleSignIn.isSignedIn())
-                    await googleSignIn.signOut();
+                  if (await googleSignIn!.isSignedIn())
+                    await googleSignIn!.signOut();
                 }
                 Navigator.popAndPushNamed(context, SignInPageRoute);
               })
@@ -130,9 +130,9 @@ class _SignedInPageState extends State<SignedInPage>
             .toList(),
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: "add_${tabNames[_tabController.index].name}",
+        heroTag: "add_${tabNames[_tabController!.index].name}",
         child: Icon(Icons.add_rounded),
-        onPressed: () => tabNames[_tabController.index].floaterFunc(context),
+        onPressed: () => tabNames[_tabController!.index].floaterFunc(context),
       ),
     );
   }

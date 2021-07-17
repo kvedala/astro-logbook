@@ -37,7 +37,6 @@ class MyApp extends StatelessWidget {
             // accentIconTheme: IconThemeData(color: Colors.red),
             // floatingActionButtonTheme: FloatingActionButtonThemeData(),
             brightness: Brightness.dark,
-            accentColor: Colors.red,
             // buttonColor: ButtonThemeData(textTheme: ButtonTextTheme.accent),
             iconTheme: IconThemeData(color: Colors.red),
             inputDecorationTheme:
@@ -73,9 +72,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  final String title;
+  final String? title;
 
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     // FirebaseAuth.instance.currentUser == null

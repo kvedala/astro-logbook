@@ -8,7 +8,7 @@ import 'gallary_tile.dart';
 
 /// Page to display the observations as a gallery
 class ObservationsGallary extends StatefulWidget {
-  const ObservationsGallary({Key key}) : super(key: key);
+  const ObservationsGallary({Key? key}) : super(key: key);
 
   _ObservationsGallaryState createState() => _ObservationsGallaryState();
 }
@@ -26,10 +26,10 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     return Column(children: [
       ObservationTabBar(() => setState(() {})),
       searchState['onlySearch']
-          ? FutureBuilder(
+          ? FutureBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
               future: FirebaseFirestore.instance
                   .collection('users/' +
-                      FirebaseAuth.instance.currentUser.uid +
+                      FirebaseAuth.instance.currentUser!.uid +
                       '/observations')
                   .get()
                   .then((snap) => snap.docs
@@ -55,15 +55,15 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                                           : 2,
                             ),
                             shrinkWrap: true,
-                            itemCount: snap.data.length,
+                            itemCount: snap.data!.length,
                             itemBuilder: (context, index) =>
-                                index >= snap.data.length
-                                    ? null
+                                index >= snap.data!.length
+                                    ? SizedBox()
                                     : GallaryTile.fromObservation(
                                         ObservationData.fromJSON(
-                                          snap.data[index].data(),
+                                          snap.data![index].data(),
                                         ),
-                                        reference: snap.data[index].reference,
+                                        reference: snap.data![index].reference,
                                       ),
                           ),
                         ),
@@ -93,16 +93,17 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                                             : 2,
                               ),
                               shrinkWrap: true,
-                              itemCount: snap.data.docs.length,
+                              itemCount: snap.data!.docs.length,
                               itemBuilder: (context, index) =>
-                                  index >= snap.data.docs.length
-                                      ? null
+                                  index >= snap.data!.docs.length
+                                      ? SizedBox()
                                       : GallaryTile.fromObservation(
                                           ObservationData.fromJSON(
-                                            snap.data.docs[index].data(),
+                                            snap.data!.docs[index].data()
+                                                as Map<String, dynamic>,
                                           ),
                                           reference:
-                                              snap.data.docs[index].reference,
+                                              snap.data!.docs[index].reference,
                                         ),
                             ),
                           );
@@ -119,7 +120,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
 
     if (searchState['date'] != null)
       return firestore
-          .collection('users/' + auth.currentUser.uid + '/observations')
+          .collection('users/' + auth.currentUser!.uid + '/observations')
           .where('dateTime', isGreaterThanOrEqualTo: searchState['date'].start)
           .where('dateTime', isLessThanOrEqualTo: searchState['date'].end)
           // .orderBy('dateTime', descending: true)
@@ -127,7 +128,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     // .get();
     else if (searchState['messier'].isNotEmpty || searchState['ngc'].isNotEmpty)
       return firestore
-          .collection('users/' + auth.currentUser.uid + '/observations')
+          .collection('users/' + auth.currentUser!.uid + '/observations')
           .where('messier', isEqualTo: int.tryParse(searchState['messier']))
           .where('ngc', isEqualTo: int.tryParse(searchState['ngc']))
           // .where('title', arrayContains: stringSearchController.text)
@@ -136,7 +137,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
           .snapshots();
     else
       return firestore
-          .collection('users/' + auth.currentUser.uid + '/observations')
+          .collection('users/' + auth.currentUser!.uid + '/observations')
           .orderBy('dateTime', descending: true)
           .snapshots();
     // .map<List<ObservationData>>(
@@ -148,7 +149,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
 
 /// Page to display the observations as a gallery
 class PhotographyGallary extends StatelessWidget {
-  const PhotographyGallary({Key key}) : super(key: key);
+  const PhotographyGallary({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

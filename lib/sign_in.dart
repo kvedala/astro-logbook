@@ -22,11 +22,11 @@ class SignInPage extends StatefulWidget {
 }
 
 /// variable to store google-signin state
-GoogleSignIn googleSignIn;
+GoogleSignIn? googleSignIn;
 
 class _SignInPageState extends State<SignInPage> {
   bool isWebPlatform = false;
-  FirebaseAuth authInstance;
+  FirebaseAuth? authInstance;
   bool appleSignInAvailable = false;
 
   void _initFirebaseAuth() async {
@@ -39,7 +39,7 @@ class _SignInPageState extends State<SignInPage> {
       //       // cancelOnError: () => setState(() {}),
       //     );
       try {
-        await authInstance.setPersistence(Persistence.SESSION);
+        await authInstance!.setPersistence(Persistence.SESSION);
         // setState(() {
         isWebPlatform = true;
         // });
@@ -80,25 +80,25 @@ class _SignInPageState extends State<SignInPage> {
       try {
         final provider = GoogleAuthProvider();
         scopes.forEach((scope) => provider.addScope(scope));
-        await authInstance.signInWithPopup(provider);
+        await authInstance!.signInWithPopup(provider);
         setState(() {});
         // Navigator.popAndPushNamed(context, HomePageRoute);
       } catch (e) {
-        debugPrint(e.message);
+        debugPrint(e.toString());
       }
 
       return;
     }
 
     try {
-      final account = await googleSignIn.signIn();
-      final googleAuth = await account.authentication;
+      final account = await googleSignIn!.signIn();
+      final googleAuth = await account!.authentication;
       final credentials = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
       );
 
-      await authInstance.signInWithCredential(credentials);
+      await authInstance!.signInWithCredential(credentials);
 
       // final List<String> names = _user.user.displayName.split(' ');
       // addUsertoDB(
@@ -109,7 +109,7 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
-      debugPrint(error);
+      debugPrint(error.toString());
     }
   }
 
@@ -181,10 +181,10 @@ class _SignInPageState extends State<SignInPage> {
 
       // inspect(oauthCredential);
 
-      await authInstance.signInWithCredential(oauthCredential);
+      await authInstance!.signInWithCredential(oauthCredential);
 
       if (appleCredential.givenName != null)
-        await FirebaseAuth.instance.currentUser.updateDisplayName(
+        await FirebaseAuth.instance.currentUser!.updateDisplayName(
             "${appleCredential.givenName} ${appleCredential.familyName}");
 
       setState(() {});
@@ -201,8 +201,8 @@ class _SignInPageState extends State<SignInPage> {
 
       // Create a credential from the access token
       final FacebookAuthCredential credential = FacebookAuthProvider.credential(
-        accessToken.message,
-      );
+        accessToken.message!,
+      ) as FacebookAuthCredential;
       // Once signed in, return the UserCredential
       await FirebaseAuth.instance.signInWithCredential(credential);
       // } on Facebo catch (e) {
@@ -269,7 +269,7 @@ class _SignInPageState extends State<SignInPage> {
       body: Center(
           child: authInstance == null
               ? CircularProgressIndicator()
-              : authInstance.currentUser == null
+              : authInstance!.currentUser == null
                   ? _signInPage(context)
                   : _signedIn(context)),
     );
@@ -318,7 +318,7 @@ class _SignInPageState extends State<SignInPage> {
   void signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     if (googleSignIn != null) {
-      if (await googleSignIn.isSignedIn()) await googleSignIn.signOut();
+      if (await googleSignIn!.isSignedIn()) await googleSignIn!.signOut();
     }
     if (Navigator.canPop(context)) {
       setState(() {});

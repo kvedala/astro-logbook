@@ -12,7 +12,7 @@ import 'utils.dart';
 
 ///
 class GeneratePDF extends StatelessWidget {
-  final List<DocumentReference> selectedTiles;
+  final List<DocumentReference?> selectedTiles;
 
   GeneratePDF(this.selectedTiles);
 
@@ -41,9 +41,11 @@ class GeneratePDF extends StatelessWidget {
     List<Map<String, dynamic>> outData = [];
 
     selectedTiles.forEach((element) async {
-      final DocumentSnapshot<Map<String, dynamic>> data = await element.get(
-          GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));
-      final DocumentSnapshot equipment = await data.data()['equipment'].get(
+      final DocumentSnapshot<Map<String, dynamic>> data = await (element!.get(
+              GetOptions(
+                  source: !kIsWeb ? Source.cache : Source.serverAndCache))
+          as FutureOr<DocumentSnapshot<Map<String, dynamic>>>);
+      final DocumentSnapshot equipment = await data.data()!['equipment'].get(
           GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));
       outData.add({
         'data': data.data(),
@@ -54,10 +56,10 @@ class GeneratePDF extends StatelessWidget {
     return outData;
   }
 
-  Future<Uint8List> _buildDoc(List<Map<String, dynamic>> data) {
+  Future<Uint8List> _buildDoc(List<Map<String, dynamic>>? data) {
     final pdfDocument = pw.Document(
         title: "Observation Summary",
-        author: FirebaseAuth.instance.currentUser.displayName,
+        author: FirebaseAuth.instance.currentUser!.displayName,
         creator: "Astronomy Logbook",
         subject: "Astronomy and Stargazing");
 
@@ -66,11 +68,11 @@ class GeneratePDF extends StatelessWidget {
         header: (context) => pw.Row(
           // mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
           children: [
-            pw.Text(FirebaseAuth.instance.currentUser.displayName),
+            pw.Text(FirebaseAuth.instance.currentUser!.displayName!),
             // pw.Text(DateTime.now().yMMMd),
           ],
         ),
-        build: (context) => data
+        build: (context) => data!
             .map((e) => _observation2Tile(e['data'], e['equipment']))
             .toList(),
       ),
@@ -103,13 +105,13 @@ class GeneratePDF extends StatelessWidget {
             pw.TableRow(
               children: [
                 pw.Text("Messier"),
-                pw.Text(data['messier']?.toString()),
+                pw.Text(data['messier']?.toString() ?? ""),
               ],
             ),
             pw.TableRow(
               children: [
                 pw.Text("NGC"),
-                pw.Text(data['ngc']?.toString()),
+                pw.Text(data['ngc']?.toString() ?? ""),
               ],
             ),
             pw.TableRow(

@@ -12,13 +12,13 @@ class CheckList extends StatelessWidget {
   final List<CheckListItem> items = [];
 
   /// Body of checklist tab for the user
-  CheckList({Key key}) : super(key: key);
+  CheckList({Key? key}) : super(key: key);
 
   /// Add a new checklist item to the DB
   static void addCheckListItem(BuildContext context) async {
     final textController = TextEditingController();
 
-    bool add = await showDialog(
+    final add = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Add checklist item"),
@@ -40,10 +40,10 @@ class CheckList extends StatelessWidget {
         ],
       ),
     );
-    if (add) {
+    if (add ?? false) {
       FirebaseFirestore.instance
           .collection(
-              'users/${FirebaseAuth.instance.currentUser.uid}/checklist')
+              'users/${FirebaseAuth.instance.currentUser!.uid}/checklist')
           .add({
         'title': textController.text,
         'value': false,
@@ -62,14 +62,14 @@ class CheckList extends StatelessWidget {
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection(
-                    'users/${FirebaseAuth.instance.currentUser.uid}/checklist')
+                    'users/${FirebaseAuth.instance.currentUser!.uid}/checklist')
                 .snapshots(),
             builder: (context, snap) {
               if (!snap.hasData)
                 return Center(child: CircularProgressIndicator());
 
               items.clear();
-              items.addAll(snap.data.docs.expand((doc) => [
+              items.addAll(snap.data!.docs.expand((doc) => [
                     CheckListItem(
                       doc.get('title'),
                       reference: doc.reference,
@@ -77,14 +77,14 @@ class CheckList extends StatelessWidget {
                     ),
                   ]));
               return ListView.builder(
-                itemCount: snap.data.size,
+                itemCount: snap.data!.size,
                 itemBuilder: (context, index) => Dismissible(
-                  key: Key(snap.data.docs[index].toString()),
+                  key: Key(snap.data!.docs[index].toString()),
                   background: Container(color: Colors.red),
                   confirmDismiss: (dir) => confirmDeleteTile(context),
                   child: items[index],
                   onDismissed: (dir) async =>
-                      await snap.data.docs[index].reference.delete(),
+                      await snap.data!.docs[index].reference.delete(),
                 ),
               );
             },
@@ -98,7 +98,7 @@ class CheckList extends StatelessWidget {
           final batch = FirebaseFirestore.instance.batch();
           items.forEach((item) {
             if (item.hasChanged) {
-              batch.set(item.reference, item.data);
+              batch.set(item.reference!, item.data);
               debugPrint("${item.title}: change-");
             }
           });

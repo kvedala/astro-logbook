@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
+import 'package:location/location.dart';
 
 import 'slider_widget.dart';
 import 'utils.dart';
@@ -15,46 +16,46 @@ import 'utils.dart';
 /// Convenient class for observational data
 class ObservationData {
   /// Title of observation
-  final String title;
+  final String? title;
 
   /// NGC catalog number
-  final int ngc;
+  final int? ngc;
 
   /// Messier catalog number
-  final int messier;
+  final int? messier;
 
   /// Path of any image file to add
-  final String fileName;
+  final String? fileName;
 
   /// latitude of location of observation
-  final num latitude;
+  final num? latitude;
 
   /// longitude of location of observation
-  final num longitude;
+  final num? longitude;
 
   /// Address of location of observation
-  final String location;
+  final String? location;
 
   /// [Equipment] details for observation
   final Equipment equipment;
 
   /// Date and time of observation
-  final DateTime dateTime;
+  final DateTime? dateTime;
 
   /// Sky seeing at the time of observation
-  final num seeing;
+  final num? seeing;
 
   /// Sky visibility at the time of observation
-  final num visibility;
+  final num? visibility;
 
   /// Sky transparency at the time of observation
-  final num transparency;
+  final num? transparency;
 
   /// list of notes and observations
   final List<String> notes;
 
   /// dB document reference
-  final DocumentReference reference;
+  final DocumentReference? reference;
 
   static dynamic _valueFromJSON(Map<String, dynamic> json, String key) =>
       json.containsKey(key) ? json[key] : null;
@@ -213,7 +214,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                               : newValue)
                                     ],
                                     validator: (value) {
-                                      if (value.isEmpty) return null;
+                                      if (value!.isEmpty) return null;
                                       final t = int.tryParse(value);
                                       if (t == null) return null;
                                       if (t <= 0) return "Cannot be negative";
@@ -224,7 +225,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                     },
                                     autovalidateMode: AutovalidateMode.always,
                                     onSaved: (value) => _responses['messier'] =
-                                        int.tryParse(value),
+                                        int.tryParse(value!),
                                     onChanged: (value) =>
                                         _responses['messier'] =
                                             int.tryParse(value),
@@ -242,7 +243,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                         TextInputType.numberWithOptions(),
                                     readOnly: false,
                                     validator: (value) {
-                                      if (value.isEmpty) return null;
+                                      if (value!.isEmpty) return null;
                                       final t = int.tryParse(value);
                                       return t == null
                                           ? "Not a valid number"
@@ -251,8 +252,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                               : null;
                                     },
                                     autovalidateMode: AutovalidateMode.always,
-                                    onSaved: (value) =>
-                                        _responses['ngc'] = int.tryParse(value),
+                                    onSaved: (value) => _responses['ngc'] =
+                                        int.tryParse(value!),
                                     onChanged: (value) =>
                                         _responses['ngc'] = int.tryParse(value),
                                     inputFormatters: [
@@ -294,14 +295,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                   signed: true, decimal: true),
                               // readOnly: true,
                               validator: (value) {
-                                final number = num.tryParse(value);
+                                final number = num.tryParse(value!);
                                 if (number == null) return "Not a number";
                                 if (number < -90 || number > 90)
                                   return "Invalid range";
                                 return null;
                               },
                               onSaved: (value) =>
-                                  _responses['latitude'] = num.parse(value),
+                                  _responses['latitude'] = num.parse(value!),
                               onChanged: (value) {
                                 final numeric = num.tryParse(value);
                                 if (numeric == null) return;
@@ -335,14 +336,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                   signed: true, decimal: true),
                               // readOnly: true,
                               validator: (value) {
-                                final number = num.tryParse(value);
+                                final number = num.tryParse(value!);
                                 if (number == null) return "Not a number";
                                 if (number < -180 || number > 180)
                                   return "Invalid range";
                                 return null;
                               },
                               onSaved: (value) =>
-                                  _responses['longitude'] = num.parse(value),
+                                  _responses['longitude'] = num.parse(value!),
                               onChanged: (value) {
                                 final numeric = num.tryParse(value);
                                 if (numeric == null) return;
@@ -373,7 +374,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 keyboardType: TextInputType.streetAddress,
                                 // readOnly: false,
                                 validator: (value) =>
-                                    value.isEmpty ? "Cannot be empty" : null,
+                                    value!.isEmpty ? "Cannot be empty" : null,
                                 onSaved: (value) =>
                                     _responses['location'] = value,
                               )
@@ -394,14 +395,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                     ),
                                   ),
                                 ),
-                                onChanged: (newItem) => setState(
+                                onChanged: (dynamic newItem) => setState(
                                     () => _responses['location'] = newItem),
-                                validator: (value) => value == null
+                                validator: (dynamic value) => value == null
                                     ? "Value cannot be null"
                                     : (value.isEmpty
                                         ? "Value cannot be empty"
                                         : null),
-                                onSaved: (value) =>
+                                onSaved: (dynamic value) =>
                                     _responses['location'] = value,
                               ),
                       ),
@@ -471,7 +472,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                     .format(_responses['dateTime']));
                           },
                           validator: (value) =>
-                              value.isEmpty ? "Cannot be empty" : null,
+                              value!.isEmpty ? "Cannot be empty" : null,
                         ),
                       ),
                       Row(children: [
@@ -555,8 +556,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               label: Text("Submit"),
                               icon: Icon(Icons.send_rounded),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
-                                  _formKey.currentState.save();
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
                                   if (await saveToDB()) Navigator.pop(context);
                                 }
                               },
@@ -624,7 +625,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final auth = FirebaseAuth.instance;
     try {
       await firestore
-          .collection('users/' + auth.currentUser.uid + "/observations")
+          .collection('users/' + auth.currentUser!.uid + "/observations")
           .add(_responses);
     } catch (e) {
       // debugPrint(e);
@@ -644,14 +645,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final permission = await location.requestPermission();
     if (permission == gps.PermissionStatus.granted ||
         permission == gps.PermissionStatus.grantedLimited) {
-      final value = await location
-          .getLocation()
-          .timeout(Duration(seconds: 5), onTimeout: () => null);
-      final temp = DateTime.fromMillisecondsSinceEpoch(value.time.toInt());
+      final value = await location.getLocation().timeout(Duration(seconds: 5),
+          onTimeout: () =>
+              LocationData.fromMap({'latitude': 0, 'longitude': 0}));
+      final temp = DateTime.fromMillisecondsSinceEpoch(value.time!.toInt());
       if (mounted)
         setState(() {
-          _responses['latitude'] = value == null ? 0 : value.latitude;
-          _responses['longitude'] = value == null ? 0 : value.longitude;
+          _responses['latitude'] = value.latitude;
+          _responses['longitude'] = value.longitude;
           _responses['dateTime'] =
               DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
         });
@@ -675,19 +676,19 @@ class _AddObservationPageState extends State<AddObservationPage> {
           _possibleLocations = List.generate(
               places.length,
               (index) =>
-                  places[index].name +
+                  places[index].name! +
                   ", " +
-                  places[index].subLocality +
+                  places[index].subLocality! +
                   ", " +
-                  places[index].locality +
+                  places[index].locality! +
                   ", " +
-                  places[index].country +
+                  places[index].country! +
                   " " +
-                  places[index].postalCode,
+                  places[index].postalCode!,
               growable: false);
         });
     } catch (e) {
-      debugPrint(e);
+      debugPrint(e.toString());
       _possibleLocations = [];
       // final responses = await http.get(Uri.https(
       //     'maps.googleapis.com',
@@ -715,7 +716,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final auth = FirebaseAuth.instance;
     try {
       final docs = await firestore
-          .collection('users/' + auth.currentUser.uid + "/equipments")
+          .collection('users/' + auth.currentUser!.uid + "/equipments")
           .get();
       _equipments =
           docs.docs.map((query) => Equipment.fromQuery(query)).toList();
