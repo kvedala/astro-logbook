@@ -1,10 +1,10 @@
-import 'package:astro_log/equipment.dart';
-import 'package:astro_log/equipment_gallery.dart';
-import 'package:astro_log/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'equipment.dart';
+import 'equipment_gallery.dart';
+import 'routes.dart';
 import 'checklist.dart';
 import 'sign_in.dart';
 import 'observations_gallery_page.dart';
@@ -36,7 +36,7 @@ class MyTab {
 }
 
 class _SignedInPageState extends State<SignedInPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   TabController? _tabController;
 
   static final tabNames = [

@@ -1,7 +1,9 @@
-import 'package:astro_log/routes.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'routes.dart';
 import 'sign_in.dart';
 
 void main() {
@@ -15,6 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Create the initialization Future outside of `build`:
     final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+    final analytics = FirebaseAnalytics();
 
     return FutureBuilder(
       future: _initialization,
@@ -65,6 +68,7 @@ class MyApp extends StatelessWidget {
           // home: MyHomePage(title: 'Astronomy Log Book'),
           initialRoute: SignInPageRoute,
           routes: routeMap,
+          navigatorObservers: [FirebaseAnalyticsObserver(analytics: analytics)],
         );
       },
     );

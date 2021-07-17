@@ -1,8 +1,9 @@
-import 'package:astro_log/equipment.dart';
-import 'package:astro_log/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'equipment.dart';
+import 'utils.dart';
 
 /// Widget to show a gallery of equipments and add as needed
 class EquipmentGallery extends StatelessWidget {
@@ -35,7 +36,8 @@ class EquipmentGallery extends StatelessWidget {
                           child: Equipment.fromReference(
                             snap.data!.docs[index].reference,
                             onTap: () => Equipment.addEquipment(context,
-                                inData: snap.data!.docs[index].data() as Map<String, dynamic>?,
+                                inData: snap.data!.docs[index].data()
+                                    as Map<String, dynamic>?,
                                 reference: snap.data!.docs[index].reference),
                           ),
                         ),

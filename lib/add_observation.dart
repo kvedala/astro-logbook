@@ -1,4 +1,3 @@
-import 'package:astro_log/equipment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 import 'package:location/location.dart';
 
+import 'equipment.dart';
 import 'slider_widget.dart';
 import 'utils.dart';
 
