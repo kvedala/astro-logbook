@@ -64,12 +64,13 @@ class _SignedInPageState extends State<SignedInPage>
     _tabController =
         TabController(length: tabNames.length, vsync: this, initialIndex: 0);
     _tabController!.addListener(_handleTabIndex);
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
   @override
   void dispose() {
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     _tabController!.removeListener(_handleTabIndex);
     _tabController!.dispose();
     super.dispose();
