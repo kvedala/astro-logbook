@@ -2,12 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
-import 'package:location/location.dart';
 
 import 'equipment.dart';
 import 'slider_widget.dart';
@@ -647,7 +645,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
         permission == gps.PermissionStatus.grantedLimited) {
       final value = await location.getLocation().timeout(Duration(seconds: 5),
           onTimeout: () =>
-              LocationData.fromMap({'latitude': 0, 'longitude': 0}));
+              gps.LocationData.fromMap({'latitude': 0, 'longitude': 0}));
       final temp = DateTime.fromMillisecondsSinceEpoch(value.time!.toInt());
       if (mounted)
         setState(() {

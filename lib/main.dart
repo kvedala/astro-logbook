@@ -53,10 +53,20 @@ class MyApp extends StatelessWidget {
               secondaryVariant: Colors.red.shade600,
             ),
             appBarTheme: AppBarTheme(
-              textTheme: Theme.of(context).textTheme.apply(
-                  bodyColor: Colors.red,
-                  displayColor: Colors.red,
-                  decorationColor: Colors.red),
+              toolbarTextStyle: Theme.of(context)
+                  .textTheme
+                  .apply(
+                      bodyColor: Colors.red,
+                      displayColor: Colors.red,
+                      decorationColor: Colors.red)
+                  .bodyText2,
+              titleTextStyle: Theme.of(context)
+                  .textTheme
+                  .apply(
+                      bodyColor: Colors.red,
+                      displayColor: Colors.red,
+                      decorationColor: Colors.red)
+                  .headline6,
             ),
             tabBarTheme: TabBarTheme(
               labelColor: Colors.red,
