@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "703059723550-lhjug8il1bos0sl52b8ebr181rsra2jg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vedalaholdings.astro_log",
+            "certificate_hash": "6482bbb2adf9d15bc57e062fa847a818141c16bb"
+          }
+        },
+        {
           "client_id": "703059723550-o6u0klbqfnb6v60m8ambukgoodheni7l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
