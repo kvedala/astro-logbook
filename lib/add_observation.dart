@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -624,7 +625,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
     try {
       await firestore
           .collection('users/' + auth.currentUser!.uid + "/observations")
-          .add(_responses);
+          .add(_responses)
+          .then((ref) async => await FirebaseAnalytics.instance.logEvent(
+                name: "New Observation",
+                parameters: {"path": ref.path},
+              ));
     } catch (e) {
       // debugPrint(e);
       return false;

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -165,6 +166,11 @@ class Equipment extends StatelessWidget {
                           FirebaseAuth.instance.currentUser!.uid +
                           '/equipments')
                       .add(data)
+                      .then((ref) async =>
+                          await FirebaseAnalytics.instance.logEvent(
+                            name: "New Equipment",
+                            parameters: {"path": ref.path},
+                          ))
                       .whenComplete(() {
                       Navigator.pop(context);
                       _returnVal = true;
@@ -172,6 +178,11 @@ class Equipment extends StatelessWidget {
                   : await FirebaseFirestore.instance
                       .doc(reference.path)
                       .update(data)
+                      .then((ref) async =>
+                          await FirebaseAnalytics.instance.logEvent(
+                            name: "Updated Equipment",
+                            parameters: {"path": reference.path},
+                          ))
                       .whenComplete(() {
                       Navigator.pop(context);
                       _returnVal = true;

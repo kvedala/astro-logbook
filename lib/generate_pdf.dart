@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
@@ -15,7 +16,9 @@ import 'utils.dart';
 class GeneratePDF extends StatelessWidget {
   final List<DocumentReference?> selectedTiles;
 
-  GeneratePDF(this.selectedTiles);
+  GeneratePDF(this.selectedTiles) {
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: "PDF Output");
+  }
 
   @override
   Widget build(BuildContext context) {

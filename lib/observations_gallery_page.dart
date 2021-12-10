@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,10 +15,13 @@ class ObservationsGallary extends StatefulWidget {
 }
 
 class _ObservationsGallaryState extends State<ObservationsGallary> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    // FirebaseAnalytics.instance.
+    FirebaseAnalytics.instance
+        .setCurrentScreen(screenName: "Observations Gallery");
+  }
 
   @override
   Widget build(BuildContext context) {

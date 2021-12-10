@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,6 +88,14 @@ class _SignedInPageState extends State<SignedInPage>
       Navigator.popAndPushNamed(context, SignInPageRoute);
       // return null;
     }
+
+    FirebaseAnalytics.instance.logLogin();
+    FirebaseAnalytics.instance.setUserProperty(
+        name: "Name", value: FirebaseAuth.instance.currentUser!.displayName);
+    FirebaseAnalytics.instance.setUserProperty(
+        name: "e-mail", value: FirebaseAuth.instance.currentUser!.email);
+    FirebaseAnalytics.instance
+        .setUserId(id: FirebaseAuth.instance.currentUser!.uid);
 
     return Scaffold(
       appBar: AppBar(
