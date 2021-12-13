@@ -108,6 +108,8 @@ class ObservationData {
 
 /// Widget to add observation data to DB
 class AddObservationPage extends StatefulWidget {
+  AddObservationPage({Key? key}) : super(key: key);
+
   _AddObservationPageState createState() => _AddObservationPageState();
 }
 
@@ -138,6 +140,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
   @override
   void initState() {
     super.initState();
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: "Add observation");
     _loadData(context);
     _dateTimeController.text = _responses['longitude'] == null
         ? ""

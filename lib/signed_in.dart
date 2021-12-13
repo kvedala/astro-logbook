@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'equipment.dart';
 import 'equipment_gallery.dart';
+import 'list_of_objects.dart';
 import 'routes.dart';
 import 'checklist.dart';
 import 'sign_in.dart';
@@ -12,6 +13,7 @@ import 'observations_gallery_page.dart';
 
 /// Page to display after signing in
 class SignedInPage extends StatefulWidget {
+  SignedInPage({Key? key}) : super(key: key);
   _SignedInPageState createState() => _SignedInPageState();
 }
 
@@ -25,7 +27,7 @@ class MyTab {
   final Icon icon;
   final String name;
   final Widget display;
-  final void Function(BuildContext) floaterFunc;
+  final void Function(BuildContext)? floaterFunc;
 
   /// Container to define tab properties
   ///
@@ -33,7 +35,7 @@ class MyTab {
   /// * [name] title to display on top
   /// * [display] the main content to display in the scaffold body
   /// * [floaterFunc] to define the function of the floating button
-  MyTab(this.icon, this.name, this.display, this.floaterFunc);
+  MyTab(this.icon, this.name, this.display, [this.floaterFunc]);
 }
 
 class _SignedInPageState extends State<SignedInPage>
@@ -42,21 +44,34 @@ class _SignedInPageState extends State<SignedInPage>
 
   static final tabNames = [
     MyTab(
-        Icon(Icons.comment),
-        "Observations",
-        ObservationsGallary(),
-        (BuildContext context) =>
-            Navigator.pushNamed(context, AddObservationPageRoute)),
+      Icon(Icons.comment),
+      "Observations",
+      ObservationsGallary(),
+      (BuildContext context) =>
+          Navigator.pushNamed(context, AddObservationPageRoute),
+    ),
     MyTab(
       Icon(Icons.settings_outlined),
       "Equipment",
       EquipmentGallery(),
       (BuildContext context) async => await Equipment.addEquipment(context),
     ),
-    MyTab(Icon(Icons.library_add_check), "Checklist", CheckList(),
-        CheckList.addCheckListItem),
-    MyTab(Icon(Icons.photo_camera), "Photography", PhotographyGallary(),
-        (BuildContext context) {}),
+    MyTab(
+      Icon(Icons.library_add_check),
+      "Checklist",
+      CheckList(),
+      CheckList.addCheckListItem,
+    ),
+    MyTab(
+      Icon(Icons.list),
+      "List of Objects",
+      ListOfObjects(),
+    ),
+    MyTab(
+      Icon(Icons.photo_camera),
+      "Photography",
+      PhotographyGallary(),
+    ),
   ];
 
   @override
@@ -93,7 +108,7 @@ class _SignedInPageState extends State<SignedInPage>
     FirebaseAnalytics.instance.setUserProperty(
         name: "Name", value: FirebaseAuth.instance.currentUser!.displayName);
     FirebaseAnalytics.instance.setUserProperty(
-        name: "e-mail", value: FirebaseAuth.instance.currentUser!.email);
+        name: "Email", value: FirebaseAuth.instance.currentUser!.email);
     FirebaseAnalytics.instance
         .setUserId(id: FirebaseAuth.instance.currentUser!.uid);
 
@@ -139,11 +154,14 @@ class _SignedInPageState extends State<SignedInPage>
             )
             .toList(),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "add_${tabNames[_tabController!.index].name}",
-        child: Icon(Icons.add_rounded),
-        onPressed: () => tabNames[_tabController!.index].floaterFunc(context),
-      ),
+      floatingActionButton: tabNames[_tabController!.index].floaterFunc == null
+          ? null
+          : FloatingActionButton(
+              heroTag: "add_${tabNames[_tabController!.index].name}",
+              child: Icon(Icons.add_rounded),
+              onPressed: () =>
+                  tabNames[_tabController!.index].floaterFunc!(context),
+            ),
     );
   }
 }

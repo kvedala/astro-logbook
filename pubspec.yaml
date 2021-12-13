@@ -19,6 +19,7 @@ version: 1.8.0+8
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=1.12.13+hotfix.5"
 
 dependencies:
   flutter:
@@ -50,6 +51,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.9.2
+  csv: ^5.0.1
 
 flutter_icons:
   android: "launcher_icon"
@@ -67,7 +69,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - assets/messier.csv
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
