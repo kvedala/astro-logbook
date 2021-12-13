@@ -8,11 +8,14 @@ import 'package:csv/csv.dart';
 
 enum Difficulty { VeryEasy, Easy, Moderate, Hard }
 
+/// Convenience class to store hours and minutes of a coordinate
 class Coordinate {
   final int hour;
   final num minute;
   Coordinate(this.hour, this.minute);
 
+  /// Create from a text string of type:
+  /// 4h 3.4m
   factory Coordinate.fromHourMin(String text) {
     final splitIndex = text.indexOf("h ");
     final L = text.length;
@@ -22,6 +25,8 @@ class Coordinate {
     );
   }
 
+  /// Create from a text string of type:
+  /// 4°3.4
   factory Coordinate.fromDegMin(String text) {
     final splitIndex = text.indexOf("°");
     return Coordinate(
@@ -33,9 +38,12 @@ class Coordinate {
   @override
   String toString() => "${hour}h ${minute}m";
 
+  /// Export to a JSON map
   Map<String, num> toJSON() => {"hour": hour, "minute": minute};
 }
 
+/// Convenience class to store Messier Objects.
+/// Displays as a list tile.
 class Messier extends StatelessWidget {
   final int mid;
   final int? ngc;
@@ -57,7 +65,8 @@ class Messier extends StatelessWidget {
     );
   }
 
-  Map<String, dynamic> getData() => {
+  /// Export to JSON format Map
+  Map<String, dynamic> toJSON() => {
         "mid": mid,
         "ngc": ngc,
         "type": type,
@@ -132,7 +141,7 @@ class ListOfObjects extends StatelessWidget {
       await FirebaseFirestore.instance
           .collection("messier")
           .doc("${element.mid}")
-          .set(element.getData());
+          .set(element.toJSON());
 
     return FirebaseFirestore.instance.collection("/messier").get();
   }
