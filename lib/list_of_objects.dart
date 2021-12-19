@@ -1,45 +1,195 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
+import 'package:intl/intl.dart';
+import 'package:location/location.dart' as gps;
 
 enum Difficulty { VeryEasy, Easy, Moderate, Hard }
 
 /// Convenience class to store hours and minutes of a coordinate
 class Coordinate {
-  final int hour;
-  final num minute;
-  Coordinate(this.hour, this.minute);
+  final double value;
+  final bool isNegative;
+
+  // final int hour;
+  // final num minute;
+  // final num second;
+  Coordinate(this.value) : isNegative = value < 0;
+
+  factory Coordinate.fromHMS(int hour, num minute,
+          [num second = 0, bool isNegative = false]) =>
+      isNegative && hour >= 0
+          ? Coordinate(-1 * (hour + (minute + second / 60) / 60))
+          : Coordinate(hour + (minute + second / 60) / 60);
+
+  int get hour => value.floor();
+  int get minute => ((value - hour) * 60).floor();
+  double get second => ((value - hour) * 60 - minute) * 60;
 
   /// Create from a text string of type:
   /// 4h 3.4m
   factory Coordinate.fromHourMin(String text) {
     final splitIndex = text.indexOf("h ");
     final L = text.length;
-    return Coordinate(
-      int.parse(text.substring(0, splitIndex)),
-      num.parse(text.substring(splitIndex + 2, L - 1)),
-    );
+    final h = int.parse(text.substring(0, splitIndex));
+    return Coordinate.fromHMS(
+        h,
+        num.parse(text.substring(splitIndex + 2, L - 1)),
+        0,
+        text[0] == '-' ? true : false);
   }
 
   /// Create from a text string of type:
   /// 4°3.4
   factory Coordinate.fromDegMin(String text) {
     final splitIndex = text.indexOf("°");
-    return Coordinate(
-      int.parse(text.substring(0, splitIndex)),
+    final h = int.parse(text.substring(0, splitIndex));
+    return Coordinate.fromHMS(
+      h,
       num.parse(text.substring(splitIndex + 1)),
+      0,
+      text[0] == '-' ? true : false,
     );
   }
 
   @override
-  String toString() => "${hour}h ${minute}m";
+  String toString() =>
+      "${isNegative ? "-" : ""}${hour.abs()}h ${minute}m ${second.toStringAsPrecision(2)}s";
 
   /// Export to a JSON map
-  Map<String, num> toJSON() => {"hour": hour, "minute": minute};
+  Map<String, num> get json => {"degree": degree};
+
+  /// Get coordinate in radian
+  num get radian => this.value * pi / 180;
+
+  /// Get coordinate in degree
+  num get degree => value; //(hour + (minute + (second / 60)) / 60);
+}
+
+extension on TimeOfDay {
+  /// Convert to [DateTime] in local timezone
+  DateTime toDateTimeUTC() {
+    final now = DateTime.now().toUtc();
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      this.hour,
+      this.minute,
+    ); // always in local timezone
+  }
+}
+
+extension on gps.LocationData {
+  double? get latitudeRad => this.latitude! * pi / 180;
+  double? get longitudeRad => this.longitude! * pi / 180;
+}
+
+/// http://www2.arnes.si/~gljsentvid10/sidereal.htm
+///
+/// Shamelessly translated from
+/// https://github.com/codebox/star-rise-and-set-times/blob/master/calc.js
+class _RiseSetTimes {
+  final DateTime? riseTime;
+  final DateTime? setTime;
+  final bool belowHorizon;
+  final bool circumpolar;
+
+  _RiseSetTimes({
+    this.riseTime,
+    this.setTime,
+    this.belowHorizon = false,
+    this.circumpolar = false,
+  });
+
+  // factory _RiseSetTimes.fromMillisecondsSinceEpoch({
+  //   required num riseTimeMilliseconds,
+  //   required num setTimeMilliseconds,
+  //   bool belowHorizon = false,
+  //   bool circumpolar = false,
+  // }) =>
+  //     _RiseSetTimes(
+  //         riseTime:
+  //             DateTime.fromMillisecondsSinceEpoch(riseTimeMilliseconds.round()),
+  //         setTime:
+  //             DateTime.fromMillisecondsSinceEpoch(setTimeMilliseconds.round()),
+  //         belowHorizon: belowHorizon,
+  //         circumpolar: circumpolar);
+
+  static const MINUTES_PER_HOUR = 60;
+  static const SECONDS_PER_HOUR = 60;
+  static const SECONDS_PER_MINUTE = 60;
+  static const HOURS_PER_DAY = 24;
+  static const MILLISECONDS_PER_SECOND = 1000;
+  static const MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
+  static const SECONDS_PER_DAY = SECONDS_PER_MINUTE * MINUTES_PER_DAY;
+  static const MILLISECONDS_PER_DAY = SECONDS_PER_DAY * MILLISECONDS_PER_SECOND;
+  static const EPOCH_MILLIS_AT_2000_01_01_12_00_00 = 946728000000;
+
+  /// Convert [timeInHours] to a DateTime object
+  static TimeOfDay hoursToClockTime(num timeInHours) {
+    final hours = timeInHours.floor();
+    final minutes = ((timeInHours - hours) * MINUTES_PER_HOUR).floor();
+    // final seconds = ((timeInHours - hours - minutes / MINUTES_PER_HOUR) * SECONDS_PER_HOUR).floor();
+
+    return TimeOfDay(hour: hours, minute: minutes);
+  }
+
+  /// find all `n` such that
+  /// `x_0 <= (n * m + r - a) / b <= x_1`
+  static List<num> unmod(num r, num a, num b, num m, num x_0, num x_1) {
+    // find all 'n' such that x_0 <= (n * m + r - a) / b <= x_1
+    final fromN = ((x_0 * b + a - r) / m).ceil();
+    final toN = ((x_1 * b + a - r) / m).floor();
+    final xValues = <num>[];
+    for (var n = fromN; n <= toN; n++) {
+      xValues.add((n * m + r - a) / b);
+    }
+    return xValues;
+  }
+
+  static TimeOfDay radiansToUtcTime(
+      double radians, gps.LocationData userLocation) {
+    final daysSince_2000_01_01_12 = (DateTime.now().millisecondsSinceEpoch -
+            EPOCH_MILLIS_AT_2000_01_01_12_00_00) /
+        MILLISECONDS_PER_DAY;
+    final prevMidDay = (daysSince_2000_01_01_12).floor();
+    // https://aa.usno.navy.mil/faq/docs/GAST.php
+    final days = unmod(
+        radians,
+        4.894961212735792 + (userLocation.longitudeRad!),
+        6.30038809898489,
+        2 * pi,
+        prevMidDay,
+        prevMidDay + 1)[0];
+    final millisSinceEpoch =
+        days * MILLISECONDS_PER_DAY + EPOCH_MILLIS_AT_2000_01_01_12_00_00;
+    final millisSinceStartOfDay = millisSinceEpoch % MILLISECONDS_PER_DAY;
+    final hoursSinceStartOfDay =
+        millisSinceStartOfDay / (MILLISECONDS_PER_SECOND * SECONDS_PER_HOUR);
+    return hoursToClockTime(hoursSinceStartOfDay);
+  }
+
+  factory _RiseSetTimes.forObject(
+      Coordinate ra, Coordinate dec, gps.LocationData location) {
+    if ((dec.degree - location.latitude!).abs() >= 90)
+      return _RiseSetTimes(belowHorizon: true);
+    if ((dec.degree + location.latitude!).abs() >= 90)
+      return _RiseSetTimes(circumpolar: true);
+
+    final c = acos(-tan(dec.radian) * tan(location.latitudeRad!));
+    final riseTimeRadians = ra.radian - c;
+    final setTimeRadians = ra.radian + c;
+
+    return _RiseSetTimes(
+      riseTime: radiansToUtcTime(riseTimeRadians, location).toDateTimeUTC(),
+      setTime: radiansToUtcTime(setTimeRadians, location).toDateTimeUTC(),
+    );
+  }
 }
 
 /// Convenience class to store Messier Objects.
@@ -51,17 +201,23 @@ class Messier extends StatelessWidget {
   final Coordinate ra;
   final Coordinate dec;
   final String? difficulty;
+  final gps.LocationData? location;
 
-  Messier(this.mid, this.type, this.ra, this.dec, {this.ngc, this.difficulty});
+  Messier(this.mid, this.type, this.ra, this.dec,
+      {this.ngc, this.difficulty, this.location});
 
-  factory Messier.fromJSON(Map<String, dynamic> json) {
+  factory Messier.fromJSON(
+    gps.LocationData? location,
+    Map<String, dynamic> json,
+  ) {
     return Messier(
       json['mid'],
       json['type'],
-      Coordinate(json['ra']['hour'], json['ra']['minute']),
-      Coordinate(json['dec']['hour'], json['dec']['minute']),
+      Coordinate(json['ra']['degree']),
+      Coordinate(json['dec']['degree']),
       ngc: json['ngc'],
       difficulty: json['difficulty'],
+      location: location,
     );
   }
 
@@ -70,13 +226,24 @@ class Messier extends StatelessWidget {
         "mid": mid,
         "ngc": ngc,
         "type": type,
-        "ra": ra.toJSON(),
-        "dec": dec.toJSON(),
+        "ra": ra.json,
+        "dec": dec.json,
         "difficulty": difficulty.toString()
       };
 
   @override
   Widget build(BuildContext context) {
+    final times = getRiseAndSetTime();
+    late Widget visible;
+    if (times == null)
+      visible = SizedBox();
+    else if (times.circumpolar ||
+        times.riseTime!.hour >= 18 ||
+        times.setTime!.hour <= 5) {
+      visible = Icon(Icons.done);
+    } else {
+      visible = Icon(Icons.cancel);
+    }
     return ListTile(
       visualDensity: VisualDensity.compact,
       dense: true,
@@ -85,13 +252,32 @@ class Messier extends StatelessWidget {
         TableRow(children: [
           Text("RA: ${ra.toString()}"),
           Text(type),
+          times == null
+              ? SizedBox()
+              : times.circumpolar
+                  ? Text("Circumpolar")
+                  : times.belowHorizon
+                      ? Text("Below Horizon")
+                      : Text(
+                          "Rise: ${DateFormat("HH:mm").format(times.riseTime!)}"),
         ]),
         TableRow(children: [
           Text("DEC: ${dec.toString()}"),
           Text(difficulty ?? ""),
+          times == null
+              ? SizedBox()
+              : (times.circumpolar | times.belowHorizon)
+                  ? SizedBox()
+                  : Text("Set: ${DateFormat("HH:mm").format(times.setTime!)}"),
         ]),
       ]),
+      trailing: visible,
     );
+  }
+
+  _RiseSetTimes? getRiseAndSetTime() {
+    if (location == null) return null;
+    return _RiseSetTimes.forObject(ra, dec, location!);
   }
 }
 
@@ -102,20 +288,30 @@ class ListOfObjects extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FirebaseAnalytics.instance.setCurrentScreen(screenName: "List of Objects");
+    // print("Test: ${DateTime.utc(1994, 6, 16, 18).JulianDay}"); // must be -2024.75
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      // future: _readObjects(),
-      future: FirebaseFirestore.instance
-          .collection("/messier")
-          .orderBy("mid")
-          .get(),
+      future: () async {
+        // return _readObjects();
+        return FirebaseFirestore.instance
+            .collection("/messier")
+            .orderBy("mid")
+            .get();
+      }(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting)
           return Center(child: CircularProgressIndicator());
         if (snap.data == null) return Center(child: Text("No data!"));
-        return ListView.builder(
-          itemCount: snap.data?.size,
-          itemBuilder: (context, index) =>
-              Messier.fromJSON(snap.data!.docs[index].data()),
+        return FutureBuilder<gps.LocationData?>(
+          future: _getLocation(),
+          builder: (ctx, snap2) {
+            if (snap2.connectionState != ConnectionState.done)
+              return Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              itemCount: snap.data?.size,
+              itemBuilder: (context, index) =>
+                  Messier.fromJSON(snap2.data, snap.data!.docs[index].data()),
+            );
+          },
         );
       },
     );
@@ -143,6 +339,34 @@ class ListOfObjects extends StatelessWidget {
           .doc("${element.mid}")
           .set(element.toJSON());
 
-    return FirebaseFirestore.instance.collection("/messier").get();
+    return FirebaseFirestore.instance
+        .collection("/messier")
+        .orderBy("mid")
+        .get();
+  }
+
+  Future<gps.LocationData?> _getLocation() async {
+    gps.Location location = new gps.Location();
+
+    bool _serviceEnabled;
+    gps.PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return null;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == gps.PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != gps.PermissionStatus.granted) {
+        return null;
+      }
+    }
+
+    return await location.getLocation();
   }
 }
