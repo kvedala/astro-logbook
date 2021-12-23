@@ -309,6 +309,7 @@ class ListOfObjects extends StatelessWidget {
           builder: (ctx, snap2) {
             if (snap2.connectionState != ConnectionState.done)
               return Center(child: CircularProgressIndicator());
+            if (snap2.data == null) return Center(child: Text("No Data!"));
             return ListView.builder(
               itemCount: snap2.data?.size,
               itemBuilder: (context, index) =>
