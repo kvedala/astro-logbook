@@ -289,27 +289,31 @@ class ListOfObjects extends StatelessWidget {
   Widget build(BuildContext context) {
     FirebaseAnalytics.instance.setCurrentScreen(screenName: "List of Objects");
     // print("Test: ${DateTime.utc(1994, 6, 16, 18).JulianDay}"); // must be -2024.75
-    return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      future: () async {
-        // return _readObjects();
-        return FirebaseFirestore.instance
-            .collection("/messier")
-            .orderBy("mid")
-            .get();
-      }(),
+    return FutureBuilder<gps.LocationData?>(
+      future: _getLocation(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting)
           return Center(child: CircularProgressIndicator());
-        if (snap.data == null) return Center(child: Text("No data!"));
-        return FutureBuilder<gps.LocationData?>(
-          future: _getLocation(),
+        if (snap.data == null)
+          return Center(
+            child: Text("No GPS!\nCannot compute Rise and Set times."),
+          );
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream:
+              // return _readObjects();
+              FirebaseFirestore.instance
+                  .collection("/messier")
+                  .orderBy("mid")
+                  .get()
+                  .asStream(),
           builder: (ctx, snap2) {
             if (snap2.connectionState != ConnectionState.done)
               return Center(child: CircularProgressIndicator());
+            if (snap2.data == null) return Center(child: Text("No Data!"));
             return ListView.builder(
-              itemCount: snap.data?.size,
+              itemCount: snap2.data?.size,
               itemBuilder: (context, index) =>
-                  Messier.fromJSON(snap2.data, snap.data!.docs[index].data()),
+                  Messier.fromJSON(snap.data, snap2.data!.docs[index].data()),
             );
           },
         );

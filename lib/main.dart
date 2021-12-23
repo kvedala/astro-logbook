@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 
 import 'routes.dart';
@@ -7,9 +6,7 @@ import 'sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -28,7 +25,6 @@ class MyApp extends StatelessWidget {
             displayColor: Colors.red,
             decorationColor: Colors.red),
         primaryIconTheme: IconThemeData(color: Colors.red),
-        primaryColorBrightness: Brightness.dark,
         // accentIconTheme: IconThemeData(color: Colors.red),
         // floatingActionButtonTheme: FloatingActionButtonThemeData(),
         brightness: Brightness.dark,
@@ -41,8 +37,6 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.dark(
           primary: Colors.red.shade800,
           secondary: Colors.red.shade600,
-          primaryVariant: Colors.red.shade600,
-          secondaryVariant: Colors.red.shade600,
         ),
         appBarTheme: AppBarTheme(
           toolbarTextStyle: Theme.of(context)
