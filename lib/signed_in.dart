@@ -112,6 +112,9 @@ class _SignedInPageState extends State<SignedInPage>
     FirebaseAnalytics.instance
         .setUserId(id: FirebaseAuth.instance.currentUser!.uid);
 
+    // ListOfObjects.saveMessierObjects();
+    // ListOfObjects.saveNGCObjects();
+
     return Scaffold(
       appBar: AppBar(
         title: Column(children: [
@@ -136,6 +139,7 @@ class _SignedInPageState extends State<SignedInPage>
         actions: [
           IconButton(
               icon: Icon(Icons.logout),
+              color: Colors.red,
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 if (googleSignIn != null) {
