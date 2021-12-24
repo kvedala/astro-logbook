@@ -195,27 +195,27 @@ class _RiseSetTimes {
 /// Convenience class to store Messier Objects.
 /// Displays as a list tile.
 class Messier extends StatelessWidget {
-  final int mid;
-  final int? ngc;
+  final int id;
+  // final int? ngc;
   final String type;
   final Coordinate ra;
   final Coordinate dec;
   final String? difficulty;
+  final num? magnitude;
   final gps.LocationData? location;
 
-  Messier(this.mid, this.type, this.ra, this.dec,
-      {this.ngc, this.difficulty, this.location});
+  Messier(this.id, this.type, this.ra, this.dec,
+      {this.difficulty, this.location, this.magnitude});
 
   factory Messier.fromJSON(
     gps.LocationData? location,
     Map<String, dynamic> json,
   ) {
     return Messier(
-      json['mid'],
+      json['number'],
       json['type'],
       Coordinate(json['ra']['degree']),
       Coordinate(json['dec']['degree']),
-      ngc: json['ngc'],
       difficulty: json['difficulty'],
       location: location,
     );
@@ -223,8 +223,7 @@ class Messier extends StatelessWidget {
 
   /// Export to JSON format Map
   Map<String, dynamic> toJSON() => {
-        "mid": mid,
-        "ngc": ngc,
+        "number": id,
         "type": type,
         "ra": ra.json,
         "dec": dec.json,
@@ -237,6 +236,8 @@ class Messier extends StatelessWidget {
     late Widget visible;
     if (times == null)
       visible = SizedBox();
+    else if (times.belowHorizon)
+      visible = Icon(Icons.cancel);
     else if (times.circumpolar ||
         times.riseTime!.hour >= 18 ||
         times.setTime!.hour <= 5) {
@@ -247,7 +248,7 @@ class Messier extends StatelessWidget {
     return ListTile(
       visualDensity: VisualDensity.compact,
       dense: true,
-      leading: Text("$mid"),
+      leading: Text("$id"),
       subtitle: Table(children: [
         TableRow(children: [
           Text("RA: ${ra.toString()}"),
@@ -300,16 +301,17 @@ class ListOfObjects extends StatelessWidget {
           );
         return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream:
-              // return _readObjects();
+              // return _saveMessierObjects();
               FirebaseFirestore.instance
                   .collection("/messier")
-                  .orderBy("mid")
-                  .get()
-                  .asStream(),
+                  .orderBy("number")
+                  .snapshots(),
           builder: (ctx, snap2) {
-            if (snap2.connectionState != ConnectionState.done)
+            // if (snap2.connectionState != ConnectionState.done)
+            //   return Center(child: CircularProgressIndicator());
+            if (snap2.data == null)
+              // return Center(child: Text("No Data!"));
               return Center(child: CircularProgressIndicator());
-            if (snap2.data == null) return Center(child: Text("No Data!"));
             return ListView.builder(
               itemCount: snap2.data?.size,
               itemBuilder: (context, index) =>
@@ -322,7 +324,8 @@ class ListOfObjects extends StatelessWidget {
   }
 
   // ignore: unused_element
-  Future<QuerySnapshot<Map<String, dynamic>>> _readObjects() async {
+  static Future<QuerySnapshot<Map<String, dynamic>>>
+      saveMessierObjects() async {
     final data = await rootBundle.loadString("assets/messier.csv");
 
     var out1 = CsvToListConverter().convert(data);
@@ -340,13 +343,40 @@ class ListOfObjects extends StatelessWidget {
     for (final element in out2)
       await FirebaseFirestore.instance
           .collection("messier")
-          .doc("${element.mid}")
+          .doc("${element.id}")
           .set(element.toJSON());
 
     return FirebaseFirestore.instance
         .collection("/messier")
         .orderBy("mid")
         .get();
+  }
+
+  // ignore: unused_element
+  static Future<QuerySnapshot<Map<String, dynamic>>> saveNGCObjects() async {
+    final data = await rootBundle.loadString("assets/NGCObjects.csv");
+
+    var out1 = CsvToListConverter().convert(data);
+    out1.removeAt(0);
+    final out2 = out1.map<Messier>((item) {
+      final decNegative = item[8] == '+' ? false : true;
+      return Messier(
+        item[0],
+        item[2] as String,
+        Coordinate.fromHMS(item[6], item[7]),
+        Coordinate.fromHMS(item[9], item[10], 0, decNegative),
+        magnitude:
+            item[4].runtimeType == String ? num.tryParse(item[4]) : item[4],
+      );
+    }).toList(growable: false);
+
+    for (final element in out2)
+      await FirebaseFirestore.instance
+          .collection("ngc")
+          .doc("${element.id}")
+          .set(element.toJSON());
+
+    return FirebaseFirestore.instance.collection("/ngc").orderBy("ngc").get();
   }
 
   Future<gps.LocationData?> _getLocation() async {
