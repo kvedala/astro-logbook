@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 import 'routes.dart';
 import 'sign_in.dart';
@@ -7,6 +9,16 @@ import 'sign_in.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // check if is running on Web
+  if (kIsWeb) {
+    // initialiaze the facebook javascript SDK
+    FacebookAuth.i.webInitialize(
+      appId: "437381314078679",
+      cookie: true,
+      xfbml: true,
+      version: "v12.0",
+    );
+  }
   runApp(MyApp());
 }
 

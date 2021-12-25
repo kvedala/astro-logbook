@@ -248,7 +248,7 @@ class Messier extends StatelessWidget {
     return ListTile(
       visualDensity: VisualDensity.compact,
       dense: true,
-      leading: Text("$id"),
+      leading: Text("M $id"),
       subtitle: Table(children: [
         TableRow(children: [
           Text("RA: ${ra.toString()}"),
@@ -288,7 +288,8 @@ class ListOfObjects extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAnalytics.instance.setCurrentScreen(screenName: "List of Objects");
+    FirebaseAnalytics.instance
+        .setCurrentScreen(screenName: "List of Messier Objects");
     // print("Test: ${DateTime.utc(1994, 6, 16, 18).JulianDay}"); // must be -2024.75
     return FutureBuilder<gps.LocationData?>(
       future: _getLocation(),
