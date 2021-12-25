@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
@@ -197,14 +198,29 @@ class _SignInPageState extends State<SignInPage> {
   /// signin with facebook
   void _facebookSignIn() async {
     try {
-      final accessToken = await FacebookAuth.instance.login();
+      if (kIsWeb) {
+        // Create a new provider
+        FacebookAuthProvider facebookProvider = FacebookAuthProvider();
 
-      // Create a credential from the access token
-      final FacebookAuthCredential credential = FacebookAuthProvider.credential(
-        accessToken.message!,
-      ) as FacebookAuthCredential;
-      // Once signed in, return the UserCredential
-      await FirebaseAuth.instance.signInWithCredential(credential);
+        facebookProvider.addScope('email');
+        facebookProvider.setCustomParameters({
+          'display': 'popup',
+        });
+
+        // Once signed in, return the UserCredential
+        await FirebaseAuth.instance.signInWithPopup(facebookProvider);
+      } else {
+        final accessToken =
+            await FacebookAuth.instance.login(permissions: const ['email']);
+
+        // Create a credential from the access token
+        final FacebookAuthCredential credential =
+            FacebookAuthProvider.credential(
+          accessToken.accessToken?.token ?? "",
+        ) as FacebookAuthCredential;
+        // Once signed in, return the UserCredential
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
       // } on Facebo catch (e) {
       //   debugPrint(e.message);
       // handle the FacebookAuthException
