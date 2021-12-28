@@ -65,11 +65,11 @@
 		<key>LSRequiresIPhoneOS</key>
 		<true />
 		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you.</string>
+		<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you and for computation of rise and setting times of various celestial objects.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>This app needs access to location when open.</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Please provide access to select and upload your chosen file.</string>
+		<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you and for computation of rise and setting times of various celestial objects.</string>
+		<!-- <key>NSPhotoLibraryUsageDescription</key>
+		<string>Please provide access to select and upload your chosen file.</string> -->
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
