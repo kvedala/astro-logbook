@@ -13,5 +13,5 @@ The app can be compiled for Android and iOS smartphones and tablets and also as 
 # Downloads
 * Online web app - https://astrolog.vedala.holdings
 * Android: https://play.google.com/store/apps/details?id=com.vedalaholdings.astro_log
-* iOS: https://appdistribution.firebase.dev/i/8c0b75f66438e0ed 
+* iOS: https://apps.apple.com/us/app/astronomy-logbook/id1552320892 
   
