@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
@@ -202,15 +203,15 @@ class Messier extends StatelessWidget {
   final Coordinate dec;
   final String? difficulty;
   final num? magnitude;
+  final bool viewed;
   final gps.LocationData? location;
 
   Messier(this.id, this.type, this.ra, this.dec,
-      {this.difficulty, this.location, this.magnitude});
+      {this.difficulty, this.location, this.magnitude, this.viewed = false});
 
   factory Messier.fromJSON(
-    gps.LocationData? location,
-    Map<String, dynamic> json,
-  ) {
+      gps.LocationData? location, Map<String, dynamic> json,
+      [bool viewed = false]) {
     return Messier(
       json['number'],
       json['type'],
@@ -218,6 +219,7 @@ class Messier extends StatelessWidget {
       Coordinate(json['dec']['degree']),
       difficulty: json['difficulty'],
       location: location,
+      viewed: viewed,
     );
   }
 
@@ -248,7 +250,11 @@ class Messier extends StatelessWidget {
     return ListTile(
       visualDensity: VisualDensity.compact,
       dense: true,
-      leading: Text("M $id"),
+      leading: Column(children: [
+        Text("M $id"),
+        Icon(
+            viewed ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+      ]),
       subtitle: Table(children: [
         TableRow(children: [
           Text("RA: ${ra.toString()}"),
@@ -295,7 +301,10 @@ class ListOfObjects extends StatelessWidget {
       future: _getLocation(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting)
-          return Center(child: CircularProgressIndicator());
+          return Column(children: [
+            CircularProgressIndicator(),
+            Text("Getting current GPS location...")
+          ]);
         if (snap.data == null)
           return Center(
             child: Text("No GPS!\nCannot compute Rise and Set times."),
@@ -312,11 +321,35 @@ class ListOfObjects extends StatelessWidget {
             //   return Center(child: CircularProgressIndicator());
             if (snap2.data == null)
               // return Center(child: Text("No Data!"));
-              return Center(child: CircularProgressIndicator());
-            return ListView.builder(
-              itemCount: snap2.data?.size,
-              itemBuilder: (context, index) =>
-                  Messier.fromJSON(snap.data, snap2.data!.docs[index].data()),
+              return Column(children: [
+                CircularProgressIndicator(),
+                Text("Loading Messier data...")
+              ]);
+            return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              future: FirebaseFirestore.instance
+                  .collection("users/" +
+                      FirebaseAuth.instance.currentUser!.uid +
+                      "/observations")
+                  // .where("messier", isGreaterThan: 0)
+                  .get(GetOptions(source: Source.cache)),
+              builder: (context, snap3) =>
+                  snap3.connectionState != ConnectionState.done
+                      ? Column(children: [
+                          CircularProgressIndicator(),
+                          Text("Loading viewed data...")
+                        ])
+                      : ListView.builder(
+                          itemCount: snap2.data?.size,
+                          itemBuilder: (context, index) => Messier.fromJSON(
+                            snap.data,
+                            snap2.data!.docs[index].data(),
+                            snap3.data!.docs
+                                .where((element) =>
+                                    snap2.data!.docs[index].data()['number'] ==
+                                    element.data()["messier"])
+                                .isNotEmpty,
+                          ),
+                        ),
             );
           },
         );
