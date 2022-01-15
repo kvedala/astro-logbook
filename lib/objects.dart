@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
+import 'ra_dec.dart';
 import 'uploadobjects.dart';
 
 extension on gps.LocationData {
@@ -34,7 +35,7 @@ abstract class Catalog extends StatelessWidget {
   /// was this object viewed by the user
   final bool viewed;
 
-  late _RiseSetTimes? _riseTimes;
+  late final _RiseSetTimes? _riseTimes;
 
   Catalog(this.id, this.ra, this.dec,
       {required this.name,
@@ -117,8 +118,8 @@ class Messier extends Catalog {
     return Messier(
       json['number'],
       json['type'],
-      RightAscession.fromJSON(json['ra']['degree']),
-      Declination.fromJSON(json['dec']['degree']),
+      RightAscession.fromJSON(json['ra']),
+      Declination.fromJSON(json['dec']),
       difficulty: json['difficulty'],
       viewed: viewed,
     );

@@ -4,8 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:location/location.dart' as gps;
+
+import 'objects.dart';
 
 // enum Difficulty { VeryEasy, Easy, Moderate, Hard }
 
@@ -69,20 +70,6 @@ class Coordinate {
   num get degree => value; //(hour + (minute + (second / 60)) / 60);
 }
 
-extension on TimeOfDay {
-  /// Convert to [DateTime] in local timezone
-  DateTime toDateTimeUTC() {
-    final now = DateTime.now().toUtc();
-    return DateTime(
-      now.year,
-      now.month,
-      now.day,
-      this.hour,
-      this.minute,
-    ); // always in local timezone
-  }
-}
-
 /// Page to display the observations as a gallery
 class ListOfObjects extends StatelessWidget {
   const ListOfObjects({Key? key}) : super(key: key);
@@ -136,7 +123,6 @@ class ListOfObjects extends StatelessWidget {
                       : ListView.builder(
                           itemCount: snap2.data?.size,
                           itemBuilder: (context, index) => Messier.fromJSON(
-                            snap.data,
                             snap2.data!.docs[index].data(),
                             snap3.data!.docs
                                 .where((element) =>
@@ -150,62 +136,6 @@ class ListOfObjects extends StatelessWidget {
         );
       },
     );
-  }
-
-  // ignore: unused_element
-  static Future<QuerySnapshot<Map<String, dynamic>>>
-      saveMessierObjects() async {
-    final data = await rootBundle.loadString("assets/messier.csv");
-
-    var out1 = CsvToListConverter().convert(data);
-    out1.removeAt(0);
-    final out2 = out1.map<Messier>((item) {
-      return Messier(
-        int.parse((item[0] as String).substring(1)),
-        item[2] as String,
-        Coordinate.fromHourMin(item[4]),
-        Coordinate.fromDegMin(item[5]),
-        difficulty: item[10],
-      );
-    }).toList(growable: false);
-
-    for (final element in out2)
-      await FirebaseFirestore.instance
-          .collection("messier")
-          .doc("${element.id}")
-          .set(element.toJSON());
-
-    return FirebaseFirestore.instance
-        .collection("/messier")
-        .orderBy("mid")
-        .get();
-  }
-
-  // ignore: unused_element
-  static Future<QuerySnapshot<Map<String, dynamic>>> saveNGCObjects() async {
-    final data = await rootBundle.loadString("assets/NGCObjects.csv");
-
-    var out1 = CsvToListConverter().convert(data);
-    out1.removeAt(0);
-    final out2 = out1.map<Messier>((item) {
-      final decNegative = item[8] == '+' ? false : true;
-      return Messier(
-        item[0],
-        item[2] as String,
-        Coordinate.fromHMS(item[6], item[7]),
-        Coordinate.fromHMS(item[9], item[10], 0, decNegative),
-        magnitude:
-            item[4].runtimeType == String ? num.tryParse(item[4]) : item[4],
-      );
-    }).toList(growable: false);
-
-    for (final element in out2)
-      await FirebaseFirestore.instance
-          .collection("ngc")
-          .doc("${element.id}")
-          .set(element.toJSON());
-
-    return FirebaseFirestore.instance.collection("/ngc").orderBy("ngc").get();
   }
 
   Future<gps.LocationData?> _getLocation() async {

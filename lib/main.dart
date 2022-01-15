@@ -5,10 +5,15 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 import 'routes.dart';
 import 'sign_in.dart';
+// import 'uploadobjects.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // await uploadMessier();
+  // await uploadNGC();
+
   // check if is running on Web
   if (kIsWeb) {
     // initialiaze the facebook javascript SDK

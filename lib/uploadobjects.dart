@@ -1,41 +1,9 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 
 import 'objects.dart';
-
-/// Define a Right Ascession object
-class RightAscession {
-  final int _hour;
-  final double _minute;
-
-  RightAscession(this._hour, this._minute);
-  factory RightAscession.fromJSON(Map<String, num> json) =>
-      RightAscession(json["hour"] as int, json["minute"] as double);
-
-  double get degree => (_hour * 15) + (_minute * 15) / 60;
-  double get radian => degree * pi / 180.0;
-
-  Map<String, num> get json => {"hour": _hour, "minute": _minute};
-}
-
-/// Define a Declination object
-class Declination {
-  final int _deg;
-  final double _minute;
-  final String sign;
-
-  Declination(this._deg, this._minute, this.sign);
-  factory Declination.fromJSON(Map<String, num> json) => Declination(
-      json["degree"] as int, json["minute"] as double, json["sign"] as String);
-
-  double get degree => (_deg) + (_minute) / 60;
-  double get radian => degree * pi / 180.0;
-
-  Map<String, num> get json => {"degree": _deg, "minute": _minute};
-}
+import 'ra_dec.dart';
 
 Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
   final data = await rootBundle.loadString("assets/messier.csv");
@@ -47,7 +15,7 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
     String dec = item[5] as String;
     String sign = '+';
     if (dec[0] == '-') {
-      sign = '1';
+      sign = '-';
       dec = dec.substring(1);
     }
 
@@ -76,7 +44,7 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
   return FirebaseFirestore.instance.collection("/messier").orderBy("mid").get();
 }
 
-Future<QuerySnapshot<Map<String, dynamic>>> saveNGCObjects() async {
+Future<QuerySnapshot<Map<String, dynamic>>> uploadNGC() async {
   final data = await rootBundle.loadString("assets/NGCObjects.csv");
 
   var out1 = CsvToListConverter().convert(data);
@@ -86,12 +54,12 @@ Future<QuerySnapshot<Map<String, dynamic>>> saveNGCObjects() async {
       item[0],
       item[2] as String,
       RightAscession(
-        int.parse(item[6] as String),
-        double.parse(item[7] as String),
+        item[6],
+        item[7],
       ),
       Declination(
-        int.parse(item[9] as String),
-        double.parse(item[10] as String),
+        item[9],
+        item[10],
         item[8],
       ),
       magnitude:
