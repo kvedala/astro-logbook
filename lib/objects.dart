@@ -34,24 +34,32 @@ abstract class Catalog extends StatelessWidget {
   /// was this object viewed by the user
   final bool viewed;
 
+  late _RiseSetTimes? _riseTimes;
+
   Catalog(this.id, this.ra, this.dec,
       {required this.name,
       this.difficulty,
       this.type = "",
       this.magnitude,
-      this.viewed = false});
+      this.viewed = false,
+      gps.LocationData? currentLocation}) {
+    if (currentLocation == null)
+      _riseTimes = null;
+    else {
+      _riseTimes = _RiseSetTimes.forObject(ra, dec, currentLocation);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final times = getRiseAndSetTime();
     late Widget visible;
-    if (times == null)
+    if (_riseTimes == null)
       visible = SizedBox();
-    else if (times.belowHorizon)
+    else if (_riseTimes!.belowHorizon)
       visible = Icon(Icons.cancel);
-    else if (times.circumpolar ||
-        times.riseTime!.hour >= 18 ||
-        times.setTime!.hour <= 5) {
+    else if (_riseTimes!.circumpolar ||
+        _riseTimes!.riseTime!.hour >= 18 ||
+        _riseTimes!.setTime!.hour <= 5) {
       visible = Icon(Icons.done);
     } else {
       visible = Icon(Icons.cancel);
@@ -68,23 +76,24 @@ abstract class Catalog extends StatelessWidget {
         TableRow(children: [
           Text("RA: ${ra.toString()}"),
           Text(type),
-          times == null
+          _riseTimes == null
               ? SizedBox()
-              : times.circumpolar
+              : _riseTimes!.circumpolar
                   ? Text("Circumpolar")
-                  : times.belowHorizon
+                  : _riseTimes!.belowHorizon
                       ? Text("Below Horizon")
                       : Text(
-                          "Rise: ${DateFormat("HH:mm").format(times.riseTime!)}"),
+                          "Rise: ${DateFormat("HH:mm").format(_riseTimes!.riseTime!)}"),
         ]),
         TableRow(children: [
           Text("DEC: ${dec.toString()}"),
           Text(difficulty ?? ""),
-          times == null
+          _riseTimes == null
               ? SizedBox()
-              : (times.circumpolar | times.belowHorizon)
+              : (_riseTimes!.circumpolar | _riseTimes!.belowHorizon)
                   ? SizedBox()
-                  : Text("Set: ${DateFormat("HH:mm").format(times.setTime!)}"),
+                  : Text(
+                      "Set: ${DateFormat("HH:mm").format(_riseTimes!.setTime!)}"),
         ]),
       ]),
       trailing: visible,
@@ -123,11 +132,72 @@ class Messier extends Catalog {
         "dec": dec.json,
         "difficulty": difficulty.toString()
       };
+}
 
-  _RiseSetTimes? getRiseAndSetTime() {
-    if (location == null) return null;
-    return _RiseSetTimes.forObject(ra, dec, location!);
+/// Convenience class to store NGC Objects.
+/// Displays as a list tile.
+class NGC extends Catalog {
+  NGC(int id, String type, RightAscession ra, Declination dec,
+      {String? difficulty, num? magnitude, bool viewed = false})
+      : super(id, ra, dec,
+            name: "NGC",
+            difficulty: difficulty,
+            type: type,
+            magnitude: magnitude,
+            viewed: viewed);
+
+  factory NGC.fromJSON(Map<String, dynamic> json, [bool viewed = false]) {
+    return NGC(
+      json['number'],
+      json['type'],
+      RightAscession.fromJSON(json['ra']['degree']),
+      Declination.fromJSON(json['dec']['degree']),
+      difficulty: json['difficulty'],
+      viewed: viewed,
+    );
   }
+
+  /// Export to JSON format Map
+  Map<String, dynamic> get json => {
+        "number": id,
+        "type": type,
+        "ra": ra.json,
+        "dec": dec.json,
+        "difficulty": difficulty.toString()
+      };
+}
+
+/// Convenience class to store Caldwell Objects.
+/// Displays as a list tile.
+class Caldwell extends Catalog {
+  Caldwell(int id, String type, RightAscession ra, Declination dec,
+      {String? difficulty, num? magnitude, bool viewed = false})
+      : super(id, ra, dec,
+            name: "Caldwell",
+            difficulty: difficulty,
+            type: type,
+            magnitude: magnitude,
+            viewed: viewed);
+
+  factory Caldwell.fromJSON(Map<String, dynamic> json, [bool viewed = false]) {
+    return Caldwell(
+      json['number'],
+      json['type'],
+      RightAscession.fromJSON(json['ra']['degree']),
+      Declination.fromJSON(json['dec']['degree']),
+      difficulty: json['difficulty'],
+      viewed: viewed,
+    );
+  }
+
+  /// Export to JSON format Map
+  Map<String, dynamic> get json => {
+        "number": id,
+        "type": type,
+        "ra": ra.json,
+        "dec": dec.json,
+        "difficulty": difficulty.toString()
+      };
 }
 
 /// http://www2.arnes.si/~gljsentvid10/sidereal.htm
@@ -230,5 +300,19 @@ class _RiseSetTimes {
       riseTime: radiansToUtcTime(riseTimeRadians, location).toDateTimeUTC(),
       setTime: radiansToUtcTime(setTimeRadians, location).toDateTimeUTC(),
     );
+  }
+}
+
+extension on TimeOfDay {
+  /// Convert to [DateTime] in local timezone
+  DateTime toDateTimeUTC() {
+    final now = DateTime.now().toUtc();
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      this.hour,
+      this.minute,
+    ); // always in local timezone
   }
 }
