@@ -5,7 +5,8 @@ class RightAscession {
   final int _hour;
   final num _minute;
 
-  RightAscession(this._hour, this._minute);
+  const RightAscession(this._hour, this._minute);
+
   factory RightAscession.fromJSON(Map<String, dynamic> json) =>
       RightAscession(json["hour"] as int, json["minute"] as num);
 
@@ -24,7 +25,8 @@ class Declination {
   final num _minute;
   final String _sign;
 
-  Declination(this._deg, this._minute, this._sign);
+  const Declination(this._deg, this._minute, this._sign);
+
   factory Declination.fromJSON(Map<String, dynamic> json) => Declination(
       json["degree"] as int, json["minute"] as num, json["sign"] as String);
 
