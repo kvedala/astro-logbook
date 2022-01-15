@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
 import 'ra_dec.dart';
-import 'uploadobjects.dart';
 
 extension on gps.LocationData {
   double? get latitudeRad => this.latitude! * pi / 180;

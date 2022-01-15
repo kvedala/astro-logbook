@@ -13,6 +13,9 @@ class RightAscession {
   double get radian => degree * pi / 180.0;
 
   Map<String, num> get json => {"hour": _hour, "minute": _minute};
+
+  @override
+  String toString() => "$_hour h $_minute min";
 }
 
 /// Define a Declination object
@@ -25,9 +28,16 @@ class Declination {
   factory Declination.fromJSON(Map<String, dynamic> json) => Declination(
       json["degree"] as int, json["minute"] as num, json["sign"] as String);
 
-  double get degree => (_deg) + (_minute) / 60;
+  double get degree {
+    final val = (_deg) + (_minute) / 60;
+    return _sign == "+" ? val : -val;
+  }
+
   double get radian => degree * pi / 180.0;
 
   Map<String, dynamic> get json =>
       {"degree": _deg, "minute": _minute, "sign": _sign};
+
+  @override
+  String toString() => "$_sign$_deg° $_minute'";
 }
