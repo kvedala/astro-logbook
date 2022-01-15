@@ -2,22 +2,23 @@ import 'dart:math';
 
 /// Define a Right Ascession object
 class RightAscession {
-  final int _hour;
-  final num _minute;
-  final num _second;
+  final int hour;
+  final num minute;
+  final num second;
 
-  const RightAscession(this._hour, this._minute, [this._second = 0]);
+  const RightAscession(this.hour, this.minute, [this.second = 0]);
 
   factory RightAscession.fromJSON(Map<String, dynamic> json) =>
       RightAscession(json["hour"] as int, json["minute"] as num);
 
-  double get degree => (_hour * 15) + (_minute * 15) / 60;
+  double get hours => hour + (minute + (second / 60)) / 60;
+  double get degree => hours * 15;
   double get radian => degree * pi / 180.0;
 
-  Map<String, num> get json => {"hour": _hour, "minute": _minute};
+  Map<String, num> get json => {"hour": hour, "minute": minute};
 
   @override
-  String toString() => "$_hour h $_minute min";
+  String toString() => "$hour h $minute min";
 }
 
 /// Define a Declination object
@@ -33,7 +34,7 @@ class Declination {
       json["degree"] as int, json["minute"] as num, json["sign"] as String);
 
   double get degree {
-    final val = (_deg) + (_minute) / 60;
+    final val = (_deg) + ((_minute) + (_second / 60)) / 60;
     return _sign == "+" ? val : -val;
   }
 
