@@ -1,15 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
 import 'ra_dec.dart';
-
-extension on gps.LocationData {
-  double? get latitudeRad => this.latitude! * pi / 180;
-  double? get longitudeRad => this.longitude! * pi / 180;
-}
+import 'rise_times.dart';
 
 /// Generic Celestial object catalog
 abstract class Catalog extends StatelessWidget {
@@ -34,7 +28,7 @@ abstract class Catalog extends StatelessWidget {
   /// was this object viewed by the user
   final bool viewed;
 
-  late final _RiseSetTimes? _riseTimes;
+  late final RiseSetTimes? _riseTimes;
 
   Catalog(this.id, this.ra, this.dec,
       {required this.name,
@@ -46,7 +40,7 @@ abstract class Catalog extends StatelessWidget {
     if (currentLocation == null)
       _riseTimes = null;
     else {
-      _riseTimes = _RiseSetTimes.forObject(ra, dec, currentLocation);
+      _riseTimes = RiseSetTimes.forObject(ra, dec, currentLocation);
     }
   }
 
@@ -105,15 +99,20 @@ abstract class Catalog extends StatelessWidget {
 /// Displays as a list tile.
 class Messier extends Catalog {
   Messier(int id, String type, RightAscession ra, Declination dec,
-      {String? difficulty, num? magnitude, bool viewed = false})
+      {String? difficulty,
+      num? magnitude,
+      bool viewed = false,
+      gps.LocationData? currentLocation})
       : super(id, ra, dec,
             name: "Messier",
             difficulty: difficulty,
             type: type,
             magnitude: magnitude,
-            viewed: viewed);
+            viewed: viewed,
+            currentLocation: currentLocation);
 
-  factory Messier.fromJSON(Map<String, dynamic> json, [bool viewed = false]) {
+  factory Messier.fromJSON(Map<String, dynamic> json,
+      [bool viewed = false, gps.LocationData? currentLocation]) {
     return Messier(
       json['number'],
       json['type'],
@@ -121,6 +120,7 @@ class Messier extends Catalog {
       Declination.fromJSON(json['dec']),
       difficulty: json['difficulty'],
       viewed: viewed,
+      currentLocation: currentLocation,
     );
   }
 
@@ -138,15 +138,20 @@ class Messier extends Catalog {
 /// Displays as a list tile.
 class NGC extends Catalog {
   NGC(int id, String type, RightAscession ra, Declination dec,
-      {String? difficulty, num? magnitude, bool viewed = false})
+      {String? difficulty,
+      num? magnitude,
+      bool viewed = false,
+      gps.LocationData? currentLocation})
       : super(id, ra, dec,
             name: "NGC",
             difficulty: difficulty,
             type: type,
             magnitude: magnitude,
-            viewed: viewed);
+            viewed: viewed,
+            currentLocation: currentLocation);
 
-  factory NGC.fromJSON(Map<String, dynamic> json, [bool viewed = false]) {
+  factory NGC.fromJSON(Map<String, dynamic> json,
+      [bool viewed = false, gps.LocationData? currentLocation]) {
     return NGC(
       json['number'],
       json['type'],
@@ -154,6 +159,7 @@ class NGC extends Catalog {
       Declination.fromJSON(json['dec']['degree']),
       difficulty: json['difficulty'],
       viewed: viewed,
+      currentLocation: currentLocation,
     );
   }
 
@@ -171,15 +177,20 @@ class NGC extends Catalog {
 /// Displays as a list tile.
 class Caldwell extends Catalog {
   Caldwell(int id, String type, RightAscession ra, Declination dec,
-      {String? difficulty, num? magnitude, bool viewed = false})
+      {String? difficulty,
+      num? magnitude,
+      bool viewed = false,
+      gps.LocationData? currentLocation})
       : super(id, ra, dec,
             name: "Caldwell",
             difficulty: difficulty,
             type: type,
             magnitude: magnitude,
-            viewed: viewed);
+            viewed: viewed,
+            currentLocation: currentLocation);
 
-  factory Caldwell.fromJSON(Map<String, dynamic> json, [bool viewed = false]) {
+  factory Caldwell.fromJSON(Map<String, dynamic> json,
+      [bool viewed = false, gps.LocationData? currentLocation]) {
     return Caldwell(
       json['number'],
       json['type'],
@@ -187,6 +198,7 @@ class Caldwell extends Catalog {
       Declination.fromJSON(json['dec']['degree']),
       difficulty: json['difficulty'],
       viewed: viewed,
+      currentLocation: currentLocation,
     );
   }
 
@@ -204,104 +216,104 @@ class Caldwell extends Catalog {
 ///
 /// Shamelessly translated from
 /// https://github.com/codebox/star-rise-and-set-times/blob/master/calc.js
-class _RiseSetTimes {
-  final DateTime? riseTime;
-  final DateTime? setTime;
-  final bool belowHorizon;
-  final bool circumpolar;
+// class _RiseSetTimes {
+//   final DateTime? riseTime;
+//   final DateTime? setTime;
+//   final bool belowHorizon;
+//   final bool circumpolar;
 
-  _RiseSetTimes({
-    this.riseTime,
-    this.setTime,
-    this.belowHorizon = false,
-    this.circumpolar = false,
-  });
+//   _RiseSetTimes({
+//     this.riseTime,
+//     this.setTime,
+//     this.belowHorizon = false,
+//     this.circumpolar = false,
+//   });
 
-  // factory _RiseSetTimes.fromMillisecondsSinceEpoch({
-  //   required num riseTimeMilliseconds,
-  //   required num setTimeMilliseconds,
-  //   bool belowHorizon = false,
-  //   bool circumpolar = false,
-  // }) =>
-  //     _RiseSetTimes(
-  //         riseTime:
-  //             DateTime.fromMillisecondsSinceEpoch(riseTimeMilliseconds.round()),
-  //         setTime:
-  //             DateTime.fromMillisecondsSinceEpoch(setTimeMilliseconds.round()),
-  //         belowHorizon: belowHorizon,
-  //         circumpolar: circumpolar);
+//   // factory _RiseSetTimes.fromMillisecondsSinceEpoch({
+//   //   required num riseTimeMilliseconds,
+//   //   required num setTimeMilliseconds,
+//   //   bool belowHorizon = false,
+//   //   bool circumpolar = false,
+//   // }) =>
+//   //     _RiseSetTimes(
+//   //         riseTime:
+//   //             DateTime.fromMillisecondsSinceEpoch(riseTimeMilliseconds.round()),
+//   //         setTime:
+//   //             DateTime.fromMillisecondsSinceEpoch(setTimeMilliseconds.round()),
+//   //         belowHorizon: belowHorizon,
+//   //         circumpolar: circumpolar);
 
-  static const MINUTES_PER_HOUR = 60;
-  static const SECONDS_PER_HOUR = 60;
-  static const SECONDS_PER_MINUTE = 60;
-  static const HOURS_PER_DAY = 24;
-  static const MILLISECONDS_PER_SECOND = 1000;
-  static const MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
-  static const SECONDS_PER_DAY = SECONDS_PER_MINUTE * MINUTES_PER_DAY;
-  static const MILLISECONDS_PER_DAY = SECONDS_PER_DAY * MILLISECONDS_PER_SECOND;
-  static const EPOCH_MILLIS_AT_2000_01_01_12_00_00 = 946728000000;
+//   static const MINUTES_PER_HOUR = 60;
+//   static const SECONDS_PER_HOUR = 60;
+//   static const SECONDS_PER_MINUTE = 60;
+//   static const HOURS_PER_DAY = 24;
+//   static const MILLISECONDS_PER_SECOND = 1000;
+//   static const MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
+//   static const SECONDS_PER_DAY = SECONDS_PER_MINUTE * MINUTES_PER_DAY;
+//   static const MILLISECONDS_PER_DAY = SECONDS_PER_DAY * MILLISECONDS_PER_SECOND;
+//   static const EPOCH_MILLIS_AT_2000_01_01_12_00_00 = 946728000000;
 
-  /// Convert [timeInHours] to a DateTime object
-  static TimeOfDay hoursToClockTime(num timeInHours) {
-    final hours = timeInHours.floor();
-    final minutes = ((timeInHours - hours) * MINUTES_PER_HOUR).floor();
-    // final seconds = ((timeInHours - hours - minutes / MINUTES_PER_HOUR) * SECONDS_PER_HOUR).floor();
+//   /// Convert [timeInHours] to a DateTime object
+//   static TimeOfDay hoursToClockTime(num timeInHours) {
+//     final hours = timeInHours.floor();
+//     final minutes = ((timeInHours - hours) * MINUTES_PER_HOUR).floor();
+//     // final seconds = ((timeInHours - hours - minutes / MINUTES_PER_HOUR) * SECONDS_PER_HOUR).floor();
 
-    return TimeOfDay(hour: hours, minute: minutes);
-  }
+//     return TimeOfDay(hour: hours, minute: minutes);
+//   }
 
-  /// find all `n` such that
-  /// `x_0 <= (n * m + r - a) / b <= x_1`
-  static List<num> unmod(num r, num a, num b, num m, num x_0, num x_1) {
-    // find all 'n' such that x_0 <= (n * m + r - a) / b <= x_1
-    final fromN = ((x_0 * b + a - r) / m).ceil();
-    final toN = ((x_1 * b + a - r) / m).floor();
-    final xValues = <num>[];
-    for (var n = fromN; n <= toN; n++) {
-      xValues.add((n * m + r - a) / b);
-    }
-    return xValues;
-  }
+//   /// find all `n` such that
+//   /// `x_0 <= (n * m + r - a) / b <= x_1`
+//   static List<num> unmod(num r, num a, num b, num m, num x_0, num x_1) {
+//     // find all 'n' such that x_0 <= (n * m + r - a) / b <= x_1
+//     final fromN = ((x_0 * b + a - r) / m).ceil();
+//     final toN = ((x_1 * b + a - r) / m).floor();
+//     final xValues = <num>[];
+//     for (var n = fromN; n <= toN; n++) {
+//       xValues.add((n * m + r - a) / b);
+//     }
+//     return xValues;
+//   }
 
-  static TimeOfDay radiansToUtcTime(
-      double radians, gps.LocationData userLocation) {
-    final daysSince_2000_01_01_12 = (DateTime.now().millisecondsSinceEpoch -
-            EPOCH_MILLIS_AT_2000_01_01_12_00_00) /
-        MILLISECONDS_PER_DAY;
-    final prevMidDay = (daysSince_2000_01_01_12).floor();
-    // https://aa.usno.navy.mil/faq/docs/GAST.php
-    final days = unmod(
-        radians,
-        4.894961212735792 + (userLocation.longitudeRad!),
-        6.30038809898489,
-        2 * pi,
-        prevMidDay,
-        prevMidDay + 1)[0];
-    final millisSinceEpoch =
-        days * MILLISECONDS_PER_DAY + EPOCH_MILLIS_AT_2000_01_01_12_00_00;
-    final millisSinceStartOfDay = millisSinceEpoch % MILLISECONDS_PER_DAY;
-    final hoursSinceStartOfDay =
-        millisSinceStartOfDay / (MILLISECONDS_PER_SECOND * SECONDS_PER_HOUR);
-    return hoursToClockTime(hoursSinceStartOfDay);
-  }
+//   static TimeOfDay radiansToUtcTime(
+//       double radians, gps.LocationData userLocation) {
+//     final daysSince_2000_01_01_12 = (DateTime.now().millisecondsSinceEpoch -
+//             EPOCH_MILLIS_AT_2000_01_01_12_00_00) /
+//         MILLISECONDS_PER_DAY;
+//     final prevMidDay = (daysSince_2000_01_01_12).floor();
+//     // https://aa.usno.navy.mil/faq/docs/GAST.php
+//     final days = unmod(
+//         radians,
+//         4.894961212735792 + (userLocation.longitudeRad!),
+//         6.30038809898489,
+//         2 * pi,
+//         prevMidDay,
+//         prevMidDay + 1)[0];
+//     final millisSinceEpoch =
+//         days * MILLISECONDS_PER_DAY + EPOCH_MILLIS_AT_2000_01_01_12_00_00;
+//     final millisSinceStartOfDay = millisSinceEpoch % MILLISECONDS_PER_DAY;
+//     final hoursSinceStartOfDay =
+//         millisSinceStartOfDay / (MILLISECONDS_PER_SECOND * SECONDS_PER_HOUR);
+//     return hoursToClockTime(hoursSinceStartOfDay);
+//   }
 
-  factory _RiseSetTimes.forObject(
-      RightAscession ra, Declination dec, gps.LocationData location) {
-    if ((dec.degree - location.latitude!).abs() >= 90)
-      return _RiseSetTimes(belowHorizon: true);
-    if ((dec.degree + location.latitude!).abs() >= 90)
-      return _RiseSetTimes(circumpolar: true);
+//   factory _RiseSetTimes.forObject(
+//       RightAscession ra, Declination dec, gps.LocationData location) {
+//     if ((dec.degree - location.latitude!).abs() >= 90)
+//       return _RiseSetTimes(belowHorizon: true);
+//     if ((dec.degree + location.latitude!).abs() >= 90)
+//       return _RiseSetTimes(circumpolar: true);
 
-    final c = acos(-tan(dec.radian) * tan(location.latitudeRad!));
-    final riseTimeRadians = ra.radian - c;
-    final setTimeRadians = ra.radian + c;
+//     final c = acos(-tan(dec.radian) * tan(location.latitudeRad!));
+//     final riseTimeRadians = ra.radian - c;
+//     final setTimeRadians = ra.radian + c;
 
-    return _RiseSetTimes(
-      riseTime: radiansToUtcTime(riseTimeRadians, location).toDateTimeUTC(),
-      setTime: radiansToUtcTime(setTimeRadians, location).toDateTimeUTC(),
-    );
-  }
-}
+//     return _RiseSetTimes(
+//       riseTime: radiansToUtcTime(riseTimeRadians, location).toDateTimeUTC(),
+//       setTime: radiansToUtcTime(setTimeRadians, location).toDateTimeUTC(),
+//     );
+//   }
+// }
 
 extension on TimeOfDay {
   /// Convert to [DateTime] in local timezone

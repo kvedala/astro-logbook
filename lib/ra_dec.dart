@@ -4,8 +4,9 @@ import 'dart:math';
 class RightAscession {
   final int _hour;
   final num _minute;
+  final num _second;
 
-  const RightAscession(this._hour, this._minute);
+  const RightAscession(this._hour, this._minute, [this._second = 0]);
 
   factory RightAscession.fromJSON(Map<String, dynamic> json) =>
       RightAscession(json["hour"] as int, json["minute"] as num);
@@ -23,9 +24,10 @@ class RightAscession {
 class Declination {
   final int _deg;
   final num _minute;
+  final num _second;
   final String _sign;
 
-  const Declination(this._deg, this._minute, this._sign);
+  const Declination(this._deg, this._minute, this._sign, [this._second = 0]);
 
   factory Declination.fromJSON(Map<String, dynamic> json) => Declination(
       json["degree"] as int, json["minute"] as num, json["sign"] as String);
