@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:astro_log/ra_dec.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,68 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart' as gps;
 
 import 'objects.dart';
-
-// enum Difficulty { VeryEasy, Easy, Moderate, Hard }
-
-/// Convenience class to store hours and minutes of a coordinate
-class Coordinate {
-  final double value;
-  final bool isNegative;
-
-  // final int hour;
-  // final num minute;
-  // final num second;
-  Coordinate(this.value) : isNegative = value < 0;
-
-  factory Coordinate.fromHMS(int hour, num minute,
-          [num second = 0, bool isNegative = false]) =>
-      isNegative && hour >= 0
-          ? Coordinate(-1 * (hour + (minute + second / 60) / 60))
-          : Coordinate(hour + (minute + second / 60) / 60);
-
-  int get hour => value.floor();
-  int get minute => ((value - hour) * 60).floor();
-  double get second => ((value - hour) * 60 - minute) * 60;
-
-  /// Create from a text string of type:
-  /// 4h 3.4m
-  factory Coordinate.fromHourMin(String text) {
-    final splitIndex = text.indexOf("h ");
-    final L = text.length;
-    final h = int.parse(text.substring(0, splitIndex));
-    return Coordinate.fromHMS(
-        h * 15,
-        num.parse(text.substring(splitIndex + 2, L - 1)),
-        0,
-        text[0] == '-' ? true : false);
-  }
-
-  /// Create from a text string of type:
-  /// 4°3.4
-  factory Coordinate.fromDegMin(String text) {
-    final splitIndex = text.indexOf("°");
-    final h = int.parse(text.substring(0, splitIndex));
-    return Coordinate.fromHMS(
-      h,
-      num.parse(text.substring(splitIndex + 1)),
-      0,
-      text[0] == '-' ? true : false,
-    );
-  }
-
-  @override
-  String toString() =>
-      "${isNegative ? "-" : ""}${hour.abs()}h ${minute}m ${second.toStringAsPrecision(2)}s";
-
-  /// Export to a JSON map
-  Map<String, num> get json => {"degree": degree};
-
-  /// Get coordinate in radian
-  num get radian => this.value * pi / 180;
-
-  /// Get coordinate in degree
-  num get degree => value; //(hour + (minute + (second / 60)) / 60);
-}
 
 /// Page to display the observations as a gallery
 class ListOfObjects extends StatelessWidget {
@@ -114,23 +51,23 @@ class ListOfObjects extends StatelessWidget {
                       "/observations")
                   // .where("messier", isGreaterThan: 0)
                   .get(GetOptions(source: Source.cache)),
-              builder: (context, snap3) =>
-                  snap3.connectionState != ConnectionState.done
-                      ? Column(children: [
-                          CircularProgressIndicator(),
-                          Text("Loading viewed data...")
-                        ])
-                      : ListView.builder(
-                          itemCount: snap2.data?.size,
-                          itemBuilder: (context, index) => Messier.fromJSON(
-                            snap2.data!.docs[index].data(),
-                            snap3.data!.docs
-                                .where((element) =>
-                                    snap2.data!.docs[index].data()['number'] ==
-                                    element.data()["messier"])
-                                .isNotEmpty,
-                          ),
-                        ),
+              builder: (context, snap3) => snap3.connectionState !=
+                      ConnectionState.done
+                  ? Column(children: [
+                      CircularProgressIndicator(),
+                      Text("Loading viewed data...")
+                    ])
+                  : ListView.builder(
+                      itemCount: snap2.data?.size,
+                      itemBuilder: (context, index) => Messier.fromJSON(
+                          snap2.data!.docs[index].data(),
+                          snap3.data!.docs
+                              .where((element) =>
+                                  snap2.data!.docs[index].data()['number'] ==
+                                  element.data()["messier"])
+                              .isNotEmpty,
+                          snap.data!),
+                    ),
             );
           },
         );
