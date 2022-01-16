@@ -6,16 +6,28 @@ import 'package:location/location.dart' as gps;
 import 'ra_dec.dart';
 
 extension on gps.LocationData {
+  /// latitude value in radian
   double? get latRadian => latitude! * pi / 180;
-  double? get longRadian => longitude! * pi / 180;
+
+  /// longitude value in radian
+  // double? get longRadian => longitude! * pi / 180;
 }
 
+/// Supporting class for rise and set time computations
 class RiseSetTimes {
+  /// rise time for the object if not [circumpolar] and not [belowHorizon]
   final DateTime? riseTime;
+
+  /// setting time for the object if not [circumpolar] and not [belowHorizon]
   final DateTime? setTime;
+
+  /// true if the object is always below the horizon for the day
   final bool belowHorizon;
+
+  /// true if the object is always circumpolar for the day
   final bool circumpolar;
 
+  /// the computed values do not change once created
   const RiseSetTimes({
     this.riseTime,
     this.setTime,
@@ -23,12 +35,28 @@ class RiseSetTimes {
     this.circumpolar = false,
   });
 
+  /// Supporting function to compute rise and set times for an object.
+  ///
+  /// Given the objects [RightAscession] and [Declination] and the user's
+  /// [gps.LocationData], the algorithm first checks if the object will be
+  /// [belowHorizon] or [circumpolar] and then computes the [riseTime] and
+  /// [setTime] for the given date of [when]. If [when] is not provided, the
+  /// times are calculated for today.
   factory RiseSetTimes.forObject(
-      RightAscession ra, Declination dec, gps.LocationData location) {
-    if ((dec.degree - location.latitude!).abs() >= 90)
-      return RiseSetTimes(belowHorizon: true);
-    if ((dec.degree + location.latitude!).abs() >= 90)
-      return RiseSetTimes(circumpolar: true);
+          RightAscession ra, Declination dec, gps.LocationData location,
+          [DateTime? when]) =>
+      ((dec.degree - location.latitude!).abs() >= 90)
+          ? RiseSetTimes(belowHorizon: true)
+          : ((dec.degree + location.latitude!).abs() >= 90)
+              ? RiseSetTimes(circumpolar: true)
+              : _compute(ra, dec, location, when);
+
+  /// Compute the rise and set times
+  static RiseSetTimes _compute(
+      RightAscession ra, Declination dec, gps.LocationData location,
+      [DateTime? when]) {
+    when ??= DateTime.now(); // if when was not defined
+    final now = when.toUtc();
 
     // Step 1: calculate semi diurnal arc
     double H = acos(-tan(dec.radian) * tan(location.latRadian!)); // in radian
@@ -39,38 +67,38 @@ class RiseSetTimes {
     }
     // debugPrint("H: $H");
     // H = H / 15; // time in hours
-    // Object rises (12-H) hours before and sets (H) hours after the LST
+    // Object rises (H) hours before and sets (H) hours after the LST
     // when LST = RA of the object
 
     // Step 2: Get UTC time using LST, Jualian Date and longitude.
     // 𝐿𝑆𝑇 = 100.46 + 0.985647 𝑑 + 𝐿𝑂𝑁 + 15 𝑈𝑇
-    double UT = (ra.degree -
+    double ut = (ra.degree -
             100.46 -
-            (0.985647 * _getJ2000(ra.hour, ra.minute, ra.second)) -
+            (0.985647 * _getJ2000(now)) -
             location.longitude!) /
         15;
-    if (UT < 0 || UT >= 24) UT %= 24;
+    if (ut < 0 || ut >= 24) ut %= 24;
     // debugPrint("UT: $UT");
     // debugPrint("JD: ${_getJ2000(ra.hour, ra.minute, ra.second)}");
 
     // Step 3: Convert to Local date and time (local hour angle)
-    final now = DateTime.now().toUtc();
-    final LHA = DateTime.utc(now.year, now.month, now.day, UT.floor(),
-        ((UT - UT.floor()) * 60).round());
+    final lha = DateTime.utc(now.year, now.month, now.day, ut.floor(),
+        ((ut - ut.floor()) * 60).round());
     // debugPrint("LHA: ${LHA.toIso8601String()}");
 
     return RiseSetTimes(
       riseTime:
-          LHA.subtract(Duration(minutes: (H * 60 / 15).round())).toLocal(),
-      setTime: LHA.add(Duration(minutes: (H * 60 / 15).round())).toLocal(),
+          lha.subtract(Duration(minutes: (H * 60 / 15).round())).toLocal(),
+      setTime: lha.add(Duration(minutes: (H * 60 / 15).round())).toLocal(),
     );
   }
 
-  // Get Julian date number at midnight today
-  static double _getJ2000(int hour, num minute, [num second = 0]) {
-    final now = DateTime.now().toUtc();
+  /// Get Julian date number from the given [DateTime] value
+  /// from J2000
+  static double _getJ2000(DateTime when) {
+    final now = when.toUtc();
     final y = now.year;
-    final ut = hour + (minute + (second / 60)) / 60;
+    final ut = now.hour + (now.minute + (now.second / 60)) / 60;
 
     return (367 * y) -
         (7 * (y + ((now.month + 9) / 12).floor()) / 4).floor() -
@@ -78,7 +106,7 @@ class RiseSetTimes {
         (275 * now.month / 9).floor() +
         now.day +
         // not adding hours - hence computing JD @ midnight UTC
-        ut / 24 +
+        (ut / 24) +
         1721028.5 -
         2451545.0; // for J2000
   }
@@ -182,16 +210,16 @@ class RiseSetTimes {
 //   }
 // }
 
-extension on TimeOfDay {
-  /// Convert to [DateTime] in local timezone
-  DateTime toDateTimeUTC() {
-    final now = DateTime.now().toUtc();
-    return DateTime(
-      now.year,
-      now.month,
-      now.day,
-      this.hour,
-      this.minute,
-    ); // always in local timezone
-  }
-}
+// extension on TimeOfDay {
+//   /// Convert to [DateTime] in local timezone
+//   DateTime toDateTimeUTC() {
+//     final now = DateTime.now().toUtc();
+//     return DateTime(
+//       now.year,
+//       now.month,
+//       now.day,
+//       this.hour,
+//       this.minute,
+//     ); // always in local timezone
+//   }
+// }

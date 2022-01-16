@@ -28,7 +28,8 @@ abstract class Catalog extends StatelessWidget {
   /// was this object viewed by the user
   final bool viewed;
 
-  late final RiseSetTimes? riseTimes;
+  /// computed Rise & set times of the object
+  final RiseSetTimes? riseTimes;
 
   Catalog(this.id, this.ra, this.dec,
       {required this.name,
@@ -36,13 +37,34 @@ abstract class Catalog extends StatelessWidget {
       this.type = "",
       this.magnitude,
       this.viewed = false,
-      gps.LocationData? currentLocation}) {
-    if (currentLocation == null)
-      riseTimes = null;
-    else {
-      riseTimes = RiseSetTimes.forObject(ra, dec, currentLocation);
-    }
-  }
+      gps.LocationData? currentLocation})
+      : riseTimes = currentLocation == null
+            ? null
+            : RiseSetTimes.forObject(ra, dec, currentLocation);
+
+  // Catalog fromJSON(Map<String, dynamic> json, String name,
+  //         [bool viewed = false, gps.LocationData? currentLocation]) =>
+  //     Catalog(
+  //       json['number'],
+  //       RightAscession.fromJSON(json['ra']['degree']),
+  //       Declination.fromJSON(json['dec']['degree']),
+  //       name: name,
+  //       type: json['type'],
+  //       difficulty: json['difficulty'],
+  //       viewed: viewed,
+  //       currentLocation: currentLocation,
+  //     );
+
+  /// Export to JSON format Map
+  Map<String, dynamic> get json => {
+        "number": id,
+        "catalog": name,
+        "type": type,
+        "ra": ra.json,
+        "dec": dec.json,
+        "viewed": viewed,
+        "difficulty": difficulty,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -123,15 +145,6 @@ class Messier extends Catalog {
       currentLocation: currentLocation,
     );
   }
-
-  /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "type": type,
-        "ra": ra.json,
-        "dec": dec.json,
-        "difficulty": difficulty.toString()
-      };
 }
 
 /// Convenience class to store NGC Objects.
@@ -162,15 +175,6 @@ class NGC extends Catalog {
       currentLocation: currentLocation,
     );
   }
-
-  /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "type": type,
-        "ra": ra.json,
-        "dec": dec.json,
-        "difficulty": difficulty.toString()
-      };
 }
 
 /// Convenience class to store Caldwell Objects.
@@ -201,13 +205,4 @@ class Caldwell extends Catalog {
       currentLocation: currentLocation,
     );
   }
-
-  /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "type": type,
-        "ra": ra.json,
-        "dec": dec.json,
-        "difficulty": difficulty.toString()
-      };
 }

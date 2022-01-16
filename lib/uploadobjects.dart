@@ -35,12 +35,15 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
     );
   }).toList(growable: false);
 
-  for (final element in out2)
+  for (final element in out2) {
+    var j = element.json;
+    j.remove('viewed');
+    j.remove('catalog');
     await FirebaseFirestore.instance
-        .collection("messier")
+        .collection(element.name)
         .doc("${element.id}")
-        .set(element.json);
-
+        .set(j);
+  }
   return FirebaseFirestore.instance.collection("/messier").orderBy("mid").get();
 }
 
