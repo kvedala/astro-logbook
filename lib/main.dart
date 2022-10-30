@@ -17,7 +17,7 @@ void main() async {
   // check if is running on Web
   if (kIsWeb) {
     // initialiaze the facebook javascript SDK
-    FacebookAuth.i.webInitialize(
+    FacebookAuth.i.webAndDesktopInitialize(
       appId: "437381314078679",
       cookie: true,
       xfbml: true,
