@@ -8,7 +8,7 @@ import 'checklist_item.dart';
 /// Body of checklist tab
 class CheckList extends StatelessWidget {
   /// list of checklist items
-  final List<CheckListItem> items = [];
+  final List<CheckListItem> items = List<CheckListItem>.empty(growable: true);
 
   /// Body of checklist tab for the user
   CheckList({Key? key}) : super(key: key);
