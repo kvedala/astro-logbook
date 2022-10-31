@@ -13,7 +13,7 @@ class RightAscession {
   factory RightAscession.fromJSON(Map<String, dynamic> json) => RightAscession(
         json["hour"] as int,
         json["minute"] as num,
-        json["second"] as num,
+        (json["second"] ?? 0) as num,
       );
 
   /// get the value in decimal hours
@@ -51,7 +51,7 @@ class Declination {
         json["degree"] as int,
         json["minute"] as num,
         json["sign"] as String,
-        json["second"] as num,
+        (json["second"] ?? 0) as num,
       );
 
   /// get the value in decimal degree
