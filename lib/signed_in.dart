@@ -35,7 +35,7 @@ class MyTab {
   /// * [name] title to display on top
   /// * [display] the main content to display in the scaffold body
   /// * [floaterFunc] to define the function of the floating button
-  MyTab(this.icon, this.name, this.display, [this.floaterFunc]);
+  const MyTab(this.icon, this.name, this.display, [this.floaterFunc]);
 }
 
 class _SignedInPageState extends State<SignedInPage>
@@ -57,7 +57,7 @@ class _SignedInPageState extends State<SignedInPage>
       (BuildContext context) async => await Equipment.addEquipment(context),
     ),
     MyTab(
-      Icon(Icons.library_add_check),
+      const Icon(Icons.library_add_check),
       "Checklist",
       CheckList(),
       CheckList.addCheckListItem,
@@ -67,10 +67,15 @@ class _SignedInPageState extends State<SignedInPage>
       "List of Objects",
       ListOfObjects(),
     ),
+    // MyTab(
+    //   Icon(Icons.photo_camera),
+    //   "Settings",
+    //   SettingsPage(),
+    // ),
     MyTab(
       Icon(Icons.photo_camera),
       "Photography",
-      PhotographyGallary(),
+      const PhotographyGallary(),
     ),
   ];
 
