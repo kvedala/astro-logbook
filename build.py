@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import logging as log
 import subprocess
 import os
@@ -15,8 +17,8 @@ def makeOptions() -> Namespace:
     arg.add_argument("-t", "--type", choices=['apk', 'ios', 'appbundle'],
                      type=str, default='apk',  # const='apk', nargs='?',
                      help="Type of build to make. (Default: '%(default)s')")
-    arg.add_argument("--install", type=str, default=None, metavar="device",
-                     help="install to 'device'. (Default: '%(default)s')")
+    arg.add_argument("-i", "--install", type=str, default=None, metavar="device",
+                     help="when provided, will install to 'device'. (Default: '%(default)s')")
 
     out = arg.parse_args()
     return out
