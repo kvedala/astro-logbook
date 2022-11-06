@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +83,9 @@ class MyApp extends StatelessWidget {
       // home: MyHomePage(title: 'Astronomy Log Book'),
       initialRoute: SignInPageRoute,
       routes: routeMap,
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+      ],
     );
   }
 }
