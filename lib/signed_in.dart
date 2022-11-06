@@ -1,7 +1,9 @@
+import 'package:astro_log/settings_page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ionicons/ionicons.dart';
 
 import 'equipment.dart';
 import 'equipment_gallery.dart';
@@ -51,7 +53,7 @@ class _SignedInPageState extends State<SignedInPage>
           Navigator.pushNamed(context, AddObservationPageRoute),
     ),
     MyTab(
-      Icon(Icons.settings_outlined),
+      Icon(Ionicons.telescope),
       "Equipment",
       EquipmentGallery(),
       (BuildContext context) async => await Equipment.addEquipment(context),
@@ -73,9 +75,9 @@ class _SignedInPageState extends State<SignedInPage>
     //   SettingsPage(),
     // ),
     MyTab(
-      Icon(Icons.photo_camera),
-      "Photography",
-      const PhotographyGallary(),
+      Icon(Icons.settings),
+      "Settings Page",
+      const SettingsPage(),
     ),
   ];
 

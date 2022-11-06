@@ -150,15 +150,3 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     //         }).toList());
   }
 }
-
-/// Page to display the observations as a gallery
-class PhotographyGallary extends StatelessWidget {
-  const PhotographyGallary({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("To be implemented...."),
-    );
-  }
-}
