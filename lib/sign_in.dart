@@ -210,8 +210,8 @@ class _SignInPageState extends State<SignInPage> {
         // Once signed in, return the UserCredential
         await FirebaseAuth.instance.signInWithPopup(facebookProvider);
       } else {
-        final accessToken =
-            await FacebookAuth.instance.login(permissions: const ['email']);
+        final accessToken = await FacebookAuth.instance
+            .login(permissions: const ['email', 'public_profile']);
 
         // Create a credential from the access token
         final FacebookAuthCredential credential =
