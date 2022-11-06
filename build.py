@@ -8,7 +8,8 @@ from argparse import ArgumentParser, Namespace
 
 
 def getBuildCount() -> int:
-    output = subprocess.check_output(["git", "rev-list", "--count", "HEAD"])
+    output = subprocess.check_output(
+        ["git", "rev-list", "--count", "HEAD"], shell=False, cwd=".")
     return int(output)
 
 
@@ -37,11 +38,11 @@ if __name__ == '__main__':
     build = getBuildCount()
     log.info("Building:", build)
     subprocess.call(["git", "tag", f"v{version}({build})"],
-                    env=os.environ.copy(), shell=True, cwd=".")
+                    env=os.environ.copy(), shell=False, cwd=".")
     subprocess.call(["flutter", "build", args.type, "--build-number", f"{build}"],
-                    env=os.environ.copy(), shell=True, cwd=".")
+                    env=os.environ.copy(), shell=False, cwd=".")
     log.info("Building: Done")
 
     if args.install is not None:
         subprocess.call(["flutter", "install", "-d", args.install],
-                        env=os.environ.copy(), shell=True, cwd=".")
+                        env=os.environ.copy(), shell=False, cwd=".")
