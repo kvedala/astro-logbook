@@ -15,8 +15,10 @@ import 'observations_gallery_page.dart';
 
 /// Page to display after signing in
 class SignedInPage extends StatefulWidget {
-  SignedInPage({Key? key}) : super(key: key);
-  _SignedInPageState createState() => _SignedInPageState();
+  const SignedInPage({Key? key}) : super(key: key);
+
+  @override
+  State<SignedInPage> createState() => _SignedInPageState();
 }
 
 /// Container to define tab properties
@@ -46,16 +48,16 @@ class _SignedInPageState extends State<SignedInPage>
 
   static final tabNames = [
     MyTab(
-      Icon(Icons.comment),
+      const Icon(Icons.comment),
       "Observations",
-      ObservationsGallary(),
+      const ObservationsGallary(),
       (BuildContext context) =>
-          Navigator.pushNamed(context, AddObservationPageRoute),
+          Navigator.pushNamed(context, MyRoutes.addObservationPageRoute),
     ),
     MyTab(
-      Icon(Ionicons.telescope),
+      const Icon(Ionicons.telescope),
       "Equipment",
-      EquipmentGallery(),
+      const EquipmentGallery(),
       (BuildContext context) async => await Equipment.addEquipment(context),
     ),
     MyTab(
@@ -64,7 +66,7 @@ class _SignedInPageState extends State<SignedInPage>
       CheckList(),
       CheckList.addCheckListItem,
     ),
-    MyTab(
+    const MyTab(
       Icon(Icons.list),
       "List of Objects",
       ListOfObjects(),
@@ -74,10 +76,10 @@ class _SignedInPageState extends State<SignedInPage>
     //   "Settings",
     //   SettingsPage(),
     // ),
-    MyTab(
+    const MyTab(
       Icon(Icons.settings),
       "Settings Page",
-      const SettingsPage(),
+      SettingsPage(),
     ),
   ];
 
@@ -107,7 +109,7 @@ class _SignedInPageState extends State<SignedInPage>
   Widget build(BuildContext context) {
     if (FirebaseAuth.instance.currentUser == null) {
       // user not logged in
-      Navigator.popAndPushNamed(context, SignInPageRoute);
+      Navigator.popAndPushNamed(context, MyRoutes.signInPageRoute);
       // return null;
     }
 
@@ -128,7 +130,7 @@ class _SignedInPageState extends State<SignedInPage>
           Text(FirebaseAuth.instance.currentUser!.displayName!),
           Text(
             tabNames[_tabController!.index].name,
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
         ]),
         centerTitle: true,
@@ -145,15 +147,17 @@ class _SignedInPageState extends State<SignedInPage>
         ),
         actions: [
           IconButton(
-              icon: Icon(Icons.logout),
+              icon: const Icon(Icons.logout),
               color: Colors.red,
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                if (googleSignIn != null) {
-                  if (await googleSignIn!.isSignedIn())
-                    await googleSignIn!.signOut();
-                }
-                Navigator.popAndPushNamed(context, SignInPageRoute);
+              onPressed: () {
+                FirebaseAuth.instance.signOut().then((value) async {
+                  if (googleSignIn != null) {
+                    if (await googleSignIn!.isSignedIn()) {
+                      await googleSignIn!.signOut();
+                    }
+                  }
+                }).then((value) => Navigator.popAndPushNamed(
+                    context, MyRoutes.signInPageRoute));
               })
         ],
       ),
@@ -169,7 +173,7 @@ class _SignedInPageState extends State<SignedInPage>
           ? null
           : FloatingActionButton(
               heroTag: "add_${tabNames[_tabController!.index].name}",
-              child: Icon(Icons.add_rounded),
+              child: const Icon(Icons.add_rounded),
               onPressed: () =>
                   tabNames[_tabController!.index].floaterFunc!(context),
             ),

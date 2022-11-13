@@ -13,8 +13,10 @@ import 'routes.dart';
 
 /// Main sign in page
 class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
+
   @override
-  _SignInPageState createState() => _SignInPageState();
+  State<SignInPage> createState() => _SignInPageState();
 
   // static void signOut(BuildContext context) async {
   //   await FirebaseAuth.instance.signOut();
@@ -80,7 +82,9 @@ class _SignInPageState extends State<SignInPage> {
     if (isWebPlatform) {
       try {
         final provider = GoogleAuthProvider();
-        scopes.forEach((scope) => provider.addScope(scope));
+        for (var scope in scopes) {
+          provider.addScope(scope);
+        }
         await authInstance!.signInWithPopup(provider);
         setState(() {});
         // Navigator.popAndPushNamed(context, HomePageRoute);
@@ -117,7 +121,7 @@ class _SignInPageState extends State<SignInPage> {
   /// Generates a cryptographically secure random nonce, to be included in a
   /// credential request.
   String generateNonce([int length = 32]) {
-    final charset =
+    const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
     return List.generate(length, (_) => charset[random.nextInt(charset.length)])
@@ -148,10 +152,11 @@ class _SignInPageState extends State<SignInPage> {
             context: context,
             barrierDismissible: false,
             builder: (context) => AlertDialog(
-                  title: Text("Error with Apple Sign In"),
+                  title: const Text("Error with Apple Sign In"),
                   content: Text(e.toString()),
                 ));
-        Future.delayed(Duration(seconds: 2), () => Navigator.pop(context));
+        Future.delayed(
+            const Duration(seconds: 2), () => Navigator.pop(context));
       }
       return;
     }
@@ -184,9 +189,10 @@ class _SignInPageState extends State<SignInPage> {
 
       await authInstance!.signInWithCredential(oauthCredential);
 
-      if (appleCredential.givenName != null)
+      if (appleCredential.givenName != null) {
         await FirebaseAuth.instance.currentUser!.updateDisplayName(
             "${appleCredential.givenName} ${appleCredential.familyName}");
+      }
 
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);
@@ -241,30 +247,31 @@ class _SignInPageState extends State<SignInPage> {
           Buttons.Google,
           text: 'Sign in with Google',
           onPressed: () => _googleSignIn(context),
-          padding: EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
+          padding:
+              const EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.only(top: 10),
           child: SignInButton(
             Buttons.Apple,
             text: 'Sign in with Apple',
             // shape: ShapeBorder,
             onPressed: _appleSignIn,
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.only(top: 10),
           child: SignInButton(
             Buttons.Facebook,
             text: 'Sign in with Facebook',
             // shape: ShapeBorder,
             onPressed: _facebookSignIn,
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -277,14 +284,14 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Sign In Page"),
-        actions: [
+        title: const Text("Sign In Page"),
+        actions: const [
           // IconButton(icon: Icon(Icons.logout), onPressed: () => {}),
         ],
       ),
       body: Center(
           child: authInstance == null
-              ? CircularProgressIndicator()
+              ? const CircularProgressIndicator()
               : authInstance!.currentUser == null
                   ? _signInPage(context)
                   : _signedIn(context)),
@@ -297,34 +304,34 @@ class _SignInPageState extends State<SignInPage> {
       children: [
         TextButton.icon(
           style: ButtonStyle(
-            minimumSize: MaterialStateProperty.all(Size(150, 50)),
-            textStyle: MaterialStateProperty.all(TextStyle(fontSize: 20)),
+            minimumSize: MaterialStateProperty.all(const Size(150, 50)),
+            textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
           ),
           onPressed: () =>
-              Navigator.popAndPushNamed(context, SignedInPageRoute),
-          icon: Icon(
+              Navigator.popAndPushNamed(context, MyRoutes.signedInPageRoute),
+          icon: const Icon(
             Icons.book_rounded,
             size: 30,
           ),
-          label: Text("My Logbook"),
+          label: const Text("My Logbook"),
         ),
         SizedBox.fromSize(
-          size: Size(30, 30),
+          size: const Size(30, 30),
         ),
         TextButton.icon(
           style: ButtonStyle(
-            minimumSize: MaterialStateProperty.all(Size(150, 50)),
-            textStyle: MaterialStateProperty.all(TextStyle(fontSize: 20)),
+            minimumSize: MaterialStateProperty.all(const Size(150, 50)),
+            textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
           ),
           onPressed: () {
             signOut(context);
             setState(() {});
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.logout,
             size: 30,
           ),
-          label: Text("Sign Out"),
+          label: const Text("Sign Out"),
         ),
       ],
     );
@@ -332,16 +339,18 @@ class _SignInPageState extends State<SignInPage> {
 
   /// signout the current user from both google and Firebase
   void signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    if (googleSignIn != null) {
-      if (await googleSignIn!.isSignedIn()) await googleSignIn!.signOut();
-    }
-    if (Navigator.canPop(context)) {
-      setState(() {});
-      // Navigator.popUntil(
-      //   context,
-      //   ModalRoute.withName(HomePageRoute),
-      // );
-    }
+    await FirebaseAuth.instance.signOut().then((value) async {
+      if (googleSignIn != null) {
+        if (await googleSignIn!.isSignedIn()) await googleSignIn!.signOut();
+      }
+    }).then((value) {
+      if (Navigator.canPop(context)) {
+        setState(() {});
+        // Navigator.popUntil(
+        //   context,
+        //   ModalRoute.withName(HomePageRoute),
+        // );
+      }
+    });
   }
 }

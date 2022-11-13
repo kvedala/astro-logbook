@@ -19,15 +19,15 @@ class Equipment extends StatelessWidget {
   ///     .get();
   /// docs.docs.forEach((query) => _equipments.add(Equipment.fromQuery(query)));
   /// ````
-  Equipment.fromQuery(QueryDocumentSnapshot snap, {this.onTap})
+  Equipment.fromQuery(QueryDocumentSnapshot snap, {this.onTap, super.key})
       : reference = snap.reference {
-    reference!.get()..then((value) => _data.add(value));
+    reference!.get().then((value) => _data.add(value));
   }
 
   /// Build equipment from a DB reference
-  Equipment.fromReference(DocumentReference? ref, {this.onTap})
+  Equipment.fromReference(DocumentReference? ref, {this.onTap, super.key})
       : reference = ref {
-    reference!.get()..then((value) => _data.add(value));
+    reference!.get().then((value) => _data.add(value));
   }
 
   /// Procedure to add a new equipment in the user DB
@@ -52,24 +52,24 @@ class Equipment extends StatelessWidget {
       // 'camera': "",
     };
 
-    final _equipmentKey = GlobalKey<FormState>();
-    bool _returnVal = false;
+    final equipmentKey = GlobalKey<FormState>();
+    bool returnVal = false;
 
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Add new equipment"),
+        title: const Text("Add new equipment"),
         content: Form(
-          key: _equipmentKey,
+          key: equipmentKey,
           autovalidateMode: AutovalidateMode.always,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Telescope ",
                     ),
                     initialValue: data['telescope'],
@@ -84,15 +84,15 @@ class Equipment extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Telescope Aperture (mm)",
                     ),
                     initialValue: data['aperture'] == null
                         ? ""
                         : data['aperture'].toString(),
-                    keyboardType: TextInputType.numberWithOptions(),
+                    keyboardType: const TextInputType.numberWithOptions(),
                     readOnly: false,
                     validator: (value) {
                       num? number = num.tryParse(value!);
@@ -106,15 +106,15 @@ class Equipment extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Focal Length (mm)",
                     ),
                     initialValue: data['focalLength'] == null
                         ? ""
                         : data['focalLength'].toString(),
-                    keyboardType: TextInputType.numberWithOptions(),
+                    keyboardType: const TextInputType.numberWithOptions(),
                     readOnly: false,
                     validator: (value) {
                       num? number = num.tryParse(value!);
@@ -128,9 +128,9 @@ class Equipment extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Mount",
                     ),
                     initialValue: data['mount'],
@@ -150,21 +150,20 @@ class Equipment extends StatelessWidget {
         ),
         actions: [
           ElevatedButton.icon(
-            icon: Icon(Icons.cancel_rounded),
-            label: Text("Cancel"),
+            icon: const Icon(Icons.cancel_rounded),
+            label: const Text("Cancel"),
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton.icon(
-            icon: Icon(Icons.done_rounded),
+            icon: const Icon(Icons.done_rounded),
             label: Text(reference == null ? "Add" : "Update"),
             onPressed: () async {
-              if (!_equipmentKey.currentState!.validate()) return;
-              _equipmentKey.currentState!.save();
+              if (!equipmentKey.currentState!.validate()) return;
+              equipmentKey.currentState!.save();
               reference == null
                   ? await FirebaseFirestore.instance
-                      .collection('users/' +
-                          FirebaseAuth.instance.currentUser!.uid +
-                          '/equipments')
+                      .collection(
+                          'users/${FirebaseAuth.instance.currentUser!.uid}/equipments')
                       .add(data)
                       .then((ref) async =>
                           await FirebaseAnalytics.instance.logEvent(
@@ -173,7 +172,7 @@ class Equipment extends StatelessWidget {
                           ))
                       .whenComplete(() {
                       Navigator.pop(context);
-                      _returnVal = true;
+                      returnVal = true;
                     })
                   : await FirebaseFirestore.instance
                       .doc(reference.path)
@@ -185,7 +184,7 @@ class Equipment extends StatelessWidget {
                           ))
                       .whenComplete(() {
                       Navigator.pop(context);
-                      _returnVal = true;
+                      returnVal = true;
                     });
             },
           )
@@ -193,7 +192,7 @@ class Equipment extends StatelessWidget {
       ),
     );
 
-    return _returnVal;
+    return returnVal;
   }
 
   final List<DocumentSnapshot> _data = [];
@@ -206,7 +205,7 @@ class Equipment extends StatelessWidget {
             future: reference!.get()..then((value) => _data.add(value)),
             builder: (context, snap) =>
                 snap.connectionState != ConnectionState.done
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(),
                       )
                     : _buildTile(snap.data!),
@@ -215,15 +214,15 @@ class Equipment extends StatelessWidget {
   }
 
   Widget _buildTile(DocumentSnapshot data) {
-    final Map<String, dynamic> _data = data.data() as Map<String, dynamic>;
+    final Map<String, dynamic> dataMap = data.data() as Map<String, dynamic>;
 
     return ListTile(
       visualDensity: VisualDensity.compact,
-      title: Text(_data['telescope'] +
-          " (${_data['aperture']}mm, f/" +
-          (_data['focalLength'] / _data['aperture']).toStringAsFixed(1) +
+      title: Text(dataMap['telescope'] +
+          " (${dataMap['aperture']}mm, f/" +
+          (dataMap['focalLength'] / dataMap['aperture']).toStringAsFixed(1) +
           ")"),
-      subtitle: Text(_data['mount']),
+      subtitle: Text(dataMap['mount']),
       onTap: onTap,
     );
   }

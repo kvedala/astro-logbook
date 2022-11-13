@@ -20,7 +20,7 @@ class CheckList extends StatelessWidget {
     final add = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Add checklist item"),
+        title: const Text("Add checklist item"),
         content: TextField(
           controller: textController,
           maxLines: 5,
@@ -28,13 +28,13 @@ class CheckList extends StatelessWidget {
         actions: [
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
-            icon: Icon(Icons.done),
-            label: Text("Add"),
+            icon: const Icon(Icons.done),
+            label: const Text("Add"),
           ),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, false),
-            icon: Icon(Icons.cancel),
-            label: Text("Cancel"),
+            icon: const Icon(Icons.cancel),
+            label: const Text("Cancel"),
           ),
         ],
       ),
@@ -54,7 +54,7 @@ class CheckList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Text(DateTime.now().yMMMd, style: TextStyle(fontSize: 20)),
+      Text(DateTime.now().yMMMd, style: const TextStyle(fontSize: 20)),
       // ]),
       Form(
         child: Expanded(
@@ -64,8 +64,9 @@ class CheckList extends StatelessWidget {
                     'users/${FirebaseAuth.instance.currentUser!.uid}/checklist')
                 .snapshots(),
             builder: (context, snap) {
-              if (!snap.hasData)
-                return Center(child: CircularProgressIndicator());
+              if (!snap.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
               items.clear();
               items.addAll(snap.data!.docs.expand((doc) => [
@@ -91,11 +92,11 @@ class CheckList extends StatelessWidget {
         ),
       ),
       ElevatedButton.icon(
-        icon: Icon(Icons.save_alt_rounded),
-        label: Text("Save Checklist"),
+        icon: const Icon(Icons.save_alt_rounded),
+        label: const Text("Save Checklist"),
         onPressed: () async {
           final batch = FirebaseFirestore.instance.batch();
-          items.forEach((item) {
+          items.where((item) => item.hasChanged).forEach((item) {
             if (item.hasChanged) {
               batch.set(item.reference!, item.data);
               debugPrint("${item.title}: change-");

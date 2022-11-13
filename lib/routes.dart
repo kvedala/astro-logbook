@@ -4,18 +4,21 @@ import 'add_observation.dart';
 import 'signed_in.dart';
 import 'sign_in.dart';
 
+class MyRoutes {
 // const String HomePageRoute = '/';
-const String SignInPageRoute = '/';
-const String SignedInPageRoute = '/signed-in';
-const String GalleryPageRoute = '/gallery';
-const String AddObservationPageRoute = '/add-observation';
+  static const String signInPageRoute = '/';
+  static const String signedInPageRoute = '/signed-in';
+  static const String galleryPageRoute = '/gallery';
+  static const String addObservationPageRoute = '/add-observation';
 
-final Map<String, Widget Function(BuildContext)> routeMap = {
-  // HomePageRoute: (BuildContext context) => MyHomePage(
-  //       title: 'Astronomy Log Book',
-  //     ),
-  SignInPageRoute: (BuildContext context) => SignInPage(),
-  SignedInPageRoute: (BuildContext context) => SignedInPage(),
-  // GalleryPageRoute: (BuildContext context) => GallaryPage(),
-  AddObservationPageRoute: (BuildContext context) => AddObservationPage(),
-};
+  static final Map<String, Widget Function(BuildContext)> routeMap = {
+    // HomePageRoute: (BuildContext context) => MyHomePage(
+    //       title: 'Astronomy Log Book',
+    //     ),
+    signInPageRoute: (BuildContext context) => const SignInPage(),
+    signedInPageRoute: (BuildContext context) => const SignedInPage(),
+    // GalleryPageRoute: (BuildContext context) => GallaryPage(),
+    addObservationPageRoute: (BuildContext context) =>
+        const AddObservationPage(),
+  };
+}

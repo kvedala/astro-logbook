@@ -46,9 +46,9 @@ class RiseSetTimes {
           RightAscession ra, Declination dec, gps.LocationData location,
           [DateTime? when]) =>
       ((dec.degree - location.latitude!).abs() >= 90)
-          ? RiseSetTimes(belowHorizon: true)
+          ? const RiseSetTimes(belowHorizon: true)
           : ((dec.degree + location.latitude!).abs() >= 90)
-              ? RiseSetTimes(circumpolar: true)
+              ? const RiseSetTimes(circumpolar: true)
               : _compute(ra, dec, location, when);
 
   /// Compute the rise and set times

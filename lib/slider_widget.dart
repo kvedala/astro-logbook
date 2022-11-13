@@ -24,16 +24,16 @@ class SliderOption extends StatefulWidget {
   final IconData? prefixIcon;
 
   /// A slider widget wrapper
-  SliderOption(this.title, this.onChange,
-      {Key? key,
+  const SliderOption(this.title, this.onChange,
+      {super.key,
       this.initialValue = 0,
       this.minValue = 0,
       this.maxValue = 1.0,
       this.divisions = 1,
-      this.prefixIcon})
-      : super(key: key);
+      this.prefixIcon});
 
-  _SliderOptionState createState() => _SliderOptionState();
+  @override
+  State<SliderOption> createState() => _SliderOptionState();
 }
 
 class _SliderOptionState extends State<SliderOption> {
@@ -47,18 +47,20 @@ class _SliderOptionState extends State<SliderOption> {
 
   @override
   Widget build(BuildContext context) {
-    if (value < widget.minValue)
+    if (value < widget.minValue) {
       value = widget.minValue;
-    else if (value > widget.maxValue) value = widget.maxValue;
+    } else if (value > widget.maxValue) {
+      value = widget.maxValue;
+    }
 
     return InputDecorator(
       decoration: InputDecoration(
-        labelText: widget.title + ": $value",
+        labelText: "${widget.title}: $value",
         prefixIcon: Icon(
           widget.prefixIcon,
           color: Colors.red,
         ),
-        prefixIconConstraints: BoxConstraints.loose(Size(10, 10)),
+        prefixIconConstraints: BoxConstraints.loose(const Size(10, 10)),
       ),
       child: Slider(
         value: value as double,

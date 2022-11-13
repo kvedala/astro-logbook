@@ -5,13 +5,13 @@ import 'package:ionicons/ionicons.dart';
 
 /// Page to display the observations as a gallery
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final store = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
-    final collectionRoot = 'users/' + FirebaseAuth.instance.currentUser!.uid;
+    final collectionRoot = 'users/${FirebaseAuth.instance.currentUser!.uid}';
 
     return Column(mainAxisSize: MainAxisSize.max, children: [
       Expanded(
@@ -23,12 +23,12 @@ class SettingsPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.subtitle1),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
-                    .collection(collectionRoot + '/observations')
+                    .collection('$collectionRoot/observations')
                     .count()
                     .get(),
                 builder: (ctx, snap) =>
                     snap.connectionState == ConnectionState.waiting
-                        ? LinearProgressIndicator()
+                        ? const LinearProgressIndicator()
                         : Text(
                             snap.hasError
                                 ? "Error: ${snap.error}"
@@ -41,12 +41,12 @@ class SettingsPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.subtitle1),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
-                    .collection(collectionRoot + '/equipments')
+                    .collection('$collectionRoot/equipments')
                     .count()
                     .get(),
                 builder: (ctx, snap) =>
                     snap.connectionState == ConnectionState.waiting
-                        ? LinearProgressIndicator()
+                        ? const LinearProgressIndicator()
                         : Text(
                             snap.hasError
                                 ? "Error: ${snap.error}"
@@ -58,31 +58,31 @@ class SettingsPage extends StatelessWidget {
         ]),
       ),
       ElevatedButton.icon(
-        icon: Icon(Icons.person_remove),
-        label: Text("Delete Account"),
+        icon: const Icon(Icons.person_remove),
+        label: const Text("Delete Account"),
         onPressed: () => showDialog<bool?>(
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            icon: Icon(Ionicons.alert_circle),
+            icon: const Icon(Ionicons.alert_circle),
             title: const Text("Delete Account"),
             content: const Text(
                 "Are you sure you want to delete your account? This action cannot be undone."),
             actions: [
               ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context, true),
-                  icon: Icon(Icons.done),
-                  label: Text("Delete")),
+                  icon: const Icon(Icons.done),
+                  label: const Text("Delete")),
               ElevatedButton.icon(
-                  icon: Icon(Icons.cancel),
+                  icon: const Icon(Icons.cancel),
                   onPressed: () => Navigator.pop(context, false),
-                  label: Text("Cancel")),
+                  label: const Text("Cancel")),
             ],
           ),
         ).then((result) {
           if (result == null) return;
           if (!result) return;
-          store.collection(collectionRoot + '/deleted').add({
+          store.collection('$collectionRoot/deleted').add({
             'timestamp': DateTime.now(),
             'displayName': auth.currentUser!.displayName,
             'email': auth.currentUser!.email,
