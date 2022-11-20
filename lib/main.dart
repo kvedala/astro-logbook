@@ -6,11 +6,12 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 import 'routes.dart';
 import 'sign_in.dart';
+import 'firebase_options.dart';
 // import 'uploadobjects.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // await uploadMessier();
   // await uploadNGC();
