@@ -12,6 +12,7 @@ import 'routes.dart';
 import 'checklist.dart';
 import 'sign_in.dart';
 import 'observations_gallery_page.dart';
+import 'weather_page.dart';
 
 /// Page to display after signing in
 class SignedInPage extends StatefulWidget {
@@ -77,6 +78,11 @@ class _SignedInPageState extends State<SignedInPage>
     //   SettingsPage(),
     // ),
     const MyTab(
+      Icon(Icons.wb_sunny),
+      "Weather Page",
+      WeatherPage(),
+    ),
+    const MyTab(
       Icon(Icons.settings),
       "Settings Page",
       SettingsPage(),
@@ -109,8 +115,9 @@ class _SignedInPageState extends State<SignedInPage>
   Widget build(BuildContext context) {
     if (FirebaseAuth.instance.currentUser == null) {
       // user not logged in
-      Navigator.popAndPushNamed(context, MyRoutes.signInPageRoute);
-      // return null;
+      Future.delayed(const Duration(seconds: 1),
+          () => Navigator.popAndPushNamed(context, MyRoutes.signInPageRoute));
+      return const SizedBox();
     }
 
     FirebaseAnalytics.instance.logLogin();
