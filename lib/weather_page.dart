@@ -7,12 +7,12 @@ class WeatherPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Expanded(
       child: FutureBuilder(
         future: getCurrentPosition(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
@@ -22,14 +22,15 @@ class WeatherPage extends StatelessWidget {
             initialFile: 'assets/astrospheric.html',
             onLoadStop: (controller, url) async {
               await controller.evaluateJavascript(
-                  source:
-                      'm_AstrosphericEmbed.Create("AstrosphericContainer", ${snapshot.data!.latitude}, ${snapshot.data!.longitude});');
+                  source: 'm_AstrosphericEmbed.Create("AstrosphericContainer", '
+                      '${snapshot.data!.latitude}, ${snapshot.data!.longitude});');
             },
             initialSettings: InAppWebViewSettings(
               useShouldOverrideUrlLoading: true,
               allowsInlineMediaPlayback: true,
               sharedCookiesEnabled: true,
-              userAgent:
+              transparentBackground: true,
+              applicationNameForUserAgent:
                   'Astronomy Logbook (https://github.com/kvedala/astro-logbook)',
             ),
           );
