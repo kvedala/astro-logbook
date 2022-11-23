@@ -491,20 +491,20 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
-                            prefixIcon: Icons.remove_red_eye_rounded,
+                            prefixIcon: Icons.remove_red_eye,
                           ),
                         ),
-                        Expanded(
-                          child: SliderOption(
-                            "Visibility",
-                            (value) => _responses['visibility'] = value,
-                            initialValue: _responses['visibility'] ?? 0,
-                            minValue: 1.0,
-                            maxValue: 5.0,
-                            divisions: 4,
-                            prefixIcon: Icons.visibility_rounded,
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: SliderOption(
+                        //     "Visibility",
+                        //     (value) => _responses['visibility'] = value,
+                        //     initialValue: _responses['visibility'] ?? 0,
+                        //     minValue: 1.0,
+                        //     maxValue: 5.0,
+                        //     divisions: 4,
+                        //     prefixIcon: Icons.visibility,
+                        //   ),
+                        // ),
                         Expanded(
                           child: SliderOption(
                             "Transparency",
@@ -513,7 +513,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
-                            prefixIcon: Icons.cloud_circle_rounded,
+                            prefixIcon: Icons.cloud_circle,
                           ),
                         ),
                       ]),
