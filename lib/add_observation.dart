@@ -444,12 +444,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           ),
                           IconButton(
                               icon: const Icon(Icons.add_link),
-                              onPressed: () async {
-                                if (await Equipment.addEquipment(context)) {
-                                  await _loadEquipment(context, force: true);
-                                  setState(() {});
-                                }
-                              }),
+                              onPressed: () =>
+                                  Equipment.addEquipment(context).then(
+                                    (v) => _loadEquipment(context, force: true)
+                                        .then((v) => setState(() {})),
+                                  )),
                         ]),
                       ),
                       Padding(
@@ -566,7 +565,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   _formKey.currentState!.save();
-                                  if (await saveToDB()) Navigator.pop(context);
+                                  await saveToDB().then(
+                                      (v) => v ? Navigator.pop(context) : null);
                                 }
                               },
                             ),

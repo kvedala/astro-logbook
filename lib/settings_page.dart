@@ -16,11 +16,11 @@ class SettingsPage extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.max, children: [
       Expanded(
         child: Column(mainAxisSize: MainAxisSize.max, children: [
-          Text("User Stats", style: Theme.of(context).textTheme.headline5),
+          Text("User Stats", style: Theme.of(context).textTheme.headlineSmall),
           Table(children: [
             TableRow(children: [
               Text("Number of Observations:",
-                  style: Theme.of(context).textTheme.subtitle1),
+                  style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
                     .collection('$collectionRoot/observations')
@@ -33,12 +33,12 @@ class SettingsPage extends StatelessWidget {
                             snap.hasError
                                 ? "Error: ${snap.error}"
                                 : snap.data!.count.toString(),
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme.of(context).textTheme.titleMedium),
               ),
             ]),
             TableRow(children: [
               Text("Number of Equipment:",
-                  style: Theme.of(context).textTheme.subtitle1),
+                  style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
                     .collection('$collectionRoot/equipments')
@@ -51,7 +51,7 @@ class SettingsPage extends StatelessWidget {
                             snap.hasError
                                 ? "Error: ${snap.error}"
                                 : snap.data!.count.toString(),
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme.of(context).textTheme.titleMedium),
               ),
             ]),
           ]),

@@ -67,14 +67,14 @@ class MyApp extends StatelessWidget {
                   bodyColor: Colors.red,
                   displayColor: Colors.red,
                   decorationColor: Colors.red)
-              .bodyText2,
+              .bodyMedium,
           titleTextStyle: Theme.of(context)
               .textTheme
               .apply(
                   bodyColor: Colors.red,
                   displayColor: Colors.red,
                   decorationColor: Colors.red)
-              .headline6,
+              .titleLarge,
         ),
         tabBarTheme: const TabBarTheme(
           labelColor: Colors.red,
