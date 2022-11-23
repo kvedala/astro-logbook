@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
+import 'confirm_dialog.dart';
 import 'utils.dart';
 import 'equipment.dart';
 import 'add_observation.dart';
@@ -181,10 +182,13 @@ class _ShowDetails extends StatefulWidget {
 
   _ShowDetails(this.tile)
       : tableItems = {
-          'Messier': tile.messier == null ? "-" : tile.messier.toString(),
-          'NGC': tile.ngc == null ? "-" : tile.ngc.toString(),
-          'Date & Time':
-              "${tile.time!.yMMMd} ${tile.time!.hourMinute} (${tile.time!.timeZoneName})",
+          'Messier': TextEditingController(
+              text: tile.messier == null ? "-" : tile.messier.toString()),
+          'NGC': TextEditingController(
+              text: tile.ngc == null ? "-" : tile.ngc.toString()),
+          'Date & Time': TextEditingController(
+              text:
+                  "${tile.time!.yMMMd} ${tile.time!.hourMinute} (${tile.time!.timeZoneName})"),
           'Seeing':
               tile.seeing == null ? "Unknown" : tile.seeing!.toInt().toString(),
           'Visibility': tile.visibility == null
@@ -194,8 +198,10 @@ class _ShowDetails extends StatefulWidget {
               ? "Unknown"
               : tile.transparency!.toInt().toString(),
           'Location': tile.location,
-          'Latitude': decimalDegreesToDMS(tile.latitude!, 'lat'),
-          'Longitude': decimalDegreesToDMS(tile.longitude!, 'long'),
+          'Latitude': TextEditingController(
+              text: decimalDegreesToDMS(tile.latitude!, 'lat')),
+          'Longitude': TextEditingController(
+              text: decimalDegreesToDMS(tile.longitude!, 'long')),
         };
 
   @override
@@ -203,6 +209,142 @@ class _ShowDetails extends StatefulWidget {
 }
 
 class _ShowDetailsState extends State<_ShowDetails> {
+  Future<void> updateDateTime(BuildContext context, String key) async {
+    await showDatePicker(
+      context: context,
+      initialDate: widget.tile.time!,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    ).then((newDate) async {
+      if (newDate == null) return;
+      await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(widget.tile.time!),
+      ).then((newTime) async {
+        if (newTime == null) return;
+        newDate = newDate!
+            .add(Duration(hours: newTime.hour, minutes: newTime.minute));
+
+        await confirmDialog(context, 'New Time: $newDate').then((v) {
+          if (v != ConfirmAction.accept) return;
+          widget.tableItems[key].text =
+              "${newDate!.yMMMd} ${newDate!.hourMinute} (${newDate!.timeZoneName})";
+          widget.tile.reference!.update({'dateTime': newDate});
+          setState(() {});
+        });
+      });
+    });
+  }
+
+  Future<void> updateTextData(BuildContext context, String key) async {
+    final newValue = TextEditingController(
+        text: widget.tableItems[key].runtimeType == TextEditingController
+            ? widget.tableItems[key].text
+            : widget.tableItems[key]);
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Editing "$key"'),
+        contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
+        content: TextField(controller: newValue),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Save'),
+            onPressed: () {
+              confirmDialog(context, 'New Value: ${newValue.text}')
+                  .then((value) {
+                if (value != ConfirmAction.accept) return;
+                widget.tableItems[key].runtimeType == TextEditingController
+                    ? widget.tableItems[key].text = newValue.text
+                    : widget.tableItems[key] = newValue.text;
+                setState(() {});
+                widget.tile.reference!
+                    .update({key.toLowerCase(): newValue.text});
+                Navigator.pop(context, newValue.text);
+              });
+            },
+          ),
+        ],
+      ),
+    ).then((value) => null);
+  }
+
+  Future<void> updateNumericData(BuildContext context, String key,
+      {required bool decimal, required bool signed}) async {
+    final newValue = TextEditingController(
+        text: (key == 'Latitude'
+                ? widget.tile.latitude
+                : key == 'Longitude'
+                    ? widget.tile.longitude
+                    : num.tryParse(widget.tableItems[key].text))
+            .toString());
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Editing "$key"'),
+        contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
+        content: TextField(
+          controller: newValue,
+          keyboardType: TextInputType.numberWithOptions(decimal: decimal),
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Save'),
+            onPressed: () {
+              final v = key == 'Latitude' || key == 'Longitude'
+                  ? num.tryParse(newValue.text)
+                  : int.tryParse(newValue.text);
+              if (v == null) return;
+              confirmDialog(context, 'New Value: ${newValue.text}')
+                  .then((value) {
+                if (value != ConfirmAction.accept) return;
+                if (key == 'Latitude') {
+                  widget.tableItems[key].text = decimalDegreesToDMS(v, 'lat');
+                } else if (key == 'Longitude') {
+                  widget.tableItems[key].text = decimalDegreesToDMS(v, 'long');
+                } else {
+                  widget.tableItems[key].text = newValue.text;
+                }
+                setState(() {});
+                widget.tile.reference!.update({key.toLowerCase(): v});
+                Navigator.pop(context, newValue.text);
+              });
+            },
+          ),
+        ],
+      ),
+    ).then((value) => null);
+  }
+
+  void _updateField(BuildContext context, String key) {
+    switch (key) {
+      case 'Date & Time':
+        updateDateTime(context, key);
+        break;
+      case 'Messier':
+      case 'NGC':
+        updateNumericData(context, key, decimal: false, signed: false);
+        break;
+      case 'Latitude':
+      case 'Longitude':
+        updateNumericData(context, key, decimal: true, signed: true);
+        break;
+      case 'Location':
+        updateTextData(context, key);
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,19 +358,38 @@ class _ShowDetailsState extends State<_ShowDetails> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Table(
-                columnWidths: const {0: FixedColumnWidth(120)},
+                columnWidths: const {
+                  0: FixedColumnWidth(120),
+                  1: FlexColumnWidth(),
+                  2: FlexColumnWidth(.1)
+                },
                 children: widget.tableItems.entries
                     .map(
                       (e) => TableRow(
                         children: [
-                          TableCell(
-                            child: SizedBox(
-                              height: 25,
-                              child: Text(e.key,
-                                  style: const TextStyle(fontSize: 18)),
-                            ),
+                          Text(
+                            e.key,
+                            style: const TextStyle(fontSize: 18),
                           ),
-                          Text(e.value, style: const TextStyle(fontSize: 18)),
+                          Text(
+                            (e.value.runtimeType == TextEditingController)
+                                ? e.value.text
+                                : e.value,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const [
+                            'Date & Time',
+                            'Location',
+                            'NGC',
+                            'Messier',
+                            'Latitude',
+                            'Longitude'
+                          ].contains(e.key)
+                              ? IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () => _updateField(context, e.key),
+                                )
+                              : const SizedBox(),
                         ],
                       ),
                     )
