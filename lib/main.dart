@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
       //   primarySwatch: Colors.blue,
       // ),
       darkTheme: ThemeData(
+        useMaterial3: true,
         textTheme: Theme.of(context).textTheme.apply(
             bodyColor: Colors.red,
             displayColor: Colors.red,
