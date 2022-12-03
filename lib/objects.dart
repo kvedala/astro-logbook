@@ -6,6 +6,8 @@ import 'ra_dec.dart';
 import 'rise_times.dart';
 
 /// Generic Celestial object catalog
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 abstract class Catalog extends StatelessWidget {
   /// name of the catalog
   final String name;
@@ -28,35 +30,58 @@ abstract class Catalog extends StatelessWidget {
   /// was this object viewed by the user
   final bool viewed;
 
-  late final RiseSetTimes? riseTimes;
+  /// computed Rise & set times of the object
+  final RiseSetTimes? riseTimes;
 
   Catalog(this.id, this.ra, this.dec,
-      {required this.name,
+      {super.key,
+      required this.name,
       this.difficulty,
       this.type = "",
       this.magnitude,
       this.viewed = false,
-      gps.LocationData? currentLocation}) {
-    if (currentLocation == null)
-      riseTimes = null;
-    else {
-      riseTimes = RiseSetTimes.forObject(ra, dec, currentLocation);
-    }
-  }
+      gps.LocationData? currentLocation})
+      : riseTimes = currentLocation == null
+            ? null
+            : RiseSetTimes.forObject(ra, dec, currentLocation);
+
+  // Catalog fromJSON(Map<String, dynamic> json, String name,
+  //         [bool viewed = false, gps.LocationData? currentLocation]) =>
+  //     Catalog(
+  //       json['number'],
+  //       RightAscession.fromJSON(json['ra']['degree']),
+  //       Declination.fromJSON(json['dec']['degree']),
+  //       name: name,
+  //       type: json['type'],
+  //       difficulty: json['difficulty'],
+  //       viewed: viewed,
+  //       currentLocation: currentLocation,
+  //     );
+
+  /// Export to JSON format Map
+  Map<String, dynamic> get json => {
+        "number": id,
+        "catalog": name,
+        "type": type,
+        "ra": ra.json,
+        "dec": dec.json,
+        "viewed": viewed,
+        "difficulty": difficulty,
+      };
 
   @override
   Widget build(BuildContext context) {
     late Widget visible;
-    if (riseTimes == null)
-      visible = SizedBox();
-    else if (riseTimes!.belowHorizon)
-      visible = Icon(Icons.cancel);
-    else if (riseTimes!.circumpolar ||
+    if (riseTimes == null) {
+      visible = const SizedBox();
+    } else if (riseTimes!.belowHorizon) {
+      visible = const Icon(Icons.cancel);
+    } else if (riseTimes!.circumpolar ||
         riseTimes!.riseTime!.hour >= 18 ||
         riseTimes!.setTime!.hour <= 5) {
-      visible = Icon(Icons.done);
+      visible = const Icon(Icons.done);
     } else {
-      visible = Icon(Icons.cancel);
+      visible = const Icon(Icons.cancel);
     }
     return ListTile(
       visualDensity: VisualDensity.compact,
@@ -71,11 +96,11 @@ abstract class Catalog extends StatelessWidget {
           Text("RA: ${ra.toString()}"),
           Text(type),
           riseTimes == null
-              ? SizedBox()
+              ? const SizedBox()
               : riseTimes!.circumpolar
-                  ? Text("Circumpolar")
+                  ? const Text("Circumpolar")
                   : riseTimes!.belowHorizon
-                      ? Text("Below Horizon")
+                      ? const Text("Below Horizon")
                       : Text(
                           "Rise: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
         ]),
@@ -83,9 +108,9 @@ abstract class Catalog extends StatelessWidget {
           Text("DEC: ${dec.toString()}"),
           Text(difficulty ?? ""),
           riseTimes == null
-              ? SizedBox()
+              ? const SizedBox()
               : (riseTimes!.circumpolar | riseTimes!.belowHorizon)
-                  ? SizedBox()
+                  ? const SizedBox()
                   : Text(
                       "Set: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
         ]),
@@ -99,7 +124,8 @@ abstract class Catalog extends StatelessWidget {
 /// Displays as a list tile.
 class Messier extends Catalog {
   Messier(int id, String type, RightAscession ra, Declination dec,
-      {String? difficulty,
+      {super.key,
+      String? difficulty,
       num? magnitude,
       bool viewed = false,
       gps.LocationData? currentLocation})
@@ -123,22 +149,14 @@ class Messier extends Catalog {
       currentLocation: currentLocation,
     );
   }
-
-  /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "type": type,
-        "ra": ra.json,
-        "dec": dec.json,
-        "difficulty": difficulty.toString()
-      };
 }
 
 /// Convenience class to store NGC Objects.
 /// Displays as a list tile.
 class NGC extends Catalog {
   NGC(int id, String type, RightAscession ra, Declination dec,
-      {String? difficulty,
+      {super.key,
+      String? difficulty,
       num? magnitude,
       bool viewed = false,
       gps.LocationData? currentLocation})
@@ -162,22 +180,14 @@ class NGC extends Catalog {
       currentLocation: currentLocation,
     );
   }
-
-  /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "type": type,
-        "ra": ra.json,
-        "dec": dec.json,
-        "difficulty": difficulty.toString()
-      };
 }
 
 /// Convenience class to store Caldwell Objects.
 /// Displays as a list tile.
 class Caldwell extends Catalog {
   Caldwell(int id, String type, RightAscession ra, Declination dec,
-      {String? difficulty,
+      {super.key,
+      String? difficulty,
       num? magnitude,
       bool viewed = false,
       gps.LocationData? currentLocation})
@@ -201,13 +211,4 @@ class Caldwell extends Catalog {
       currentLocation: currentLocation,
     );
   }
-
-  /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "type": type,
-        "ra": ra.json,
-        "dec": dec.json,
-        "difficulty": difficulty.toString()
-      };
 }

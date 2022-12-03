@@ -20,14 +20,14 @@ class CheckListItem extends StatefulWidget {
 
   /// Checklist item widget
   CheckListItem(this.title,
-      {this.reference, this.onChanged, bool? initialValue = false, Key? key})
-      : _initialValue = initialValue,
-        super(key: key) {
+      {this.reference, this.onChanged, bool? initialValue = false, super.key})
+      : _initialValue = initialValue {
     data['title'] = title;
     data['value'] = initialValue;
   }
 
-  _CheckListItemState createState() => _CheckListItemState();
+  @override
+  State<CheckListItem> createState() => _CheckListItemState();
 
   /// check if the state changed
   bool get hasChanged => data['value'] != _initialValue;

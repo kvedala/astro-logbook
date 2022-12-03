@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -16,7 +15,7 @@ import 'utils.dart';
 class GeneratePDF extends StatelessWidget {
   final List<DocumentReference?> selectedTiles;
 
-  GeneratePDF(this.selectedTiles) {
+  GeneratePDF(this.selectedTiles, {super.key}) {
     FirebaseAnalytics.instance.setCurrentScreen(screenName: "PDF Output");
   }
 
@@ -24,12 +23,12 @@ class GeneratePDF extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Selected observations"),
+        title: const Text("Selected observations"),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _getData(),
         builder: (context, snap) => snap.connectionState != ConnectionState.done
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : PdfPreview(
@@ -44,18 +43,19 @@ class GeneratePDF extends StatelessWidget {
   Future<List<Map<String, dynamic>>> _getData() async {
     List<Map<String, dynamic>> outData = [];
 
-    selectedTiles.forEach((element) async {
+    for (var element in selectedTiles) {
       final DocumentSnapshot<Map<String, dynamic>> data = await (element!.get(
-              GetOptions(
+              const GetOptions(
                   source: !kIsWeb ? Source.cache : Source.serverAndCache))
           as FutureOr<DocumentSnapshot<Map<String, dynamic>>>);
       final DocumentSnapshot equipment = await data.data()!['equipment'].get(
-          GetOptions(source: !kIsWeb ? Source.cache : Source.serverAndCache));
+          const GetOptions(
+              source: !kIsWeb ? Source.cache : Source.serverAndCache));
       outData.add({
         'data': data.data(),
         'equipment': equipment.data(),
       });
-    });
+    }
 
     return outData;
   }
@@ -90,11 +90,11 @@ class GeneratePDF extends StatelessWidget {
     final DateTime dateTime = data['dateTime'].toDate();
 
     return pw.Container(
-      decoration: pw.BoxDecoration(
+      decoration: const pw.BoxDecoration(
         // borderRadius: pw.BorderRadius.circular(10),
         border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black)),
       ),
-      padding: pw.EdgeInsets.symmetric(vertical: 10),
+      padding: const pw.EdgeInsets.symmetric(vertical: 10),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -102,7 +102,7 @@ class GeneratePDF extends StatelessWidget {
             mainAxisSize: pw.MainAxisSize.max,
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: [
-              pw.Text(data['title'], style: pw.TextStyle(fontSize: 18)),
+              pw.Text(data['title'], style: const pw.TextStyle(fontSize: 18)),
             ],
           ),
           pw.Table(children: [
@@ -127,7 +127,7 @@ class GeneratePDF extends StatelessWidget {
             pw.TableRow(
               children: [
                 pw.Text("Time"),
-                pw.Text(dateTime.hourMinute + " (${dateTime.timeZoneName})"),
+                pw.Text("${dateTime.hourMinute} (${dateTime.timeZoneName})"),
               ],
             ),
             pw.TableRow(
@@ -159,7 +159,7 @@ class GeneratePDF extends StatelessWidget {
               children: [
                 pw.Text("Sky conditions"),
                 pw.Table(columnWidths: {
-                  0: pw.FixedColumnWidth(5)
+                  0: const pw.FixedColumnWidth(5)
                 }, children: [
                   pw.TableRow(children: [
                     pw.Text("Seeing:"),

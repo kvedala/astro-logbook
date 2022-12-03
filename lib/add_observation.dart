@@ -13,6 +13,8 @@ import 'slider_widget.dart';
 import 'utils.dart';
 
 /// Convenient class for observational data
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class ObservationData {
   /// Title of observation
   final String? title;
@@ -108,9 +110,10 @@ class ObservationData {
 
 /// Widget to add observation data to DB
 class AddObservationPage extends StatefulWidget {
-  AddObservationPage({Key? key}) : super(key: key);
+  const AddObservationPage({super.key});
 
-  _AddObservationPageState createState() => _AddObservationPageState();
+  @override
+  State<AddObservationPage> createState() => _AddObservationPageState();
 }
 
 class _AddObservationPageState extends State<AddObservationPage> {
@@ -157,12 +160,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
         //   builder: (context, snap) =>
         Scaffold(
       appBar: AppBar(
-        title: Text("Record observation"),
+        title: const Text("Record observation"),
       ),
       body: Container(
-        padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
         child: _responses['longitude'] == null
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Form(
                   key: _formKey,
@@ -170,12 +173,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(
                           children: [
                             Expanded(
                               child: TextFormField(
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Title",
                                 ),
                                 initialValue: _responses['title'],
@@ -196,7 +199,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               child: Row(children: [
                                 Expanded(
                                   child: TextFormField(
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: "Messier #",
                                     ),
                                     initialValue: _responses['messier'] == null
@@ -220,9 +223,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       final t = int.tryParse(value);
                                       if (t == null) return null;
                                       if (t <= 0) return "Cannot be negative";
-                                      if (t > 110)
+                                      if (t > 110) {
                                         return "Messier catalog numbers are "
                                             "only upto 110";
+                                      }
                                       return null;
                                     },
                                     autovalidateMode: AutovalidateMode.always,
@@ -235,14 +239,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 ),
                                 Expanded(
                                   child: TextFormField(
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: "NGC #",
                                     ),
                                     initialValue: _responses['ngc'] == null
                                         ? ""
                                         : _responses['ngc'].toString(),
                                     keyboardType:
-                                        TextInputType.numberWithOptions(),
+                                        const TextInputType.numberWithOptions(),
                                     readOnly: false,
                                     validator: (value) {
                                       if (value!.isEmpty) return null;
@@ -283,24 +287,26 @@ class _AddObservationPageState extends State<AddObservationPage> {
                       //   validator: (value) => _isFileValid,
                       // ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: "Latitude",
                               ),
                               initialValue: _responses['latitude'] == null
                                   ? ""
                                   : _responses['latitude'].toString(),
-                              keyboardType: TextInputType.numberWithOptions(
-                                  signed: true, decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      signed: true, decimal: true),
                               // readOnly: true,
                               validator: (value) {
                                 final number = num.tryParse(value!);
                                 if (number == null) return "Not a number";
-                                if (number < -90 || number > 90)
+                                if (number < -90 || number > 90) {
                                   return "Invalid range";
+                                }
                                 return null;
                               },
                               onSaved: (value) =>
@@ -319,29 +325,31 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 ? ""
                                 : decimalDegreesToDMS(
                                     _responses['latitude'], 'lat'),
-                            style: TextStyle(fontSize: 14),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ]),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: "Longitude",
                               ),
                               initialValue: _responses['longitude'] == null
                                   ? ""
                                   : _responses['longitude'].toString(),
-                              keyboardType: TextInputType.numberWithOptions(
-                                  signed: true, decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      signed: true, decimal: true),
                               // readOnly: true,
                               validator: (value) {
                                 final number = num.tryParse(value!);
                                 if (number == null) return "Not a number";
-                                if (number < -180 || number > 180)
+                                if (number < -180 || number > 180) {
                                   return "Invalid range";
+                                }
                                 return null;
                               },
                               onSaved: (value) =>
@@ -361,15 +369,15 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 ? ""
                                 : decimalDegreesToDMS(
                                     _responses['longitude'], 'long'),
-                            style: TextStyle(fontSize: 14),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ]),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
-                        child: _possibleLocations.length == 0
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: _possibleLocations.isEmpty
                             ? TextFormField(
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Location - Enter Address",
                                 ),
                                 initialValue: _responses['location'],
@@ -383,7 +391,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             : DropdownButtonFormField(
                                 isExpanded: true,
                                 isDense: false,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Location",
                                 ),
                                 value: _responses['location'],
@@ -409,17 +417,17 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               ),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(children: [
                           Expanded(
                             child: DropdownButtonFormField<DocumentReference>(
                               isExpanded: true,
                               isDense: false,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: "Equipment used",
                               ),
                               value: _responses['equipment'],
-                              items: _equipments.length == 0
+                              items: _equipments.isEmpty
                                   ? []
                                   : List.generate(
                                       _equipments.length,
@@ -437,19 +445,18 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             ),
                           ),
                           IconButton(
-                              icon: Icon(Icons.add_link),
-                              onPressed: () async {
-                                if (await Equipment.addEquipment(context)) {
-                                  await _loadEquipment(context, force: true);
-                                  setState(() {});
-                                }
-                              }),
+                              icon: const Icon(Icons.add_link),
+                              onPressed: () =>
+                                  Equipment.addEquipment(context).then(
+                                    (v) => _loadEquipment(context, force: true)
+                                        .then((v) => setState(() {})),
+                                  )),
                         ]),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: TextFormField(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: "Date & Time of observation",
                           ),
                           controller: _dateTimeController,
@@ -486,20 +493,20 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
-                            prefixIcon: Icons.remove_red_eye_rounded,
+                            prefixIcon: Icons.remove_red_eye,
                           ),
                         ),
-                        Expanded(
-                          child: SliderOption(
-                            "Visibility",
-                            (value) => _responses['visibility'] = value,
-                            initialValue: _responses['visibility'] ?? 0,
-                            minValue: 1.0,
-                            maxValue: 5.0,
-                            divisions: 4,
-                            prefixIcon: Icons.visibility_rounded,
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: SliderOption(
+                        //     "Visibility",
+                        //     (value) => _responses['visibility'] = value,
+                        //     initialValue: _responses['visibility'] ?? 0,
+                        //     minValue: 1.0,
+                        //     maxValue: 5.0,
+                        //     divisions: 4,
+                        //     prefixIcon: Icons.visibility,
+                        //   ),
+                        // ),
                         Expanded(
                           child: SliderOption(
                             "Transparency",
@@ -508,21 +515,21 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             minValue: 1.0,
                             maxValue: 5.0,
                             divisions: 4,
-                            prefixIcon: Icons.cloud_circle_rounded,
+                            prefixIcon: Icons.cloud_circle,
                           ),
                         ),
                       ]),
                       Padding(
-                        padding: EdgeInsets.only(top: 5),
+                        padding: const EdgeInsets.only(top: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               "Notes:",
                               style: TextStyle(fontSize: 18),
                             ),
                             IconButton(
-                              icon: Icon(Icons.add_rounded),
+                              icon: const Icon(Icons.add_rounded),
                               // color: Colors.white,
                               onPressed: () => _addNote(context),
                             ),
@@ -530,9 +537,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: _responses['notes'].length == 0
-                            ? SizedBox()
+                            ? const SizedBox()
                             : ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: _responses['notes'].length,
@@ -555,18 +562,19 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             ElevatedButton.icon(
-                              label: Text("Submit"),
-                              icon: Icon(Icons.send_rounded),
+                              label: const Text("Submit"),
+                              icon: const Icon(Icons.send_rounded),
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   _formKey.currentState!.save();
-                                  if (await saveToDB()) Navigator.pop(context);
+                                  await saveToDB().then(
+                                      (v) => v ? Navigator.pop(context) : null);
                                 }
                               },
                             ),
                             ElevatedButton.icon(
-                              label: Text("Cancel"),
-                              icon: Icon(Icons.cancel_rounded),
+                              label: const Text("Cancel"),
+                              icon: const Icon(Icons.cancel_rounded),
                               onPressed: () => Navigator.pop(context),
                             ),
                           ]),
@@ -586,7 +594,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
       builder: (context) => AlertDialog(
         title: Text(index == -1 ? "Add Note:" : "Edit Note:"),
         content: Container(
-          constraints: BoxConstraints.loose(Size(200, 200)),
+          constraints: BoxConstraints.loose(const Size(200, 200)),
           child: TextField(
             textCapitalization: TextCapitalization.sentences,
             controller: noteController,
@@ -596,22 +604,24 @@ class _AddObservationPageState extends State<AddObservationPage> {
         ),
         actions: [
           ElevatedButton.icon(
-            icon: Icon(Icons.done),
-            label: Text("Accept"),
+            icon: const Icon(Icons.done),
+            label: const Text("Accept"),
             onPressed: () {
-              if (noteController.text.isNotEmpty)
+              if (noteController.text.isNotEmpty) {
                 setState(() {
-                  if (index == -1)
+                  if (index == -1) {
                     _responses['notes'].add(noteController.text);
-                  else
+                  } else {
                     _responses['notes'][index] = noteController.text;
+                  }
                 });
+              }
               Navigator.pop(context);
             },
           ),
           ElevatedButton.icon(
-            icon: Icon(Icons.cancel_rounded),
-            label: Text("Cancel"),
+            icon: const Icon(Icons.cancel_rounded),
+            label: const Text("Cancel"),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -627,7 +637,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final auth = FirebaseAuth.instance;
     try {
       await firestore
-          .collection('users/' + auth.currentUser!.uid + "/observations")
+          .collection('users/${auth.currentUser!.uid}/observations')
           .add(_responses)
           .then((ref) async => await FirebaseAnalytics.instance.logEvent(
                 name: "New Observation",
@@ -643,56 +653,52 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
   /// Get current address from GPS coordinates
   Future<void> _getCurrentPosition() async {
-    if (_responses['latitude'] != null && _responses['longitude'] != null)
-      return null;
+    if (_responses['latitude'] != null && _responses['longitude'] != null) {
+      return;
+    }
     final location = gps.Location();
-    if (!await location.requestService()) return null;
+    if (!await location.requestService()) return;
 
     final permission = await location.requestPermission();
     if (permission == gps.PermissionStatus.granted ||
         permission == gps.PermissionStatus.grantedLimited) {
-      final value = await location.getLocation().timeout(Duration(seconds: 5),
+      final value = await location.getLocation().timeout(
+          const Duration(seconds: 5),
           onTimeout: () =>
               gps.LocationData.fromMap({'latitude': 0, 'longitude': 0}));
       final temp = DateTime.fromMillisecondsSinceEpoch(value.time!.toInt());
-      if (mounted)
+      if (mounted) {
         setState(() {
           _responses['latitude'] = value.latitude;
           _responses['longitude'] = value.longitude;
           _responses['dateTime'] =
               DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
         });
+      }
 
       if (kIsWeb) {
         _possibleLocations = [];
-        return null;
+        return;
       }
 
       await _updateAddresses();
     }
-    return null;
+    return;
   }
 
   Future<void> _updateAddresses() async {
     try {
       final places = await placemarkFromCoordinates(
           _responses['latitude'], _responses['longitude']);
-      if (mounted)
+      if (mounted) {
         setState(() {
           _possibleLocations = List.generate(
               places.length,
               (index) =>
-                  places[index].name! +
-                  ", " +
-                  places[index].subLocality! +
-                  ", " +
-                  places[index].locality! +
-                  ", " +
-                  places[index].country! +
-                  " " +
-                  places[index].postalCode!,
+                  "${places[index].name!}, ${places[index].subLocality!}, ${places[index].locality!}, ${places[index].country!} ${places[index].postalCode!}",
               growable: false);
         });
+      }
     } catch (e) {
       debugPrint(e.toString());
       _possibleLocations = [];
@@ -722,7 +728,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     final auth = FirebaseAuth.instance;
     try {
       final docs = await firestore
-          .collection('users/' + auth.currentUser!.uid + "/equipments")
+          .collection('users/${auth.currentUser!.uid}/equipments')
           .get();
       _equipments =
           docs.docs.map((query) => Equipment.fromQuery(query)).toList();

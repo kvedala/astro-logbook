@@ -18,15 +18,17 @@ class ListOfObjects extends StatelessWidget {
     return FutureBuilder<gps.LocationData?>(
       future: _getLocation(),
       builder: (context, snap) {
-        if (snap.connectionState == ConnectionState.waiting)
-          return Column(children: [
+        if (snap.connectionState == ConnectionState.waiting) {
+          return Column(children: const [
             CircularProgressIndicator(),
             Text("Getting current GPS location...")
           ]);
-        if (snap.data == null)
-          return Center(
+        }
+        if (snap.data == null) {
+          return const Center(
             child: Text("No GPS!\nCannot compute Rise and Set times."),
           );
+        }
         return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream:
               // return _saveMessierObjects();
@@ -37,22 +39,21 @@ class ListOfObjects extends StatelessWidget {
           builder: (ctx, snap2) {
             // if (snap2.connectionState != ConnectionState.done)
             //   return Center(child: CircularProgressIndicator());
-            if (snap2.data == null)
-              // return Center(child: Text("No Data!"));
-              return Column(children: [
+            if (snap2.data == null) {
+              return Column(children: const [
                 CircularProgressIndicator(),
                 Text("Loading Messier data...")
               ]);
+            }
             return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
               future: FirebaseFirestore.instance
-                  .collection("users/" +
-                      FirebaseAuth.instance.currentUser!.uid +
-                      "/observations")
+                  .collection(
+                      "users/${FirebaseAuth.instance.currentUser!.uid}/observations")
                   // .where("messier", isGreaterThan: 0)
-                  .get(GetOptions(source: Source.cache)),
+                  .get(const GetOptions(source: Source.cache)),
               builder: (context, snap3) => snap3.connectionState !=
                       ConnectionState.done
-                  ? Column(children: [
+                  ? Column(children: const [
                       CircularProgressIndicator(),
                       Text("Loading viewed data...")
                     ])
@@ -75,23 +76,23 @@ class ListOfObjects extends StatelessWidget {
   }
 
   Future<gps.LocationData?> _getLocation() async {
-    gps.Location location = new gps.Location();
+    gps.Location location = gps.Location();
 
-    bool _serviceEnabled;
-    gps.PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    gps.PermissionStatus permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return null;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == gps.PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != gps.PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == gps.PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != gps.PermissionStatus.granted) {
         return null;
       }
     }

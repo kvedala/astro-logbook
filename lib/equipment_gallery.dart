@@ -20,7 +20,7 @@ class EquipmentGallery extends StatelessWidget {
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snap) =>
               !snap.hasData
-                  ? Center(
+                  ? const Center(
                       child: CircularProgressIndicator(),
                     )
                   : ListView.builder(
@@ -42,20 +42,23 @@ class EquipmentGallery extends StatelessWidget {
                           ),
                         ),
                         confirmDismiss: (dir) async {
-                          final doc = await FirebaseFirestore.instance
+                          final ret = await FirebaseFirestore.instance
                               .collection('users/$userID/observations')
                               .where('equipment',
                                   isEqualTo: snap.data!.docs[index].reference)
                               .limit(1)
-                              .get();
-                          if (doc.size == 0) return confirmDeleteTile(context);
+                              .get()
+                              .then((doc) => doc.size == 0
+                                  ? confirmDeleteTile(context)
+                                  : null);
+                          if (ret != null) return ret;
 
                           showModalBottomSheet(
                             context: context,
                             builder: (context) {
-                              Future.delayed(Duration(seconds: 2),
+                              Future.delayed(const Duration(seconds: 2),
                                   () => Navigator.pop(context));
-                              return Text(
+                              return const Text(
                                 "Cannot delete. Equipment is being referenced "
                                 "in an observation.",
                                 style: TextStyle(fontSize: 20),

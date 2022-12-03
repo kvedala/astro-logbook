@@ -12,25 +12,22 @@ String decimalDegreesToDMS(num numeric, String latOrLong) {
   int minute = ((numeric - degree) * 60).toDouble().floor();
   double seconds = (((numeric - degree).toDouble() * 60) - minute) * 60;
 
-  return "$degree\xb0 $minute\' ${seconds.toStringAsFixed(1)}\" " +
-      (latOrLong == 'lat'
-          ? (isNegative ? "S" : "N")
-          : (isNegative ? "W" : "E"));
+  return "$degree\xb0 $minute' ${seconds.toStringAsFixed(1)}\" ${latOrLong == 'lat' ? (isNegative ? "S" : "N") : (isNegative ? "W" : "E")}";
 }
 
 extension CapExtension on String {
   /// convert first word to uppercacse
-  String get inCaps => '${this[0].toUpperCase()}${this.substring(1)}';
+  String get inCaps => '${this[0].toUpperCase()}${substring(1)}';
 
   /// convert first letter of every word to uppercase
   String get capitalizeFirstofEach =>
-      this.split(" ").map((str) => str.inCaps).join(" ");
+      split(" ").map((str) => str.inCaps).join(" ");
 }
 
 extension CheckExtension on DateTime {
   /// Check if between [startDate] and [endDate]
   bool isBetween(DateTime startDate, DateTime endDate) =>
-      this.isBefore(endDate) && this.isAfter(startDate);
+      isBefore(endDate) && isAfter(startDate);
 
   /// Extract the date from a [DateTime] instance
   DateTime get date => DateFormat.yMd().parse(DateFormat.yMd().format(this));
@@ -56,13 +53,13 @@ Future<bool?> confirmDeleteTile(BuildContext context) =>
           //   style: TextStyle(fontSize: 16),
           // )),
           ElevatedButton.icon(
-            icon: Icon(Icons.done_all_rounded),
-            label: Text("Delete"),
+            icon: const Icon(Icons.done_all_rounded),
+            label: const Text("Delete"),
             onPressed: () => Navigator.pop(context, true),
           ),
           ElevatedButton.icon(
-            icon: Icon(Icons.cancel_rounded),
-            label: Text("Cancel"),
+            icon: const Icon(Icons.cancel_rounded),
+            label: const Text("Cancel"),
             onPressed: () => Navigator.pop(context, false),
           ),
         ],

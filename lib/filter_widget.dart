@@ -20,9 +20,10 @@ class ObservationTabBar extends StatefulWidget {
   final void Function() callback;
 
   /// Filter buttons
-  ObservationTabBar(this.callback);
+  const ObservationTabBar(this.callback, {super.key});
 
-  _ObservationTabBarState createState() => _ObservationTabBarState();
+  @override
+  State<ObservationTabBar> createState() => _ObservationTabBarState();
 }
 
 class _ObservationTabBarState extends State<ObservationTabBar> {
@@ -32,11 +33,11 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ButtonBar(
-          buttonPadding: EdgeInsets.all(0),
+          buttonPadding: const EdgeInsets.all(0),
           children: [
             IconButton(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              icon: Icon(Icons.search),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              icon: const Icon(Icons.search),
               onPressed: () {
                 setState(() => searchState['selectedTab'] == 0
                     ? searchState['selectedTab'] = -1
@@ -45,7 +46,7 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
               },
             ),
             IconButton(
-              padding: EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               icon: Icon(searchState['onlySearch']
                   ? Icons.filter_alt
                   : Icons.filter_alt_outlined),
@@ -58,7 +59,7 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.picture_as_pdf),
+              icon: const Icon(Icons.picture_as_pdf),
               onPressed: () => selectedTiles.isNotEmpty
                   ? Navigator.push(
                       context,
@@ -66,7 +67,7 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
                           builder: (context) => GeneratePDF(selectedTiles)))
                   : showDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
+                      builder: (context) => const AlertDialog(
                         title: Text("No observations selected!"),
                       ),
                     ),
@@ -75,7 +76,7 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
         ),
         searchState['selectedTab'] == 0
             ? SearchFilterRow(widget.callback)
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }
@@ -115,8 +116,9 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
 class SearchFilterRow extends StatefulWidget {
   final void Function() callback;
 
-  _SearchFilterRowState createState() => _SearchFilterRowState();
-  SearchFilterRow(this.callback, {Key? key}) : super(key: key);
+  @override
+  State<SearchFilterRow> createState() => _SearchFilterRowState();
+  const SearchFilterRow(this.callback, {super.key});
 
   // String get ngc => _searchState['ngc'];
   // String get messier => _searchState['messier'];
@@ -161,23 +163,23 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
   Widget build(BuildContext context) {
     return Container(
       height: 60,
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 100,
             child: TextField(
               controller: messierSearchController,
-              keyboardType: TextInputType.numberWithOptions(
+              keyboardType: const TextInputType.numberWithOptions(
                   decimal: false, signed: false),
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                 labelText: "Messier#",
                 isDense: true,
                 suffix: IconButton(
-                  padding: EdgeInsets.all(0),
+                  padding: const EdgeInsets.all(0),
                   iconSize: 20,
-                  icon: Icon(Icons.clear_rounded),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () {
                     setState(() => messierSearchController.clear());
                     widget.callback();
@@ -190,24 +192,24 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                 setState(() {});
                 widget.callback();
                 Future.delayed(
-                    Duration(seconds: 2), FocusScope.of(context).unfocus);
+                    const Duration(seconds: 2), FocusScope.of(context).unfocus);
               },
             ),
           ),
-          Container(
+          SizedBox(
             width: 100,
             child: TextField(
               controller: ngcSearchController,
-              keyboardType: TextInputType.numberWithOptions(
+              keyboardType: const TextInputType.numberWithOptions(
                   decimal: false, signed: false),
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
                 labelText: "NGC#",
                 isDense: true,
                 suffix: IconButton(
-                  padding: EdgeInsets.all(0),
+                  padding: const EdgeInsets.all(0),
                   iconSize: 20,
-                  icon: Icon(Icons.clear_rounded),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () {
                     setState(() => ngcSearchController.clear());
                     widget.callback();
@@ -219,7 +221,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                 setState(() {});
                 widget.callback();
                 Future.delayed(
-                    Duration(seconds: 2), FocusScope.of(context).unfocus);
+                    const Duration(seconds: 2), FocusScope.of(context).unfocus);
               },
             ),
           ),
@@ -233,9 +235,9 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                 labelText: "Date Range",
                 isDense: true,
                 suffix: IconButton(
-                  padding: EdgeInsets.all(0),
+                  padding: const EdgeInsets.all(0),
                   iconSize: 20,
-                  icon: Icon(Icons.clear_rounded),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () => setState(() {
                     clickOnClear = true;
                     dateSearchController.clear();
@@ -253,19 +255,18 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                 }
                 dateSearchRange = await showDateRangePicker(
                   context: context,
-                  initialDateRange: dateSearchRange ?? null,
+                  initialDateRange: dateSearchRange,
                   firstDate: DateTime(1950),
                   lastDate: DateTime.now(),
                   fieldStartLabelText: "From date",
                   fieldEndLabelText: "End date",
                 );
-                if (dateSearchRange != null)
+                if (dateSearchRange != null) {
                   setState(() => dateSearchController.text =
-                      dateSearchRange!.start.yMMMd +
-                          " - " +
-                          dateSearchRange!.end.yMMMd);
-                else
+                      "${dateSearchRange!.start.yMMMd} - ${dateSearchRange!.end.yMMMd}");
+                } else {
                   setState(() => dateSearchController.clear());
+                }
                 widget.callback();
               },
             ),

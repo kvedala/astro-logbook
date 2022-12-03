@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <!--
@@ -12,11 +12,12 @@
     Fore more details:
     * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
   -->
-  <base href="/">
+  <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description"
+    content="A logbook for stargazers and astrophotographers to record their observations. Forget blurring your night vision, searching for a notebook, pencil and table by using a convenient red-light themed app to note your observations during an observing session. Observations are stored securely and privately in cloud accessible anywhere in the world via web interface and iOS and android apps.">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -32,6 +33,15 @@
 
   <title>astro_log</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    var serviceWorkerVersion = null;
+  </script>
+  <script type="application/javascript" src="/assets/packages/flutter_inappwebview/assets/web/web_support.js"
+    defer></script>
+
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
 </head>
 
 <body>
@@ -40,48 +50,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <!-- <script src="firebase-config.js"></script> -->
-  <script>
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyDCPJfmW4Nn0U3qVgT_KatItS0I9nIJZIs",
-      authDomain: "astronomy-log-book.firebaseapp.com",
-      projectId: "astronomy-log-book",
-      storageBucket: "astronomy-log-book.appspot.com",
-      messagingSenderId: "703059723550",
-      appId: "1:703059723550:web:a271bb6eb147bdef22750f",
-      measurementId: "G-31HXDMKFHT"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-  </script>
 
-  <!-- <script>
-    window.fbAsyncInit = function () {
-      FB.init({
-        appId: '437381314078679',
-        xfbml: true,
-        cookie: true,
-        version: 'v12.0'
-      });
-      FB.AppEvents.logPageView();
-    };
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js" defer></script>
 
-    (function (d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) { return; }
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-  </script> -->
-  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-  <!-- <script src="flutter_facebook_auth.js" type="application/javascript"></script> -->
-
-
-  <script src="//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
   <script type="text/javascript">
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.worker.min.js";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js";
   </script>
 
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -94,7 +68,20 @@
       });
     }
   </script>
-  <script src="main.dart.js" type="application/javascript"></script>
+  <script>
+    window.addEventListener('load', function (ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        }
+      }).then(function (engineInitializer) {
+        return engineInitializer.initializeEngine();
+      }).then(function (appRunner) {
+        return appRunner.runApp();
+      });
+    });
+  </script>
 </body>
 
 </html>
