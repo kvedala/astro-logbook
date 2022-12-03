@@ -28,7 +28,6 @@ class SignInPage extends StatefulWidget {
 GoogleSignIn? googleSignIn;
 
 class _SignInPageState extends State<SignInPage> {
-  bool isWebPlatform = false;
   FirebaseAuth? authInstance;
   bool appleSignInAvailable = false;
 
@@ -41,16 +40,7 @@ class _SignInPageState extends State<SignInPage> {
       //       // onError: () => setState(() {}),
       //       // cancelOnError: () => setState(() {}),
       //     );
-      try {
-        await authInstance!.setPersistence(Persistence.SESSION);
-        // setState(() {
-        isWebPlatform = true;
-        // });
-
-      } on UnimplementedError catch (e) {
-        debugPrint(e.message);
-        // return;
-      }
+      if (kIsWeb) await authInstance!.setPersistence(Persistence.SESSION);
 
       try {
         appleSignInAvailable = await SignInWithApple.isAvailable();
@@ -79,7 +69,7 @@ class _SignInPageState extends State<SignInPage> {
 
   /// perform sign-in by google
   void _googleSignIn(BuildContext context) async {
-    if (isWebPlatform) {
+    if (kIsWeb) {
       try {
         final provider = GoogleAuthProvider();
         for (var scope in scopes) {
