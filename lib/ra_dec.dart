@@ -1,6 +1,8 @@
 import 'dart:math';
 
 /// Define a Right Ascession object
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class RightAscession {
   final int hour;
   final num minute;
@@ -37,6 +39,8 @@ class RightAscession {
 }
 
 /// Define a Declination object
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class Declination {
   final int _deg;
   final num _minute;

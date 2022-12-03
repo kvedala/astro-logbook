@@ -13,6 +13,8 @@ import 'slider_widget.dart';
 import 'utils.dart';
 
 /// Convenient class for observational data
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class ObservationData {
   /// Title of observation
   final String? title;

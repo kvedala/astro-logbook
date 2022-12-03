@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 /// Get and display equipment details.
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
   final DocumentReference? reference;
@@ -37,7 +39,6 @@ class Equipment extends StatelessWidget {
   /// Returns [true] if new equipment was added else, [false].
   static Future<bool> addEquipment(BuildContext context,
       {
-
       /// if available, load data from the given map
       Map<String, dynamic>? inData,
 

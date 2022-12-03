@@ -6,6 +6,8 @@ import 'ra_dec.dart';
 import 'rise_times.dart';
 
 /// Generic Celestial object catalog
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 abstract class Catalog extends StatelessWidget {
   /// name of the catalog
   final String name;

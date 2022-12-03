@@ -12,6 +12,8 @@ import 'add_observation.dart';
 List<DocumentReference?> selectedTiles = [];
 
 /// Widget to display tile in the gallery view
+///
+/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class GallaryTile extends StatefulWidget {
   /// path of image file, if any
   final String? filePath;
