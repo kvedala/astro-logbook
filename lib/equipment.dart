@@ -196,7 +196,7 @@ class Equipment extends StatelessWidget {
     return returnVal;
   }
 
-  final List<DocumentSnapshot> _data = [];
+  final _data = List<DocumentSnapshot>.empty(growable: true);
 
   @override
   Widget build(BuildContext context) {

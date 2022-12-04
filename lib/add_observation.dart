@@ -677,7 +677,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
       }
 
       if (kIsWeb) {
-        _possibleLocations = [];
+        _possibleLocations.clear();
         return;
       }
 
@@ -701,7 +701,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
       }
     } catch (e) {
       debugPrint(e.toString());
-      _possibleLocations = [];
+      _possibleLocations.clear();
       // final responses = await http.get(Uri.https(
       //     'maps.googleapis.com',
       //     '/maps/api/'
