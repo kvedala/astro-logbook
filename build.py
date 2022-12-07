@@ -18,7 +18,7 @@ def getBuildCount() -> int:
 
 def makeOptions() -> Namespace:
     arg = ArgumentParser(description="Script to build the app.")
-    arg.add_argument("-t", "--type", choices=['apk', 'ios', 'appbundle', 'ipa'],
+    arg.add_argument("-t", "--type", choices=['apk', 'ios', 'appbundle', 'ipa', 'web'],
                      type=str, default='apk',  # const='apk', nargs='?',
                      help="Type of build to make. (Default: '%(default)s')")
     arg.add_argument("--install", type=str, default=None,
