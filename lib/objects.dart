@@ -75,23 +75,29 @@ abstract class Catalog extends StatelessWidget {
     if (riseTimes == null) {
       visible = const SizedBox();
     } else if (riseTimes!.belowHorizon) {
-      visible = const Icon(Icons.cancel);
+      visible = Icon(Icons.cancel, color: Colors.red[900]);
     } else if (riseTimes!.circumpolar ||
         riseTimes!.riseTime!.hour >= 18 ||
         riseTimes!.setTime!.hour <= 5) {
-      visible = const Icon(Icons.done);
+      visible = Icon(Icons.done, color: Colors.green[900]);
     } else {
-      visible = const Icon(Icons.cancel);
+      visible = Icon(Icons.cancel, color: Colors.red[900]);
     }
     return ListTile(
-      visualDensity: VisualDensity.compact,
+      visualDensity: VisualDensity.comfortable,
       dense: true,
       leading: Column(children: [
         Text("M $id"),
         Icon(
-            viewed ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+          viewed ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          color: viewed ? Colors.green[900] : Colors.red[900],
+        ),
       ]),
-      subtitle: Table(children: [
+      subtitle: Table(columnWidths: const {
+        0: FlexColumnWidth(1),
+        1: FlexColumnWidth(.75),
+        2: FlexColumnWidth(.5),
+      }, children: [
         TableRow(children: [
           Text("RA: ${ra.toString()}"),
           Text(type),
@@ -116,6 +122,8 @@ abstract class Catalog extends StatelessWidget {
         ]),
       ]),
       trailing: visible,
+      // onLongPress: () => Navigator.push(context,
+      //     MaterialPageRoute(builder: (context) => ViewObjectInfo(name, id))),
     );
   }
 }
