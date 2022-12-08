@@ -43,8 +43,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FacebookAppID</key>
 	<string>437381314078679</string>
-    <key>FacebookClientToken</key>
-    <string>b43e8595ee67c824919c164eff3ec0bb</string>
+	<key>FacebookClientToken</key>
+	<string>b43e8595ee67c824919c164eff3ec0bb</string>
 	<key>FacebookDisplayName</key>
 	<string>Astronomy Logbook</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
