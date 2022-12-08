@@ -38,50 +38,32 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       // debugShowCheckedModeBanner: false,
       title: 'Astronomy Log Book',
-      // theme: ThemeData(
-      //   primarySwatch: Colors.blue,
-      // ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        textTheme: Theme.of(context).textTheme.apply(
-            bodyColor: Colors.red,
-            displayColor: Colors.red,
-            decorationColor: Colors.red),
-        primaryIconTheme: const IconThemeData(color: Colors.red),
-        // accentIconTheme: IconThemeData(color: Colors.red),
-        // floatingActionButtonTheme: FloatingActionButtonThemeData(),
-        brightness: Brightness.dark,
-        // buttonColor: ButtonThemeData(textTheme: ButtonTextTheme.accent),
-        iconTheme: const IconThemeData(color: Colors.red),
-        inputDecorationTheme: const InputDecorationTheme(
-            labelStyle: TextStyle(color: Colors.red)),
-        unselectedWidgetColor: Colors.red,
-
+      darkTheme: ThemeData.from(
         colorScheme: ColorScheme.dark(
-          primary: Colors.red.shade800,
-          secondary: Colors.red.shade600,
+          primary: Colors.red[900]!,
+          secondary: Colors.red[500]!,
+          tertiary: Colors.red[200]!,
+          onSurface: Colors.red,
+          onBackground: Colors.red,
         ),
-        appBarTheme: AppBarTheme(
-          toolbarTextStyle: Theme.of(context)
-              .textTheme
-              .apply(
-                  bodyColor: Colors.red,
-                  displayColor: Colors.red,
-                  decorationColor: Colors.red)
-              .bodyMedium,
-          titleTextStyle: Theme.of(context)
-              .textTheme
-              .apply(
-                  bodyColor: Colors.red,
-                  displayColor: Colors.red,
-                  decorationColor: Colors.red)
-              .titleLarge,
+        textTheme: TextTheme(
+          displayLarge: TextStyle(color: Colors.red[900]),
+          displayMedium: TextStyle(color: Colors.red[900]),
+          displaySmall: TextStyle(color: Colors.red[900]),
+          headlineLarge: TextStyle(color: Colors.red[900]),
+          headlineMedium: TextStyle(color: Colors.red[900]),
+          headlineSmall: TextStyle(color: Colors.red[900]),
+          titleLarge: TextStyle(color: Colors.red[900]),
+          titleMedium: TextStyle(color: Colors.red[900]),
+          titleSmall: TextStyle(color: Colors.red[900]),
+          bodyLarge: TextStyle(color: Colors.red[900]),
+          bodyMedium: TextStyle(color: Colors.red[900]),
+          bodySmall: TextStyle(color: Colors.red[900]),
+          labelLarge: TextStyle(color: Colors.red[900]),
+          labelMedium: TextStyle(color: Colors.red[900]),
+          labelSmall: TextStyle(color: Colors.red[900]),
         ),
-        tabBarTheme: const TabBarTheme(
-          labelColor: Colors.red,
-          indicator:
-              UnderlineTabIndicator(borderSide: BorderSide(color: Colors.red)),
-        ),
+        useMaterial3: true,
       ),
       themeMode: ThemeMode.dark,
       // home: MyHomePage(title: 'Astronomy Log Book'),
