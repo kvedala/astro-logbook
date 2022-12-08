@@ -297,8 +297,9 @@ class _SignInPageState extends State<SignInPage> {
             minimumSize: MaterialStateProperty.all(const Size(150, 50)),
             textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
           ),
-          onPressed: () =>
-              Navigator.popAndPushNamed(context, MyRoutes.signedInPageRoute),
+          onPressed: () {
+            Navigator.popAndPushNamed(context, MyRoutes.homePage);
+          },
           icon: const Icon(
             Icons.book_rounded,
             size: 30,
