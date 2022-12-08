@@ -21,16 +21,16 @@ class HomePage extends StatelessWidget {
         stream: display.stream,
         builder: (context, snap) => !snap.hasData
             ? const CircularProgressIndicator()
-            : Scaffold(
-                body: snap.data!.display,
-                floatingActionButton: snap.data!.floaterFunc == null
-                    ? null
-                    : FloatingActionButton(
-                        heroTag: "add_${snap.data!.name}",
-                        child: const Icon(Icons.add_rounded),
-                        onPressed: () => snap.data!.floaterFunc!(context),
-                      ),
-              ),
+            : snap.data!.floaterFunc == null
+                ? snap.data!.display
+                : Scaffold(
+                    body: snap.data!.display,
+                    floatingActionButton: FloatingActionButton(
+                      heroTag: "add_${snap.data!.name}",
+                      child: const Icon(Icons.add_rounded),
+                      onPressed: () => snap.data!.floaterFunc!(context),
+                    ),
+                  ),
       ),
     );
   }
