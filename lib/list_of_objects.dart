@@ -19,10 +19,12 @@ class ListOfObjects extends StatelessWidget {
       future: _getLocation(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return Column(children: const [
-            CircularProgressIndicator(),
-            Text("Getting current GPS location...")
-          ]);
+          return Center(
+            child: Column(children: const [
+              CircularProgressIndicator(),
+              Text("Getting current GPS location...")
+            ]),
+          );
         }
         if (snap.data == null) {
           return const Center(
