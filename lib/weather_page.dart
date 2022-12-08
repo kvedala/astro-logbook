@@ -10,41 +10,39 @@ class WeatherPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loader = StreamController<int>();
-    return Expanded(
-      child: Stack(
-        children: [
-          Center(
-            child: StreamBuilder(
-              stream: loader.stream,
-              builder: (context, snap) => !snap.hasData || snap.data == 100
-                  ? const SizedBox()
-                  : Column(
-                      children: [
-                        LinearProgressIndicator(value: snap.data! / 100),
-                        Text('Loading: ${snap.data}%'),
-                      ],
-                    ),
-            ),
+    return Stack(
+      children: [
+        Center(
+          child: StreamBuilder(
+            stream: loader.stream,
+            builder: (context, snap) => !snap.hasData || snap.data == 100
+                ? const SizedBox()
+                : Column(
+                    children: [
+                      LinearProgressIndicator(value: snap.data! / 100),
+                      Text('Loading: ${snap.data}%'),
+                    ],
+                  ),
           ),
-          InAppWebView(
-            initialFile: 'assets/astrospheric.html',
-            onLoadStop: (controller, url) => getCurrentPosition.then(
-              (position) => controller.evaluateJavascript(
-                  source: 'm_AstrosphericEmbed.Create("AstrosphericContainer", '
-                      '${position.latitude}, ${position.longitude});'),
-            ),
-            initialSettings: InAppWebViewSettings(
-              // useShouldOverrideUrlLoading: true,
-              allowsInlineMediaPlayback: true,
-              sharedCookiesEnabled: true,
-              transparentBackground: true,
-              applicationNameForUserAgent:
-                  'Astronomy Logbook (https://github.com/kvedala/astro-logbook)',
-            ),
-            onProgressChanged: (controller, progress) => loader.add(progress),
+        ),
+        InAppWebView(
+          initialFile: 'assets/astrospheric.html',
+          onLoadStop: (controller, url) => getCurrentPosition.then(
+            (position) => controller.evaluateJavascript(
+                source: 'm_AstrosphericEmbed.Create("AstrosphericContainer", '
+                    '${position.latitude}, ${position.longitude});'),
           ),
-        ],
-      ),
+          initialSettings: InAppWebViewSettings(
+            // useShouldOverrideUrlLoading: true,
+            allowsInlineMediaPlayback: true,
+            sharedCookiesEnabled: true,
+            transparentBackground: true,
+            applicationNameForUserAgent:
+                'Astronomy Logbook (https://github.com/kvedala/astro-logbook)',
+          ),
+          onProgressChanged: (controller, progress) => loader.add(progress),
+        ),
+      ],
     );
   }
 
