@@ -36,11 +36,11 @@ class WeatherPage extends StatelessWidget {
         initialFile: 'assets/astrospheric.html',
         onLoadStop: (controller, url) => getCurrentPosition.then(
           (position) async {
-            await controller.callAsyncJavaScript(functionBody: """
+            await controller.evaluateJavascript(source: """
 const d = document.getElementById('AstrosphericContainer');
-${screen.width > screen.height ? "d.style.width = '' + width + ' px'; d.style.height = '100%'" : "d.style.width = '100%'; d.style.height = '' + height + ' px"};
+${screen.width > screen.height ? "d.style.width = '' + ${screen.width.toStringAsFixed(5)} + ' px'; d.style.height = '100%'" : "d.style.width = '100%'; d.style.height = '' + ${screen.width.toStringAsFixed(5)} + ' px"};
 console.log(d.style);"
-""", arguments: {'width': screen.width, 'height': screen.height});
+""");
             await controller.evaluateJavascript(
                 source: 'm_AstrosphericEmbed.Create("AstrosphericContainer", '
                     '${position.latitude}, ${position.longitude});');
