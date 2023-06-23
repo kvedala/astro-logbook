@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
+import 'generated/l10n.dart';
 import 'ra_dec.dart';
 import 'rise_times.dart';
 
@@ -104,11 +105,11 @@ abstract class Catalog extends StatelessWidget {
           riseTimes == null
               ? const SizedBox()
               : riseTimes!.circumpolar
-                  ? const Text("Circumpolar")
+                  ? Text(S.of(context).circumpolar)
                   : riseTimes!.belowHorizon
-                      ? const Text("Below Horizon")
+                      ? Text(S.of(context).belowHorizon)
                       : Text(
-                          "Rise: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
+                          "${S.of(context).rise}: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
         ]),
         TableRow(children: [
           Text("DEC: ${dec.toString()}"),
@@ -118,7 +119,7 @@ abstract class Catalog extends StatelessWidget {
               : (riseTimes!.circumpolar | riseTimes!.belowHorizon)
                   ? const SizedBox()
                   : Text(
-                      "Set: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
+                      "${S.of(context).set}: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
         ]),
       ]),
       trailing: visible,

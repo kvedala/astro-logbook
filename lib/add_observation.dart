@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
 import 'equipment.dart';
+import 'generated/l10n.dart';
 import 'slider_widget.dart';
 import 'utils.dart';
 
@@ -143,7 +144,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(screenName: "Add observation");
+    FirebaseAnalytics.instance
+        .setCurrentScreen(screenName: S.of(context).addObservation);
     _loadData(context);
     _dateTimeController.text = _responses['longitude'] == null
         ? ""
@@ -160,7 +162,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
         //   builder: (context, snap) =>
         Scaffold(
       appBar: AppBar(
-        title: const Text("Record observation"),
+        title: Text(S.of(context).recordObservation),
       ),
       body: Container(
         padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
@@ -178,17 +180,17 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           children: [
                             Expanded(
                               child: TextFormField(
-                                decoration: const InputDecoration(
-                                  labelText: "Title",
+                                decoration: InputDecoration(
+                                  labelText: S.of(context).title,
                                 ),
                                 initialValue: _responses['title'],
                                 keyboardType: TextInputType.name,
                                 textCapitalization: TextCapitalization.words,
                                 readOnly: false,
                                 validator: (value) => value == null
-                                    ? "Cannot be NULL"
+                                    ? S.of(context).cannotBeNull
                                     : value.isEmpty
-                                        ? "Cannot be empty"
+                                        ? S.of(context).cannotBeEmpty
                                         : null,
                                 onSaved: (value) => _responses['title'] = value,
                                 onChanged: (value) =>
@@ -199,8 +201,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               child: Row(children: [
                                 Expanded(
                                   child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      labelText: "Messier #",
+                                    decoration: InputDecoration(
+                                      labelText: S.of(context).messierNumber,
                                     ),
                                     initialValue: _responses['messier'] == null
                                         ? ""
@@ -222,10 +224,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       if (value!.isEmpty) return null;
                                       final t = int.tryParse(value);
                                       if (t == null) return null;
-                                      if (t <= 0) return "Cannot be negative";
+                                      if (t <= 0) {
+                                        return S.of(context).cannotBeNegative;
+                                      }
                                       if (t > 110) {
-                                        return "Messier catalog numbers are "
-                                            "only upto 110";
+                                        return S
+                                            .of(context)
+                                            .messierCatalogNumbersAreOnlyUpto110;
                                       }
                                       return null;
                                     },
@@ -239,8 +244,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 ),
                                 Expanded(
                                   child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      labelText: "NGC #",
+                                    decoration: InputDecoration(
+                                      labelText: S.of(context).ngcNumber,
                                     ),
                                     initialValue: _responses['ngc'] == null
                                         ? ""
@@ -252,9 +257,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                       if (value!.isEmpty) return null;
                                       final t = int.tryParse(value);
                                       return t == null
-                                          ? "Not a valid number"
+                                          ? S.of(context).notAValidNumber
                                           : t <= 0
-                                              ? "Cannot be negative"
+                                              ? S.of(context).cannotBeNegative
                                               : null;
                                     },
                                     autovalidateMode: AutovalidateMode.always,
@@ -303,9 +308,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               // readOnly: true,
                               validator: (value) {
                                 final number = num.tryParse(value!);
-                                if (number == null) return "Not a number";
+                                if (number == null) {
+                                  return S.of(context).notANumber;
+                                }
                                 if (number < -90 || number > 90) {
-                                  return "Invalid range";
+                                  return S.of(context).invalidRange;
                                 }
                                 return null;
                               },
@@ -334,8 +341,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         child: Row(children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: "Longitude",
+                              decoration: InputDecoration(
+                                labelText: S.of(context).longitude,
                               ),
                               initialValue: _responses['longitude'] == null
                                   ? ""
@@ -346,9 +353,11 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               // readOnly: true,
                               validator: (value) {
                                 final number = num.tryParse(value!);
-                                if (number == null) return "Not a number";
+                                if (number == null) {
+                                  return S.of(context).notANumber;
+                                }
                                 if (number < -180 || number > 180) {
-                                  return "Invalid range";
+                                  return S.of(context).invalidRange;
                                 }
                                 return null;
                               },
@@ -377,22 +386,23 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: _possibleLocations.isEmpty
                             ? TextFormField(
-                                decoration: const InputDecoration(
-                                  labelText: "Location - Enter Address",
+                                decoration: InputDecoration(
+                                  labelText: S.of(context).locationEnterAddress,
                                 ),
                                 initialValue: _responses['location'],
                                 keyboardType: TextInputType.streetAddress,
                                 // readOnly: false,
-                                validator: (value) =>
-                                    value!.isEmpty ? "Cannot be empty" : null,
+                                validator: (value) => value!.isEmpty
+                                    ? S.of(context).cannotBeEmpty
+                                    : null,
                                 onSaved: (value) =>
                                     _responses['location'] = value,
                               )
                             : DropdownButtonFormField(
                                 isExpanded: true,
                                 isDense: false,
-                                decoration: const InputDecoration(
-                                  labelText: "Location",
+                                decoration: InputDecoration(
+                                  labelText: S.of(context).location,
                                 ),
                                 value: _responses['location'],
                                 items: List.generate(
@@ -408,9 +418,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 onChanged: (dynamic newItem) => setState(
                                     () => _responses['location'] = newItem),
                                 validator: (dynamic value) => value == null
-                                    ? "Value cannot be null"
+                                    ? S.of(context).valueCannotBeNull
                                     : (value.isEmpty
-                                        ? "Value cannot be empty"
+                                        ? S.of(context).valueCannotBeEmpty
                                         : null),
                                 onSaved: (dynamic value) =>
                                     _responses['location'] = value,
@@ -423,8 +433,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             child: DropdownButtonFormField<DocumentReference>(
                               isExpanded: true,
                               isDense: false,
-                              decoration: const InputDecoration(
-                                labelText: "Equipment used",
+                              decoration: InputDecoration(
+                                labelText: S.of(context).equipmentUsed,
                               ),
                               value: _responses['equipment'],
                               items: _equipments.isEmpty
@@ -438,8 +448,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                     ),
                               onChanged: (newItem) => setState(
                                   () => _responses['equipment'] = newItem),
-                              validator: (value) =>
-                                  value == null ? "Value cannot be null" : null,
+                              validator: (value) => value == null
+                                  ? S.of(context).valueCannotBeNull
+                                  : null,
                               onSaved: (value) =>
                                   _responses['equipment'] = value,
                             ),
@@ -456,38 +467,41 @@ class _AddObservationPageState extends State<AddObservationPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: "Date & Time of observation",
+                          decoration: InputDecoration(
+                            labelText: S.of(context).dateTimeOfObservation,
                           ),
                           controller: _dateTimeController,
                           readOnly: true,
                           onTap: () async {
-                            final date = await showDatePicker(
-                                context: context,
-                                initialDate: _responses['dateTime'],
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now());
-                            if (date == null) return;
-                            final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.fromDateTime(
-                                    _responses['dateTime']));
-                            if (time == null) return;
+                            await showDatePicker(
+                                    context: context,
+                                    initialDate: _responses['dateTime'],
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime.now())
+                                .then((date) async {
+                              if (date == null) return;
+                              final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.fromDateTime(
+                                      _responses['dateTime']));
+                              if (time == null) return;
 
-                            _responses['dateTime'] = DateTime(date.year,
-                                date.month, date.day, time.hour, time.minute);
-                            setState(() => _dateTimeController.text =
-                                DateFormat('dd MMM, yyyy HH:mm')
-                                    .format(_responses['dateTime']));
+                              _responses['dateTime'] = DateTime(date.year,
+                                  date.month, date.day, time.hour, time.minute);
+                              setState(() => _dateTimeController.text =
+                                  DateFormat('dd MMM, yyyy HH:mm')
+                                      .format(_responses['dateTime']));
+                            });
                           },
-                          validator: (value) =>
-                              value!.isEmpty ? "Cannot be empty" : null,
+                          validator: (value) => value!.isEmpty
+                              ? S.of(context).cannotBeEmpty
+                              : null,
                         ),
                       ),
                       Row(children: [
                         Expanded(
                           child: SliderOption(
-                            "Seeing",
+                            S.of(context).seeing,
                             (value) => _responses['seeing'] = value,
                             initialValue: _responses['seeing'] ?? 0,
                             minValue: 1.0,
@@ -509,7 +523,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         // ),
                         Expanded(
                           child: SliderOption(
-                            "Transparency",
+                            S.of(context).transparency,
                             (value) => _responses['transparency'] = value,
                             initialValue: _responses['transparency'] ?? 0,
                             minValue: 1.0,
@@ -524,9 +538,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              "Notes:",
-                              style: TextStyle(fontSize: 18),
+                            Text(
+                              S.of(context).notes,
+                              style: const TextStyle(fontSize: 18),
                             ),
                             IconButton(
                               icon: const Icon(Icons.add_rounded),
@@ -562,7 +576,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             ElevatedButton.icon(
-                              label: const Text("Submit"),
+                              label: Text(S.of(context).submit),
                               icon: const Icon(Icons.send_rounded),
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
@@ -573,7 +587,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               },
                             ),
                             ElevatedButton.icon(
-                              label: const Text("Cancel"),
+                              label: Text(S.of(context).cancel),
                               icon: const Icon(Icons.cancel_rounded),
                               onPressed: () => Navigator.pop(context),
                             ),
@@ -592,7 +606,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(index == -1 ? "Add Note:" : "Edit Note:"),
+        title:
+            Text(index == -1 ? S.of(context).addNote : S.of(context).editNote),
         content: Container(
           constraints: BoxConstraints.loose(const Size(200, 200)),
           child: TextField(
@@ -605,7 +620,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
         actions: [
           ElevatedButton.icon(
             icon: const Icon(Icons.done),
-            label: const Text("Accept"),
+            label: Text(S.of(context).accept),
             onPressed: () {
               if (noteController.text.isNotEmpty) {
                 setState(() {
@@ -621,7 +636,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.cancel_rounded),
-            label: const Text("Cancel"),
+            label: Text(S.of(context).cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -640,7 +655,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
           .collection('users/${auth.currentUser!.uid}/observations')
           .add(_responses)
           .then((ref) async => await FirebaseAnalytics.instance.logEvent(
-                name: "New Observation",
+                name: S.of(context).newObservation,
                 parameters: {"path": ref.path},
               ));
     } catch (e) {

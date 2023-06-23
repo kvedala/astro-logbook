@@ -9,6 +9,7 @@ import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import 'generated/l10n.dart';
 import 'routes.dart';
 
 /// Main sign in page
@@ -142,7 +143,7 @@ class _SignInPageState extends State<SignInPage> {
             context: context,
             barrierDismissible: false,
             builder: (context) => AlertDialog(
-                  title: const Text("Error with Apple Sign In"),
+                  title: Text(S.of(context).errorWithAppleSignIn),
                   content: Text(e.toString()),
                 ));
         Future.delayed(
@@ -235,7 +236,7 @@ class _SignInPageState extends State<SignInPage> {
       children: <Widget>[
         SignInButton(
           Buttons.Google,
-          text: 'Sign in with Google',
+          text: S.of(context).signInWithGoogle,
           onPressed: () => _googleSignIn(context),
           padding:
               const EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
@@ -246,7 +247,7 @@ class _SignInPageState extends State<SignInPage> {
           padding: const EdgeInsets.only(top: 10),
           child: SignInButton(
             Buttons.Apple,
-            text: 'Sign in with Apple',
+            text: S.of(context).signInWithApple,
             // shape: ShapeBorder,
             onPressed: _appleSignIn,
             padding: const EdgeInsets.all(10),
@@ -258,7 +259,7 @@ class _SignInPageState extends State<SignInPage> {
           padding: const EdgeInsets.only(top: 10),
           child: SignInButton(
             Buttons.Facebook,
-            text: 'Sign in with Facebook',
+            text: S.of(context).signInWithFacebook,
             // shape: ShapeBorder,
             onPressed: _facebookSignIn,
             padding: const EdgeInsets.all(10),
@@ -274,7 +275,7 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign In Page"),
+        title: Text(S.of(context).signInPage),
         actions: const [
           // IconButton(icon: Icon(Icons.logout), onPressed: () => {}),
         ],
@@ -304,7 +305,7 @@ class _SignInPageState extends State<SignInPage> {
             Icons.book_rounded,
             size: 30,
           ),
-          label: const Text("My Logbook"),
+          label: Text(S.of(context).myLogbook),
         ),
         SizedBox.fromSize(
           size: const Size(30, 30),
@@ -322,7 +323,7 @@ class _SignInPageState extends State<SignInPage> {
             Icons.logout,
             size: 30,
           ),
-          label: const Text("Sign Out"),
+          label: Text(S.of(context).signOut),
         ),
       ],
     );

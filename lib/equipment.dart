@@ -3,6 +3,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'generated/l10n.dart';
+
 /// Get and display equipment details.
 ///
 /// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
@@ -59,7 +61,7 @@ class Equipment extends StatelessWidget {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Add new equipment"),
+        title: Text(S.of(context).addNewEquipment),
         content: Form(
           key: equipmentKey,
           autovalidateMode: AutovalidateMode.always,
@@ -70,16 +72,16 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Telescope ",
+                    decoration: InputDecoration(
+                      labelText: S.of(context).telescope,
                     ),
                     initialValue: data['telescope'],
                     keyboardType: TextInputType.name,
                     readOnly: false,
                     validator: (value) => value == null
-                        ? "Canot be NULL"
+                        ? S.of(context).canotBeNull
                         : value.isEmpty
-                            ? "Cannot be empty"
+                            ? S.of(context).cannotBeEmpty
                             : null,
                     onSaved: (value) => data['telescope'] = value,
                   ),
@@ -87,8 +89,8 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Telescope Aperture (mm)",
+                    decoration: InputDecoration(
+                      labelText: S.of(context).telescopeApertureMm,
                     ),
                     initialValue: data['aperture'] == null
                         ? ""
@@ -98,9 +100,9 @@ class Equipment extends StatelessWidget {
                     validator: (value) {
                       num? number = num.tryParse(value!);
                       return number == null
-                          ? "Not a valid number"
+                          ? S.of(context).notAValidNumber
                           : number < 0
-                              ? "Cannot be negative"
+                              ? S.of(context).cannotBeNegative
                               : null;
                     },
                     onSaved: (value) => data['aperture'] = num.parse(value!),
@@ -109,8 +111,8 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Focal Length (mm)",
+                    decoration: InputDecoration(
+                      labelText: S.of(context).focalLengthMm,
                     ),
                     initialValue: data['focalLength'] == null
                         ? ""
@@ -120,9 +122,9 @@ class Equipment extends StatelessWidget {
                     validator: (value) {
                       num? number = num.tryParse(value!);
                       return number == null
-                          ? "Not a valid number"
+                          ? S.of(context).notAValidNumber
                           : number < 0
-                              ? "Cannot be negative"
+                              ? S.of(context).cannotBeNegative
                               : null;
                     },
                     onSaved: (value) => data['focalLength'] = num.parse(value!),
@@ -131,16 +133,16 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Mount",
+                    decoration: InputDecoration(
+                      labelText: S.of(context).mount,
                     ),
                     initialValue: data['mount'],
                     keyboardType: TextInputType.name,
                     readOnly: false,
                     validator: (value) => value == null
-                        ? "Cannot be NULL"
+                        ? S.of(context).cannotBeNull
                         : value.isEmpty
-                            ? "Cannot be empty"
+                            ? S.of(context).cannotBeEmpty
                             : null,
                     onSaved: (value) => data['mount'] = value,
                   ),
@@ -152,12 +154,13 @@ class Equipment extends StatelessWidget {
         actions: [
           ElevatedButton.icon(
             icon: const Icon(Icons.cancel_rounded),
-            label: const Text("Cancel"),
+            label: Text(S.of(context).cancel),
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.done_rounded),
-            label: Text(reference == null ? "Add" : "Update"),
+            label: Text(
+                reference == null ? S.of(context).add : S.of(context).update),
             onPressed: () async {
               if (!equipmentKey.currentState!.validate()) return;
               equipmentKey.currentState!.save();
@@ -168,7 +171,7 @@ class Equipment extends StatelessWidget {
                       .add(data)
                       .then((ref) async =>
                           await FirebaseAnalytics.instance.logEvent(
-                            name: "New Equipment",
+                            name: S.of(context).newEquipment,
                             parameters: {"path": ref.path},
                           ))
                       .whenComplete(() {
@@ -180,7 +183,7 @@ class Equipment extends StatelessWidget {
                       .update(data)
                       .then((ref) async =>
                           await FirebaseAnalytics.instance.logEvent(
-                            name: "Updated Equipment",
+                            name: S.of(context).updatedEquipment,
                             parameters: {"path": reference.path},
                           ))
                       .whenComplete(() {

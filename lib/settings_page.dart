@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
+import 'generated/l10n.dart';
+
 /// Page to display the observations as a gallery
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -16,10 +18,11 @@ class SettingsPage extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.max, children: [
       Expanded(
         child: Column(mainAxisSize: MainAxisSize.max, children: [
-          Text("User Stats", style: Theme.of(context).textTheme.headlineSmall),
+          Text(S.of(context).userStats,
+              style: Theme.of(context).textTheme.headlineSmall),
           Table(children: [
             TableRow(children: [
-              Text("Number of Observations:",
+              Text("${S.of(context).numberOfObservations}:",
                   style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
@@ -37,7 +40,7 @@ class SettingsPage extends StatelessWidget {
               ),
             ]),
             TableRow(children: [
-              Text("Number of Equipment:",
+              Text("${S.of(context).numberOfEquipment}:",
                   style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
@@ -59,24 +62,24 @@ class SettingsPage extends StatelessWidget {
       ),
       ElevatedButton.icon(
         icon: const Icon(Icons.person_remove),
-        label: const Text("Delete Account"),
+        label: Text(S.of(context).deleteAccount),
         onPressed: () => showDialog<bool?>(
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
             icon: const Icon(Ionicons.alert_circle),
-            title: const Text("Delete Account"),
-            content: const Text(
-                "Are you sure you want to delete your account? This action cannot be undone."),
+            title: Text(S.of(context).deleteAccount),
+            content:
+                Text(S.of(context).areYouSureYouWantToDeleteYourAccountThis),
             actions: [
               ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context, true),
                   icon: const Icon(Icons.done),
-                  label: const Text("Delete")),
+                  label: Text(S.of(context).delete)),
               ElevatedButton.icon(
                   icon: const Icon(Icons.cancel),
                   onPressed: () => Navigator.pop(context, false),
-                  label: const Text("Cancel")),
+                  label: Text(S.of(context).cancel)),
             ],
           ),
         ).then((result) {

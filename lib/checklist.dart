@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'generated/l10n.dart';
 import 'utils.dart';
 import 'checklist_item.dart';
 
@@ -20,7 +21,7 @@ class CheckList extends StatelessWidget {
     final add = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Add checklist item"),
+        title: Text(S.of(context).addChecklistItem),
         content: TextField(
           controller: textController,
           maxLines: 5,
@@ -29,12 +30,12 @@ class CheckList extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
             icon: const Icon(Icons.done),
-            label: const Text("Add"),
+            label: Text(S.of(context).add),
           ),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, false),
             icon: const Icon(Icons.cancel),
-            label: const Text("Cancel"),
+            label: Text(S.of(context).cancel),
           ),
         ],
       ),
@@ -93,7 +94,7 @@ class CheckList extends StatelessWidget {
       ),
       ElevatedButton.icon(
         icon: const Icon(Icons.save_alt_rounded),
-        label: const Text("Save Checklist"),
+        label: Text(S.of(context).saveChecklist),
         onPressed: () async {
           final batch = FirebaseFirestore.instance.batch();
           items.where((item) => item.hasChanged).forEach((item) {

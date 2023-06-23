@@ -19,8 +19,8 @@ class ListOfObjects extends StatelessWidget {
       future: _getLocation(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: Column(children: const [
+          return const Center(
+            child: Column(children: [
               CircularProgressIndicator(),
               Text("Getting current GPS location...")
             ]),
@@ -42,7 +42,7 @@ class ListOfObjects extends StatelessWidget {
             // if (snap2.connectionState != ConnectionState.done)
             //   return Center(child: CircularProgressIndicator());
             if (snap2.data == null) {
-              return Column(children: const [
+              return const Column(children: [
                 CircularProgressIndicator(),
                 Text("Loading Messier data...")
               ]);
@@ -55,7 +55,7 @@ class ListOfObjects extends StatelessWidget {
                   .get(const GetOptions(source: Source.cache)),
               builder: (context, snap3) => snap3.connectionState !=
                       ConnectionState.done
-                  ? Column(children: const [
+                  ? const Column(children: [
                       CircularProgressIndicator(),
                       Text("Loading viewed data...")
                     ])

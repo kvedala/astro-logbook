@@ -18,47 +18,48 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 2.5.0+283
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=2.19.0 <4.0.0"
+  # flutter: ">=3.3.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  pdf: ^3.8.4
-  intl: ^0.17.0
+  pdf: ^3.10.0
+  intl: ^0.18.1
   location: ^4.4.0
-  printing: ^5.9.3
-  geocoding: ^2.0.5
+  printing: ^5.11.0
+  geocoding: ^2.1.0
   # file_picker: ^2.1.6
-
-  firebase_core: ^2.3.0
-  cloud_firestore: ^4.1.0
+  firebase_core: ^2.14.0
+  cloud_firestore: ^4.8.0
   # firebase_storage: ^10.0.1
-  firebase_auth: ^4.1.5
-  firebase_analytics: ^10.0.6
+  firebase_auth: ^4.6.3
+  firebase_analytics: ^10.4.3
 
-  google_sign_in: ^5.4.2
+  google_sign_in: ^6.1.4
   flutter_signin_button: ^2.0.0
-  sign_in_with_apple: ^4.2.0
-  flutter_facebook_auth: ^5.0.6
+  sign_in_with_apple: ^5.0.0
+  flutter_facebook_auth: ^6.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
   # firebase_app_check: ^0.1.1+5
-  ionicons: ^0.2.1
+  ionicons: ^0.2.2
   collection: ^1.17.0
-  crypto: ^3.0.2
-  csv: ^5.0.1
-  flutter_inappwebview: ^6.0.0-beta.21
-  package_info_plus: ^3.0.2
+  crypto: ^3.0.3
+  csv: ^5.0.2
+  flutter_inappwebview: ^6.0.0-beta.24+1
+  package_info_plus: ^4.0.2
   # pdfx: ^2.3.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.11.0
+  flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.1
   # assets:
   #   - assets/messier.csv
@@ -74,7 +75,6 @@ flutter_icons:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter.
 flutter:
   # The following line ensures that the Material Icons font is
@@ -114,3 +114,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_intl:
+  enabled: true

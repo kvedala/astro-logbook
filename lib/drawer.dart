@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'checklist.dart';
 import 'equipment.dart';
 import 'equipment_gallery.dart';
+import 'generated/l10n.dart';
 import 'list_of_objects.dart';
 import 'observations_gallery_page.dart';
 import 'routes.dart';
@@ -22,7 +23,7 @@ import 'weather_page.dart';
 /// * [floaterFunc] to define the function of the floating button
 class MyTab {
   final Icon icon;
-  final String name;
+  final String Function(BuildContext) name;
   final Widget display;
   final void Function(BuildContext)? floaterFunc;
 
@@ -38,42 +39,42 @@ class MyTab {
 final tabNames = [
   MyTab(
     const Icon(Icons.comment),
-    "Observations",
+    (context) => S.of(context).observations,
     const ObservationsGallary(),
     (BuildContext context) =>
         Navigator.pushNamed(context, MyRoutes.addObservationPageRoute),
   ),
   MyTab(
     const Icon(Ionicons.telescope),
-    "Equipment",
+    (context) => S.of(context).equipment,
     const EquipmentGallery(),
     (BuildContext context) async => await Equipment.addEquipment(context),
   ),
   MyTab(
     const Icon(Icons.library_add_check),
-    "Checklist",
+    (context) => S.of(context).checklist,
     CheckList(),
     CheckList.addCheckListItem,
   ),
-  const MyTab(
-    Icon(Icons.list),
-    "List of Objects",
-    ListOfObjects(),
+  MyTab(
+    const Icon(Icons.list),
+    (context) => S.of(context).listOfObjects,
+    const ListOfObjects(),
   ),
   // MyTab(
   //   Icon(Icons.photo_camera),
   //   "Settings",
   //   SettingsPage(),
   // ),
-  const MyTab(
-    Icon(Icons.wb_sunny),
-    "Weather Page",
-    WeatherPage(),
+  MyTab(
+    const Icon(Icons.wb_sunny),
+    (context) => S.of(context).weatherPage,
+    const WeatherPage(),
   ),
-  const MyTab(
-    Icon(Icons.settings),
-    "Settings Page",
-    SettingsPage(),
+  MyTab(
+    const Icon(Icons.settings),
+    (context) => S.of(context).settingsPage,
+    const SettingsPage(),
   ),
 ];
 
@@ -94,15 +95,15 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
         ListTile(
           leading: const Icon(Icons.account_circle, size: 40),
           title: Text(FirebaseAuth.instance.currentUser!.displayName ??
-              "No display name available"),
+              S.of(context).noDisplayNameAvailable),
           subtitle: Text(FirebaseAuth.instance.currentUser!.email ??
-              "No public email available"),
+              S.of(context).noPublicEmailAvailable),
         ),
         ...tabNames
             .map(
               (e) => ListTile(
                 leading: e.icon,
-                title: Text(e.name),
+                title: Text(e.name(context)),
                 onTap: () {
                   Navigator.pop(context);
                   display.add(e);
@@ -113,7 +114,7 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
         // const SizedBox.expand(),
         ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text("Sign Out"),
+            title: Text(S.of(context).signOut),
             onTap: () {
               FirebaseAuth.instance.signOut().then((value) {
                 while (Navigator.canPop(context)) {

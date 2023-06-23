@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'generated/l10n.dart';
 import 'utils.dart';
 import 'gallary_tile.dart';
 import 'generate_pdf.dart';
@@ -174,7 +175,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                   decimal: false, signed: false),
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                labelText: "Messier#",
+                labelText: S.of(context).messierNumber,
                 isDense: true,
                 suffix: IconButton(
                   padding: const EdgeInsets.all(0),
@@ -204,7 +205,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                   decimal: false, signed: false),
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                labelText: "NGC#",
+                labelText: S.of(context).ngcNumber,
                 isDense: true,
                 suffix: IconButton(
                   padding: const EdgeInsets.all(0),
@@ -232,7 +233,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
               readOnly: true,
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                labelText: "Date Range",
+                labelText: S.of(context).dateRange,
                 isDense: true,
                 suffix: IconButton(
                   padding: const EdgeInsets.all(0),
@@ -258,8 +259,8 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                   initialDateRange: dateSearchRange,
                   firstDate: DateTime(1950),
                   lastDate: DateTime.now(),
-                  fieldStartLabelText: "From date",
-                  fieldEndLabelText: "End date",
+                  fieldStartLabelText: S.of(context).fromDate,
+                  fieldEndLabelText: S.of(context).endDate,
                 );
                 if (dateSearchRange != null) {
                   setState(() => dateSearchController.text =

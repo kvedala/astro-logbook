@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'drawer.dart';
+import 'generated/l10n.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,7 +15,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Astronomy Log Book'),
+        title: Text(S.of(context).astronomyLogBook),
       ),
       drawer: drawer(context, display),
       body: StreamBuilder(
