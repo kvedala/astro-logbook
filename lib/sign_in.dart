@@ -139,13 +139,18 @@ class _SignInPageState extends State<SignInPage> {
         await FirebaseAuth.instance.signInWithPopup(provider);
         setState(() {});
       } catch (e) {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => AlertDialog(
-                  title: Text(S.of(context).errorWithAppleSignIn),
-                  content: Text(e.toString()),
-                ));
+        while (!mounted) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        mounted
+            ? showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                      title: Text(S.of(context).errorWithAppleSignIn),
+                      content: Text(e.toString()),
+                    ))
+            : null;
         Future.delayed(
             const Duration(seconds: 2), () => Navigator.pop(context));
       }

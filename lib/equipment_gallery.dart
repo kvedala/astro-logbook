@@ -8,7 +8,7 @@ import 'utils.dart';
 
 /// Widget to show a gallery of equipments and add as needed
 class EquipmentGallery extends StatelessWidget {
-  const EquipmentGallery({Key? key}) : super(key: key);
+  const EquipmentGallery({super.key});
 
   @override
   Widget build(BuildContext context) {

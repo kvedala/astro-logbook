@@ -99,18 +99,16 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
           subtitle: Text(FirebaseAuth.instance.currentUser!.email ??
               S.of(context).noPublicEmailAvailable),
         ),
-        ...tabNames
-            .map(
-              (e) => ListTile(
-                leading: e.icon,
-                title: Text(e.name(context)),
-                onTap: () {
-                  Navigator.pop(context);
-                  display.add(e);
-                },
-              ),
-            )
-            .toList(growable: false),
+        ...tabNames.map(
+          (e) => ListTile(
+            leading: e.icon,
+            title: Text(e.name(context)),
+            onTap: () {
+              Navigator.pop(context);
+              display.add(e);
+            },
+          ),
+        ),
         // const SizedBox.expand(),
         ListTile(
             leading: const Icon(Icons.logout),

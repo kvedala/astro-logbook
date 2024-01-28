@@ -8,7 +8,7 @@ import 'objects.dart';
 
 /// Page to display the observations as a gallery
 class ListOfObjects extends StatelessWidget {
-  const ListOfObjects({Key? key}) : super(key: key);
+  const ListOfObjects({super.key});
 
   @override
   Widget build(BuildContext context) {

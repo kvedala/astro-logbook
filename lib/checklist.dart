@@ -12,7 +12,7 @@ class CheckList extends StatelessWidget {
   final List<CheckListItem> items = List<CheckListItem>.empty(growable: true);
 
   /// Body of checklist tab for the user
-  CheckList({Key? key}) : super(key: key);
+  CheckList({super.key});
 
   /// Add a new checklist item to the DB
   static void addCheckListItem(BuildContext context) async {

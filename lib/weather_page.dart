@@ -5,7 +5,7 @@ import 'package:location/location.dart' as gps;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class WeatherPage extends StatelessWidget {
-  const WeatherPage({Key? key}) : super(key: key);
+  const WeatherPage({super.key});
 
   @override
   Widget build(BuildContext context) {

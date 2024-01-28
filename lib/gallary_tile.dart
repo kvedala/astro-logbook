@@ -82,7 +82,7 @@ class GallaryTile extends StatefulWidget {
   });
 
   /// Generate a gallery tile using data from [ObservationData] object.
-  GallaryTile.fromObservation(ObservationData data, {Key? key, this.reference})
+  GallaryTile.fromObservation(ObservationData data, {super.key, this.reference})
       : title = data.title,
         filePath = data.fileName,
         image = null,
@@ -96,8 +96,7 @@ class GallaryTile extends StatefulWidget {
         latitude = data.latitude,
         longitude = data.longitude,
         location = data.location,
-        equipment = data.equipment,
-        super(key: key);
+        equipment = data.equipment;
 
   @override
   State<GallaryTile> createState() => _GallaryTileState();
