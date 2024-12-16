@@ -49,17 +49,41 @@ class EquipmentGallery extends StatelessWidget {
                                   isEqualTo: snap.data!.docs[index].reference)
                               .limit(1)
                               .get()
-                              .then((doc) => doc.size == 0
-                                  ? confirmDeleteTile(context)
-                                  : null)
-                              .then((ret) {
-                            if (ret != null) return ret;
-
+                              .then((doc) async {
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                            } else {
+                              doc.size == 0 ? confirmDeleteTile(context) : null;
+                            }
+                          }).then((ret) async {
+                            if (ret != null) return false;
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                              return false;
+                            }
                             showModalBottomSheet(
                               context: context,
                               builder: (context) {
                                 Future.delayed(const Duration(seconds: 2),
-                                    () => Navigator.pop(context));
+                                    () async {
+                                  while (!context.mounted) {
+                                    await Future.delayed(
+                                        const Duration(milliseconds: 100));
+                                  }
+                                  if (!context.mounted) {
+                                    Exception("Context not mounted");
+                                    return;
+                                  }
+                                  Navigator.pop(context);
+                                });
                                 return Text(
                                   S
                                       .of(context)

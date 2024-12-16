@@ -17,7 +17,7 @@ class GeneratePDF extends StatelessWidget {
   final List<DocumentReference?> selectedTiles;
 
   GeneratePDF(this.selectedTiles, {super.key}) {
-    FirebaseAnalytics.instance.setCurrentScreen(screenName: "PDF Output");
+    FirebaseAnalytics.instance.logScreenView(screenName: "PDF Output");
   }
 
   @override
@@ -148,11 +148,8 @@ class GeneratePDF extends StatelessWidget {
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text(equipment['telescope'] +
-                      " (${equipment['aperture']}mm, f/" +
-                      (equipment['focalLength'] / equipment['aperture'])
-                          .toStringAsFixed(1) +
-                      ")"),
+                  pw.Text(
+                      "${equipment['telescope']} (${equipment['aperture']}mm, f/${(equipment['focalLength'] / equipment['aperture']).toStringAsFixed(1)})"),
                   pw.Text(equipment['mount']),
                 ],
               ),

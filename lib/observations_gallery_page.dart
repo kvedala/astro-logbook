@@ -21,7 +21,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     super.initState();
     // FirebaseAnalytics.instance.
     FirebaseAnalytics.instance
-        .setCurrentScreen(screenName: "Observations Gallery");
+        .logScreenView(screenName: "Observations Gallery");
   }
 
   @override

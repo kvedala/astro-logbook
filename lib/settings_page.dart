@@ -103,15 +103,48 @@ class SettingsPage extends StatelessWidget {
                 .toList(growable: false),
           }).then(
               (value) => auth.currentUser!.reload().then(
-                  (_) => auth.currentUser!.delete().then(
-                      (_) => Navigator.pushReplacementNamed(context, '/'),
-                      onError: (e) => ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(
-                              content: Text(e.toString().split("] ").last)))),
-                  onError: (e) => ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())))),
-              onError: (e) => ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(e.toString()))));
+                      (_) => auth.currentUser!.delete().then((_) async {
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                              return;
+                            }
+                            Navigator.pushReplacementNamed(context, '/');
+                          }, onError: (e) async {
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                              return;
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(e.toString().split("] ").last)));
+                          }), onError: (e) async {
+                    while (!context.mounted) {
+                      await Future.delayed(const Duration(milliseconds: 100));
+                    }
+                    if (!context.mounted) {
+                      Exception("Context not mounted");
+                      return;
+                    }
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(e.toString())));
+                  }), onError: (e) async {
+            while (!context.mounted) {
+              await Future.delayed(const Duration(milliseconds: 100));
+            }
+            if (!context.mounted) {
+              Exception("Context not mounted");
+              return;
+            }
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(e.toString())));
+          });
         }),
       )
     ]);

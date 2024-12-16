@@ -169,24 +169,52 @@ class Equipment extends StatelessWidget {
                       .collection(
                           'users/${FirebaseAuth.instance.currentUser!.uid}/equipments')
                       .add(data)
-                      .then((ref) async =>
-                          await FirebaseAnalytics.instance.logEvent(
-                            name: S.of(context).newEquipment,
-                            parameters: {"path": ref.path},
-                          ))
-                      .whenComplete(() {
+                      .then((ref) async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: S.of(context).newEquipment,
+                        parameters: {"path": ref.path},
+                      );
+                    }).whenComplete(() async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
                       Navigator.pop(context);
                       returnVal = true;
                     })
                   : await FirebaseFirestore.instance
                       .doc(reference.path)
                       .update(data)
-                      .then((ref) async =>
-                          await FirebaseAnalytics.instance.logEvent(
-                            name: S.of(context).updatedEquipment,
-                            parameters: {"path": reference.path},
-                          ))
-                      .whenComplete(() {
+                      .then((ref) async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: S.of(context).updatedEquipment,
+                        parameters: {"path": reference.path},
+                      );
+                    }).whenComplete(() async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
                       Navigator.pop(context);
                       returnVal = true;
                     });
@@ -222,10 +250,8 @@ class Equipment extends StatelessWidget {
 
     return ListTile(
       visualDensity: VisualDensity.compact,
-      title: Text(dataMap['telescope'] +
-          " (${dataMap['aperture']}mm, f/" +
-          (dataMap['focalLength'] / dataMap['aperture']).toStringAsFixed(1) +
-          ")"),
+      title: Text(
+          "${dataMap['telescope']} (${dataMap['aperture']}mm, f/${(dataMap['focalLength'] / dataMap['aperture']).toStringAsFixed(1)})"),
       subtitle: Text(dataMap['mount']),
       onTap: onTap,
     );

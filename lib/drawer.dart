@@ -114,7 +114,14 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
             leading: const Icon(Icons.logout),
             title: Text(S.of(context).signOut),
             onTap: () {
-              FirebaseAuth.instance.signOut().then((value) {
+              FirebaseAuth.instance.signOut().then((value) async {
+                while (!context.mounted) {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                }
+                if (!context.mounted) {
+                  Exception("Context not mounted");
+                  return;
+                }
                 while (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }

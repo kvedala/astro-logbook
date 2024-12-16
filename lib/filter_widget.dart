@@ -33,8 +33,8 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ButtonBar(
-          buttonPadding: const EdgeInsets.all(0),
+        OverflowBar(
+          // buttonPadding: const EdgeInsets.all(0),
           children: [
             IconButton(
               padding: const EdgeInsets.symmetric(vertical: 8),

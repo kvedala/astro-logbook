@@ -145,7 +145,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
   void initState() {
     super.initState();
     FirebaseAnalytics.instance
-        .setCurrentScreen(screenName: S.of(context).addObservation);
+        .logScreenView(screenName: S.of(context).addObservation);
     _loadData(context);
     _dateTimeController.text = _responses['longitude'] == null
         ? ""
@@ -459,8 +459,18 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               icon: const Icon(Icons.add_link),
                               onPressed: () =>
                                   Equipment.addEquipment(context).then(
-                                    (v) => _loadEquipment(context, force: true)
-                                        .then((v) => setState(() {})),
+                                    (v) async {
+                                      while (!context.mounted) {
+                                        await Future.delayed(
+                                            const Duration(milliseconds: 100));
+                                      }
+                                      if (!context.mounted) {
+                                        Exception("Context not mounted");
+                                        return;
+                                      }
+                                      _loadEquipment(context, force: true)
+                                          .then((v) => setState(() {}));
+                                    },
                                   )),
                         ]),
                       ),
@@ -480,6 +490,14 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                     lastDate: DateTime.now())
                                 .then((date) async {
                               if (date == null) return;
+                              while (!context.mounted) {
+                                await Future.delayed(
+                                    const Duration(milliseconds: 100));
+                              }
+                              if (!context.mounted) {
+                                Exception("Context not mounted");
+                                return;
+                              }
                               final time = await showTimePicker(
                                   context: context,
                                   initialTime: TimeOfDay.fromDateTime(
@@ -581,8 +599,17 @@ class _AddObservationPageState extends State<AddObservationPage> {
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   _formKey.currentState!.save();
-                                  await saveToDB().then(
-                                      (v) => v ? Navigator.pop(context) : null);
+                                  await saveToDB().then((v) async {
+                                    while (!context.mounted) {
+                                      await Future.delayed(
+                                          const Duration(milliseconds: 100));
+                                    }
+                                    if (!context.mounted) {
+                                      Exception("Context not mounted");
+                                      return;
+                                    }
+                                    return v ? Navigator.pop(context) : null;
+                                  });
                                 }
                               },
                             ),
@@ -650,12 +677,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
   Future<bool> saveToDB() async {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
+    final observation = S.of(context).newObservation;
     try {
       await firestore
           .collection('users/${auth.currentUser!.uid}/observations')
           .add(_responses)
           .then((ref) async => await FirebaseAnalytics.instance.logEvent(
-                name: S.of(context).newObservation,
+                name: observation,
                 parameters: {"path": ref.path},
               ));
     } catch (e) {

@@ -28,6 +28,8 @@ void main() async {
       version: "v12.0",
     );
   }
+  await S.load(Locale.fromSubtags(
+      languageCode: 'en')); // You need this before everything else
   runApp(const MyApp());
 }
 
@@ -39,14 +41,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // debugShowCheckedModeBanner: false,
-      title: S.of(context).appTitle,
+      title: S.current.appTitle,
       darkTheme: ThemeData.from(
         colorScheme: ColorScheme.dark(
           primary: Colors.red[900]!,
           secondary: Colors.red[500]!,
           tertiary: Colors.red[200]!,
           onSurface: Colors.red,
-          onBackground: Colors.red,
         ),
         textTheme: TextTheme(
           displayLarge: TextStyle(color: Colors.red[900]),

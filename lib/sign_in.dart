@@ -142,17 +142,27 @@ class _SignInPageState extends State<SignInPage> {
         while (!mounted) {
           await Future.delayed(const Duration(milliseconds: 100));
         }
-        mounted
-            ? showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => AlertDialog(
-                      title: Text(S.of(context).errorWithAppleSignIn),
-                      content: Text(e.toString()),
-                    ))
-            : null;
-        Future.delayed(
-            const Duration(seconds: 2), () => Navigator.pop(context));
+        if (!mounted) {
+          Exception("Context not mounted");
+          return;
+        }
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+                  title: Text(S.of(context).errorWithAppleSignIn),
+                  content: Text(e.toString()),
+                ));
+        Future.delayed(const Duration(seconds: 2), () async {
+          while (!mounted) {
+            await Future.delayed(const Duration(milliseconds: 100));
+          }
+          if (!mounted) {
+            Exception("Context not mounted");
+            return;
+          }
+          Navigator.pop(context);
+        });
       }
       return;
     }
@@ -218,7 +228,7 @@ class _SignInPageState extends State<SignInPage> {
         // Create a credential from the access token
         final FacebookAuthCredential credential =
             FacebookAuthProvider.credential(
-          accessToken.accessToken?.token ?? "",
+          accessToken.accessToken?.tokenString ?? "",
         ) as FacebookAuthCredential;
         // Once signed in, return the UserCredential
         await FirebaseAuth.instance.signInWithCredential(credential);
@@ -300,8 +310,8 @@ class _SignInPageState extends State<SignInPage> {
       children: [
         TextButton.icon(
           style: ButtonStyle(
-            minimumSize: MaterialStateProperty.all(const Size(150, 50)),
-            textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
+            minimumSize: WidgetStateProperty.all(const Size(150, 50)),
+            textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 20)),
           ),
           onPressed: () {
             Navigator.popAndPushNamed(context, MyRoutes.homePage);
@@ -317,8 +327,8 @@ class _SignInPageState extends State<SignInPage> {
         ),
         TextButton.icon(
           style: ButtonStyle(
-            minimumSize: MaterialStateProperty.all(const Size(150, 50)),
-            textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
+            minimumSize: WidgetStateProperty.all(const Size(150, 50)),
+            textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 20)),
           ),
           onPressed: () {
             signOut(context);
@@ -340,7 +350,14 @@ class _SignInPageState extends State<SignInPage> {
       if (googleSignIn != null) {
         if (await googleSignIn!.isSignedIn()) await googleSignIn!.signOut();
       }
-    }).then((value) {
+    }).whenComplete(() async {
+      while (!context.mounted) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      if (!context.mounted) {
+        Exception("Context not mounted");
+        return;
+      }
       if (Navigator.canPop(context)) {
         setState(() {});
         // Navigator.popUntil(

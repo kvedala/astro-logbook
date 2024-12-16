@@ -219,6 +219,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
       lastDate: DateTime.now(),
     ).then((newDate) async {
       if (newDate == null) return;
+      while (!context.mounted) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      if (!context.mounted) {
+        Exception("Context not mounted");
+        return;
+      }
       await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(widget.tile.time!),
@@ -226,7 +233,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
         if (newTime == null) return;
         newDate = newDate!
             .add(Duration(hours: newTime.hour, minutes: newTime.minute));
-
+        while (!context.mounted) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        if (!context.mounted) {
+          Exception("Context not mounted");
+          return;
+        }
         await confirmDialog(context, 'New Time: $newDate').then((v) {
           if (v != ConfirmAction.accept) return;
           widget.tableItems[key].text =
@@ -259,7 +272,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
             onPressed: () {
               confirmDialog(
                       context, '${S.of(context).newValue}: ${newValue.text}')
-                  .then((value) {
+                  .then((value) async {
                 if (value != ConfirmAction.accept) return;
                 widget.tableItems[key].runtimeType == TextEditingController
                     ? widget.tableItems[key].text = newValue.text
@@ -267,6 +280,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
                 setState(() {});
                 widget.tile.reference!
                     .update({key.toLowerCase(): newValue.text});
+                while (!context.mounted) {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                }
+                if (!context.mounted) {
+                  Exception("Context not mounted");
+                  return;
+                }
                 Navigator.pop(context, newValue.text);
               });
             },
@@ -308,7 +328,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
               if (v == null) return;
               confirmDialog(
                       context, '${S.of(context).newValue}: ${newValue.text}')
-                  .then((value) {
+                  .then((value) async {
                 if (value != ConfirmAction.accept) return;
                 if (key == 'Latitude') {
                   widget.tableItems[key].text = decimalDegreesToDMS(v, 'lat');
@@ -319,6 +339,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
                 }
                 setState(() {});
                 widget.tile.reference!.update({key.toLowerCase(): v});
+                while (!context.mounted) {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                }
+                if (!context.mounted) {
+                  Exception("Context not mounted");
+                  return;
+                }
                 Navigator.pop(context, newValue.text);
               });
             },
@@ -436,7 +463,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: ButtonBar(
+          child: OverflowBar(
             children: [
               ElevatedButton.icon(
                 icon: const Icon(Icons.close_rounded),
@@ -447,11 +474,20 @@ class _ShowDetailsState extends State<_ShowDetails> {
                 icon: const Icon(Icons.delete_forever_rounded),
                 label: Text(S.of(context).deleteObservation),
                 onPressed: () async =>
-                    confirmDeleteTile(context).then((e) => e == null
-                        ? null
-                        : e
-                            ? _deleteObservation(context)
-                            : null),
+                    confirmDeleteTile(context).then((e) async {
+                  while (!context.mounted) {
+                    await Future.delayed(const Duration(milliseconds: 100));
+                  }
+                  if (!context.mounted) {
+                    Exception("Context not mounted");
+                    return;
+                  }
+                  return e == null
+                      ? null
+                      : e
+                          ? _deleteObservation(context)
+                          : null;
+                }),
               ),
             ],
           ),
@@ -535,6 +571,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
         .where('dateTime', isEqualTo: widget.tile.time)
         .get()
         .then((result) async {
+      while (!context.mounted) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      if (!context.mounted) {
+        Exception("Context not mounted");
+        return;
+      }
       if (result.size != 1) {
         showDialog(
           context: context,
@@ -546,8 +589,16 @@ class _ShowDetailsState extends State<_ShowDetails> {
             ]),
           ),
         );
-        return await Future.delayed(
-            const Duration(seconds: 1), () => Navigator.pop(context));
+        return await Future.delayed(const Duration(seconds: 1), () async {
+          while (!context.mounted) {
+            await Future.delayed(const Duration(milliseconds: 100));
+          }
+          if (!context.mounted) {
+            Exception("Context not mounted");
+            return;
+          }
+          Navigator.pop(context);
+        });
       }
       // else clause
       showDialog(
@@ -561,7 +612,14 @@ class _ShowDetailsState extends State<_ShowDetails> {
       await store
           .doc(collectionPath + result.docs[0].id)
           .delete()
-          .then((value) {
+          .then((value) async {
+        while (!context.mounted) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        if (!context.mounted) {
+          Exception("Context not mounted");
+          return;
+        }
         Navigator.pop(context);
         Navigator.pop(context);
       });
