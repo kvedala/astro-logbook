@@ -58,9 +58,7 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you and for computation of rise and setting times of various celestial objects.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you and for computation of rise and setting times of various celestial objects.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
