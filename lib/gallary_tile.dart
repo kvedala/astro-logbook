@@ -135,17 +135,17 @@ class _GallaryTileState extends State<GallaryTile> {
                 widget.messier == null
                     ? const SizedBox()
                     : Text(
-                        "${S.of(context).messierNumber} ${widget.messier}",
+                        "${S.current.messierNumber} ${widget.messier}",
                         style: const TextStyle(fontSize: 15),
                       ),
                 widget.ngc == null
                     ? const SizedBox()
                     : Text(
-                        "${S.of(context).ngcNumber} ${widget.ngc}",
+                        "${S.current.ngcNumber} ${widget.ngc}",
                         style: const TextStyle(fontSize: 15),
                       ),
                 Text(
-                  "${S.of(context).observationDate} ${widget.time!.yMMMd} ${widget.time!.hourMinute} (${widget.time!.timeZoneName})",
+                  "${S.current.observationDate} ${widget.time!.yMMMd} ${widget.time!.hourMinute} (${widget.time!.timeZoneName})",
                   style: const TextStyle(fontSize: 15),
                 ),
               ],
@@ -259,19 +259,18 @@ class _ShowDetailsState extends State<_ShowDetails> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${S.of(context).editing} "$key"'),
+        title: Text('${S.current.editing} "$key"'),
         contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
         content: TextField(controller: newValue),
         actions: [
           TextButton(
-            child: Text(S.of(context).cancel),
+            child: Text(S.current.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text(S.of(context).save),
+            child: Text(S.current.save),
             onPressed: () {
-              confirmDialog(
-                      context, '${S.of(context).newValue}: ${newValue.text}')
+              confirmDialog(context, '${S.current.newValue}: ${newValue.text}')
                   .then((value) async {
                 if (value != ConfirmAction.accept) return;
                 widget.tableItems[key].runtimeType == TextEditingController
@@ -308,7 +307,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${S.of(context).editing} "$key"'),
+        title: Text('${S.current.editing} "$key"'),
         contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
         content: TextField(
           controller: newValue,
@@ -316,18 +315,17 @@ class _ShowDetailsState extends State<_ShowDetails> {
         ),
         actions: [
           TextButton(
-            child: Text(S.of(context).cancel),
+            child: Text(S.current.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text(S.of(context).save),
+            child: Text(S.current.save),
             onPressed: () {
               final v = key == 'Latitude' || key == 'Longitude'
                   ? num.tryParse(newValue.text)
                   : int.tryParse(newValue.text);
               if (v == null) return;
-              confirmDialog(
-                      context, '${S.of(context).newValue}: ${newValue.text}')
+              confirmDialog(context, '${S.current.newValue}: ${newValue.text}')
                   .then((value) async {
                 if (value != ConfirmAction.accept) return;
                 if (key == 'Latitude') {
@@ -467,12 +465,12 @@ class _ShowDetailsState extends State<_ShowDetails> {
             children: [
               ElevatedButton.icon(
                 icon: const Icon(Icons.close_rounded),
-                label: Text(S.of(context).closeDetails),
+                label: Text(S.current.closeDetails),
                 onPressed: () => Navigator.pop(context),
               ),
               ElevatedButton.icon(
                 icon: const Icon(Icons.delete_forever_rounded),
-                label: Text(S.of(context).deleteObservation),
+                label: Text(S.current.deleteObservation),
                 onPressed: () async =>
                     confirmDeleteTile(context).then((e) async {
                   while (!context.mounted) {
@@ -501,7 +499,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).addNote),
+        title: Text(S.current.addNote),
         content: TextField(
           controller: textController,
           textCapitalization: TextCapitalization.sentences,
@@ -534,7 +532,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).editNote),
+        title: Text(S.current.editNote),
         content: TextField(
           controller: textController,
           textCapitalization: TextCapitalization.sentences,
@@ -584,7 +582,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
           barrierDismissible: false,
           builder: (context) => AlertDialog(
             title: Column(children: [
-              Text(S.of(context).unableToDeleteTheObject),
+              Text(S.current.unableToDeleteTheObject),
               Text(result.toString()),
             ]),
           ),

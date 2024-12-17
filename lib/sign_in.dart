@@ -150,7 +150,7 @@ class _SignInPageState extends State<SignInPage> {
             context: context,
             barrierDismissible: false,
             builder: (context) => AlertDialog(
-                  title: Text(S.of(context).errorWithAppleSignIn),
+                  title: Text(S.current.errorWithAppleSignIn),
                   content: Text(e.toString()),
                 ));
         Future.delayed(const Duration(seconds: 2), () async {
@@ -251,7 +251,7 @@ class _SignInPageState extends State<SignInPage> {
       children: <Widget>[
         SignInButton(
           Buttons.Google,
-          text: S.of(context).signInWithGoogle,
+          text: S.current.signInWithGoogle,
           onPressed: () => _googleSignIn(context),
           padding:
               const EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
@@ -262,7 +262,7 @@ class _SignInPageState extends State<SignInPage> {
           padding: const EdgeInsets.only(top: 10),
           child: SignInButton(
             Buttons.Apple,
-            text: S.of(context).signInWithApple,
+            text: S.current.signInWithApple,
             // shape: ShapeBorder,
             onPressed: _appleSignIn,
             padding: const EdgeInsets.all(10),
@@ -274,7 +274,7 @@ class _SignInPageState extends State<SignInPage> {
           padding: const EdgeInsets.only(top: 10),
           child: SignInButton(
             Buttons.Facebook,
-            text: S.of(context).signInWithFacebook,
+            text: S.current.signInWithFacebook,
             // shape: ShapeBorder,
             onPressed: _facebookSignIn,
             padding: const EdgeInsets.all(10),
@@ -290,7 +290,7 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).signInPage),
+        title: Text(S.current.signInPage),
         actions: const [
           // IconButton(icon: Icon(Icons.logout), onPressed: () => {}),
         ],
@@ -320,7 +320,7 @@ class _SignInPageState extends State<SignInPage> {
             Icons.book_rounded,
             size: 30,
           ),
-          label: Text(S.of(context).myLogbook),
+          label: Text(S.current.myLogbook),
         ),
         SizedBox.fromSize(
           size: const Size(30, 30),
@@ -338,7 +338,7 @@ class _SignInPageState extends State<SignInPage> {
             Icons.logout,
             size: 30,
           ),
-          label: Text(S.of(context).signOut),
+          label: Text(S.current.signOut),
         ),
       ],
     );

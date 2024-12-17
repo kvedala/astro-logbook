@@ -175,7 +175,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                   decimal: false, signed: false),
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                labelText: S.of(context).messierNumber,
+                labelText: S.current.messierNumber,
                 isDense: true,
                 suffix: IconButton(
                   padding: const EdgeInsets.all(0),
@@ -205,7 +205,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                   decimal: false, signed: false),
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                labelText: S.of(context).ngcNumber,
+                labelText: S.current.ngcNumber,
                 isDense: true,
                 suffix: IconButton(
                   padding: const EdgeInsets.all(0),
@@ -233,7 +233,7 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
               readOnly: true,
               decoration: InputDecoration(
                 // prefixIcon: Icon(Icons.search_rounded, color: Colors.red),
-                labelText: S.of(context).dateRange,
+                labelText: S.current.dateRange,
                 isDense: true,
                 suffix: IconButton(
                   padding: const EdgeInsets.all(0),
@@ -259,8 +259,8 @@ class _SearchFilterRowState extends State<SearchFilterRow> {
                   initialDateRange: dateSearchRange,
                   firstDate: DateTime(1950),
                   lastDate: DateTime.now(),
-                  fieldStartLabelText: S.of(context).fromDate,
-                  fieldEndLabelText: S.of(context).endDate,
+                  fieldStartLabelText: S.current.fromDate,
+                  fieldEndLabelText: S.current.endDate,
                 );
                 if (dateSearchRange != null) {
                   setState(() => dateSearchController.text =

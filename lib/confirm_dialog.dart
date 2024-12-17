@@ -24,10 +24,10 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(S.of(context).areYouSure),
+      title: Text(S.current.areYouSure),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         displayMsg == null ? const SizedBox() : Text(displayMsg!),
-        Text(S.of(context).thisActionCannotBeUndone),
+        Text(S.current.thisActionCannotBeUndone),
       ]),
       actions: [
         TextButton.icon(

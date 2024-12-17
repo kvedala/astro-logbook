@@ -39,26 +39,26 @@ class MyTab {
 final tabNames = [
   MyTab(
     const Icon(Icons.comment),
-    (context) => S.of(context).observations,
+    (context) => S.current.observations,
     const ObservationsGallary(),
     (BuildContext context) =>
         Navigator.pushNamed(context, MyRoutes.addObservationPageRoute),
   ),
   MyTab(
     const Icon(Ionicons.telescope),
-    (context) => S.of(context).equipment,
+    (context) => S.current.equipment,
     const EquipmentGallery(),
     (BuildContext context) async => await Equipment.addEquipment(context),
   ),
   MyTab(
     const Icon(Icons.library_add_check),
-    (context) => S.of(context).checklist,
+    (context) => S.current.checklist,
     CheckList(),
     CheckList.addCheckListItem,
   ),
   MyTab(
     const Icon(Icons.list),
-    (context) => S.of(context).listOfObjects,
+    (context) => S.current.listOfObjects,
     const ListOfObjects(),
   ),
   // MyTab(
@@ -68,12 +68,12 @@ final tabNames = [
   // ),
   MyTab(
     const Icon(Icons.wb_sunny),
-    (context) => S.of(context).weatherPage,
+    (context) => S.current.weatherPage,
     const WeatherPage(),
   ),
   MyTab(
     const Icon(Icons.settings),
-    (context) => S.of(context).settingsPage,
+    (context) => S.current.settingsPage,
     const SettingsPage(),
   ),
 ];
@@ -95,9 +95,9 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
         ListTile(
           leading: const Icon(Icons.account_circle, size: 40),
           title: Text(FirebaseAuth.instance.currentUser!.displayName ??
-              S.of(context).noDisplayNameAvailable),
+              S.current.noDisplayNameAvailable),
           subtitle: Text(FirebaseAuth.instance.currentUser!.email ??
-              S.of(context).noPublicEmailAvailable),
+              S.current.noPublicEmailAvailable),
         ),
         ...tabNames.map(
           (e) => ListTile(
@@ -112,7 +112,7 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
         // const SizedBox.expand(),
         ListTile(
             leading: const Icon(Icons.logout),
-            title: Text(S.of(context).signOut),
+            title: Text(S.current.signOut),
             onTap: () {
               FirebaseAuth.instance.signOut().then((value) async {
                 while (!context.mounted) {

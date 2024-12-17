@@ -18,11 +18,11 @@ class SettingsPage extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.max, children: [
       Expanded(
         child: Column(mainAxisSize: MainAxisSize.max, children: [
-          Text(S.of(context).userStats,
+          Text(S.current.userStats,
               style: Theme.of(context).textTheme.headlineSmall),
           Table(children: [
             TableRow(children: [
-              Text("${S.of(context).numberOfObservations}:",
+              Text("${S.current.numberOfObservations}:",
                   style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
@@ -40,7 +40,7 @@ class SettingsPage extends StatelessWidget {
               ),
             ]),
             TableRow(children: [
-              Text("${S.of(context).numberOfEquipment}:",
+              Text("${S.current.numberOfEquipment}:",
                   style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
@@ -62,24 +62,23 @@ class SettingsPage extends StatelessWidget {
       ),
       ElevatedButton.icon(
         icon: const Icon(Icons.person_remove),
-        label: Text(S.of(context).deleteAccount),
+        label: Text(S.current.deleteAccount),
         onPressed: () => showDialog<bool?>(
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
             icon: const Icon(Ionicons.alert_circle),
-            title: Text(S.of(context).deleteAccount),
-            content:
-                Text(S.of(context).areYouSureYouWantToDeleteYourAccountThis),
+            title: Text(S.current.deleteAccount),
+            content: Text(S.current.areYouSureYouWantToDeleteYourAccountThis),
             actions: [
               ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context, true),
                   icon: const Icon(Icons.done),
-                  label: Text(S.of(context).delete)),
+                  label: Text(S.current.delete)),
               ElevatedButton.icon(
                   icon: const Icon(Icons.cancel),
                   onPressed: () => Navigator.pop(context, false),
-                  label: Text(S.of(context).cancel)),
+                  label: Text(S.current.cancel)),
             ],
           ),
         ).then((result) {

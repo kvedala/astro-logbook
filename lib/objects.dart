@@ -105,11 +105,11 @@ abstract class Catalog extends StatelessWidget {
           riseTimes == null
               ? const SizedBox()
               : riseTimes!.circumpolar
-                  ? Text(S.of(context).circumpolar)
+                  ? Text(S.current.circumpolar)
                   : riseTimes!.belowHorizon
-                      ? Text(S.of(context).belowHorizon)
+                      ? Text(S.current.belowHorizon)
                       : Text(
-                          "${S.of(context).rise}: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
+                          "${S.current.rise}: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
         ]),
         TableRow(children: [
           Text("DEC: ${dec.toString()}"),
@@ -119,7 +119,7 @@ abstract class Catalog extends StatelessWidget {
               : (riseTimes!.circumpolar | riseTimes!.belowHorizon)
                   ? const SizedBox()
                   : Text(
-                      "${S.of(context).set}: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
+                      "${S.current.set}: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
         ]),
       ]),
       trailing: visible,

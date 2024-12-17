@@ -61,7 +61,7 @@ class Equipment extends StatelessWidget {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).addNewEquipment),
+        title: Text(S.current.addNewEquipment),
         content: Form(
           key: equipmentKey,
           autovalidateMode: AutovalidateMode.always,
@@ -73,15 +73,15 @@ class Equipment extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: S.of(context).telescope,
+                      labelText: S.current.telescope,
                     ),
                     initialValue: data['telescope'],
                     keyboardType: TextInputType.name,
                     readOnly: false,
                     validator: (value) => value == null
-                        ? S.of(context).canotBeNull
+                        ? S.current.canotBeNull
                         : value.isEmpty
-                            ? S.of(context).cannotBeEmpty
+                            ? S.current.cannotBeEmpty
                             : null,
                     onSaved: (value) => data['telescope'] = value,
                   ),
@@ -90,7 +90,7 @@ class Equipment extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: S.of(context).telescopeApertureMm,
+                      labelText: S.current.telescopeApertureMm,
                     ),
                     initialValue: data['aperture'] == null
                         ? ""
@@ -100,9 +100,9 @@ class Equipment extends StatelessWidget {
                     validator: (value) {
                       num? number = num.tryParse(value!);
                       return number == null
-                          ? S.of(context).notAValidNumber
+                          ? S.current.notAValidNumber
                           : number < 0
-                              ? S.of(context).cannotBeNegative
+                              ? S.current.cannotBeNegative
                               : null;
                     },
                     onSaved: (value) => data['aperture'] = num.parse(value!),
@@ -112,7 +112,7 @@ class Equipment extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: S.of(context).focalLengthMm,
+                      labelText: S.current.focalLengthMm,
                     ),
                     initialValue: data['focalLength'] == null
                         ? ""
@@ -122,9 +122,9 @@ class Equipment extends StatelessWidget {
                     validator: (value) {
                       num? number = num.tryParse(value!);
                       return number == null
-                          ? S.of(context).notAValidNumber
+                          ? S.current.notAValidNumber
                           : number < 0
-                              ? S.of(context).cannotBeNegative
+                              ? S.current.cannotBeNegative
                               : null;
                     },
                     onSaved: (value) => data['focalLength'] = num.parse(value!),
@@ -134,15 +134,15 @@ class Equipment extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: S.of(context).mount,
+                      labelText: S.current.mount,
                     ),
                     initialValue: data['mount'],
                     keyboardType: TextInputType.name,
                     readOnly: false,
                     validator: (value) => value == null
-                        ? S.of(context).cannotBeNull
+                        ? S.current.cannotBeNull
                         : value.isEmpty
-                            ? S.of(context).cannotBeEmpty
+                            ? S.current.cannotBeEmpty
                             : null,
                     onSaved: (value) => data['mount'] = value,
                   ),
@@ -154,13 +154,12 @@ class Equipment extends StatelessWidget {
         actions: [
           ElevatedButton.icon(
             icon: const Icon(Icons.cancel_rounded),
-            label: Text(S.of(context).cancel),
+            label: Text(S.current.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.done_rounded),
-            label: Text(
-                reference == null ? S.of(context).add : S.of(context).update),
+            label: Text(reference == null ? S.current.add : S.current.update),
             onPressed: () async {
               if (!equipmentKey.currentState!.validate()) return;
               equipmentKey.currentState!.save();
@@ -178,7 +177,7 @@ class Equipment extends StatelessWidget {
                         return;
                       }
                       await FirebaseAnalytics.instance.logEvent(
-                        name: S.of(context).newEquipment,
+                        name: S.current.newEquipment,
                         parameters: {"path": ref.path},
                       );
                     }).whenComplete(() async {
@@ -204,7 +203,7 @@ class Equipment extends StatelessWidget {
                         return;
                       }
                       await FirebaseAnalytics.instance.logEvent(
-                        name: S.of(context).updatedEquipment,
+                        name: S.current.updatedEquipment,
                         parameters: {"path": reference.path},
                       );
                     }).whenComplete(() async {

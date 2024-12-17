@@ -24,7 +24,7 @@ class GeneratePDF extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).selectedObservations),
+        title: Text(S.current.selectedObservations),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _getData(),
@@ -64,10 +64,10 @@ class GeneratePDF extends StatelessWidget {
   Future<Uint8List> _buildDoc(
       BuildContext context, List<Map<String, dynamic>>? data) {
     final pdfDocument = pw.Document(
-        title: S.of(context).observationSummary,
+        title: S.current.observationSummary,
         author: FirebaseAuth.instance.currentUser!.displayName,
         creator: "Astronomy Logbook",
-        subject: S.of(context).astronomyAndStargazing);
+        subject: S.current.astronomyAndStargazing);
 
     pdfDocument.addPage(
       pw.MultiPage(
@@ -134,7 +134,7 @@ class GeneratePDF extends StatelessWidget {
             ),
             pw.TableRow(
               children: [
-                pw.Text(S.of(context).location),
+                pw.Text(S.current.location),
                 pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
@@ -144,7 +144,7 @@ class GeneratePDF extends StatelessWidget {
               ],
             ),
             pw.TableRow(children: [
-              pw.Text(S.of(context).equipment),
+              pw.Text(S.current.equipment),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
@@ -156,27 +156,27 @@ class GeneratePDF extends StatelessWidget {
             ]),
             pw.TableRow(
               children: [
-                pw.Text(S.of(context).skyConditions),
+                pw.Text(S.current.skyConditions),
                 pw.Table(columnWidths: {
                   0: const pw.FixedColumnWidth(5)
                 }, children: [
                   pw.TableRow(children: [
-                    pw.Text("${S.of(context).seeing}:"),
+                    pw.Text("${S.current.seeing}:"),
                     pw.Text("${data['seeing']}")
                   ]),
                   pw.TableRow(children: [
-                    pw.Text("${S.of(context).visibility}:"),
+                    pw.Text("${S.current.visibility}:"),
                     pw.Text("${data['visibility']}")
                   ]),
                   pw.TableRow(children: [
-                    pw.Text("${S.of(context).transparency}:"),
+                    pw.Text("${S.current.transparency}:"),
                     pw.Text("${data['transparency']}")
                   ]),
                 ]),
               ],
             ),
           ]),
-          pw.Text("${S.of(context).notes}: "),
+          pw.Text("${S.current.notes}: "),
           pw.ListView.builder(
             itemCount: data['notes'].length,
             itemBuilder: (context, index) => pw.Bullet(

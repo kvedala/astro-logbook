@@ -21,7 +21,7 @@ class CheckList extends StatelessWidget {
     final add = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).addChecklistItem),
+        title: Text(S.current.addChecklistItem),
         content: TextField(
           controller: textController,
           maxLines: 5,
@@ -30,12 +30,12 @@ class CheckList extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
             icon: const Icon(Icons.done),
-            label: Text(S.of(context).add),
+            label: Text(S.current.add),
           ),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, false),
             icon: const Icon(Icons.cancel),
-            label: Text(S.of(context).cancel),
+            label: Text(S.current.cancel),
           ),
         ],
       ),
@@ -94,7 +94,7 @@ class CheckList extends StatelessWidget {
       ),
       ElevatedButton.icon(
         icon: const Icon(Icons.save_alt_rounded),
-        label: Text(S.of(context).saveChecklist),
+        label: Text(S.current.saveChecklist),
         onPressed: () async {
           final batch = FirebaseFirestore.instance.batch();
           items.where((item) => item.hasChanged).forEach((item) {

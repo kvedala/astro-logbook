@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).astronomyLogBook),
+        title: Text(S.current.astronomyLogBook),
       ),
       drawer: drawer(context, display),
       body: StreamBuilder(
