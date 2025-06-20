@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,14 @@ class _SignInPageState extends State<SignInPage> {
           provider.addScope(scope);
         }
         await authInstance!.signInWithPopup(provider);
+        await FirebaseAnalytics.instance
+            .logLogin(loginMethod: "Google", parameters: {
+          "multifactor": authInstance!.currentUser!.multiFactor,
+          "uid": authInstance!.currentUser!.uid,
+          "name": authInstance!.currentUser!.displayName ?? "",
+          "email": authInstance!.currentUser!.email ?? "",
+          "phone": authInstance!.currentUser!.phoneNumber ?? "",
+        });
         setState(() {});
         // Navigator.popAndPushNamed(context, HomePageRoute);
       } catch (e) {
@@ -95,7 +104,14 @@ class _SignInPageState extends State<SignInPage> {
       );
 
       await authInstance!.signInWithCredential(credentials);
-
+      await FirebaseAnalytics.instance
+          .logLogin(loginMethod: "Google", parameters: {
+        "multifactor": authInstance!.currentUser!.multiFactor,
+        "uid": authInstance!.currentUser!.uid,
+        "name": authInstance!.currentUser!.displayName ?? "",
+        "email": authInstance!.currentUser!.email ?? "",
+        "phone": authInstance!.currentUser!.phoneNumber ?? "",
+      });
       // final List<String> names = _user.user.displayName.split(' ');
       // addUsertoDB(
       //     email: _user.user.email,
@@ -137,6 +153,14 @@ class _SignInPageState extends State<SignInPage> {
 
         // Sign in the user with Firebase.
         await FirebaseAuth.instance.signInWithPopup(provider);
+        await FirebaseAnalytics.instance
+            .logLogin(loginMethod: "Apple", parameters: {
+          "multifactor": authInstance!.currentUser!.multiFactor,
+          "uid": authInstance!.currentUser!.uid,
+          "name": authInstance!.currentUser!.displayName ?? "",
+          "email": authInstance!.currentUser!.email ?? "",
+          "phone": authInstance!.currentUser!.phoneNumber ?? "",
+        });
         setState(() {});
       } catch (e) {
         while (!mounted) {
@@ -200,6 +224,15 @@ class _SignInPageState extends State<SignInPage> {
             "${appleCredential.givenName} ${appleCredential.familyName}");
       }
 
+      await FirebaseAnalytics.instance
+          .logLogin(loginMethod: "Apple", parameters: {
+        "multifactor": authInstance!.currentUser!.multiFactor,
+        "uid": authInstance!.currentUser!.uid,
+        "name": authInstance!.currentUser!.displayName ?? "",
+        "email": authInstance!.currentUser!.email ?? "",
+        "phone": authInstance!.currentUser!.phoneNumber ?? "",
+      });
+
       setState(() {});
       // Navigator.popAndPushNamed(context, HomePageRoute);
     } catch (error) {
@@ -221,6 +254,15 @@ class _SignInPageState extends State<SignInPage> {
 
         // Once signed in, return the UserCredential
         await FirebaseAuth.instance.signInWithPopup(facebookProvider);
+
+        await FirebaseAnalytics.instance
+            .logLogin(loginMethod: "FaceBook-Web", parameters: {
+          "multifactor": authInstance!.currentUser!.multiFactor,
+          "uid": authInstance!.currentUser!.uid,
+          "name": authInstance!.currentUser!.displayName ?? "",
+          "email": authInstance!.currentUser!.email ?? "",
+          "phone": authInstance!.currentUser!.phoneNumber ?? "",
+        });
       } else {
         final accessToken = await FacebookAuth.instance
             .login(permissions: const ['email', 'public_profile']);
@@ -232,6 +274,14 @@ class _SignInPageState extends State<SignInPage> {
         ) as FacebookAuthCredential;
         // Once signed in, return the UserCredential
         await FirebaseAuth.instance.signInWithCredential(credential);
+        await FirebaseAnalytics.instance
+            .logLogin(loginMethod: "Facebookd", parameters: {
+          "multifactor": authInstance!.currentUser!.multiFactor,
+          "uid": authInstance!.currentUser!.uid,
+          "name": authInstance!.currentUser!.displayName ?? "",
+          "email": authInstance!.currentUser!.email ?? "",
+          "phone": authInstance!.currentUser!.phoneNumber ?? "",
+        });
       }
       // } on Facebo catch (e) {
       //   debugPrint(e.message);
