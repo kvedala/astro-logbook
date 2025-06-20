@@ -18,8 +18,10 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(_current != null,
-        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
+    assert(
+      _current != null,
+      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
+    );
     return _current!;
   }
 
@@ -41,8 +43,10 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(instance != null,
-        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
@@ -82,12 +86,7 @@ class S {
 
   /// `Title`
   String get title {
-    return Intl.message(
-      'Title',
-      name: 'title',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Title', name: 'title', desc: '', args: []);
   }
 
   /// `Cannot be NULL`
@@ -112,12 +111,7 @@ class S {
 
   /// `Messier #`
   String get messierNumber {
-    return Intl.message(
-      'Messier #',
-      name: 'messierNumber',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Messier #', name: 'messierNumber', desc: '', args: []);
   }
 
   /// `Cannot be negative`
@@ -142,12 +136,7 @@ class S {
 
   /// `NGC #`
   String get ngcNumber {
-    return Intl.message(
-      'NGC #',
-      name: 'ngcNumber',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('NGC #', name: 'ngcNumber', desc: '', args: []);
   }
 
   /// `Not a valid number`
@@ -162,12 +151,7 @@ class S {
 
   /// `Not a number`
   String get notANumber {
-    return Intl.message(
-      'Not a number',
-      name: 'notANumber',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Not a number', name: 'notANumber', desc: '', args: []);
   }
 
   /// `Invalid range`
@@ -182,12 +166,7 @@ class S {
 
   /// `Longitude`
   String get longitude {
-    return Intl.message(
-      'Longitude',
-      name: 'longitude',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Longitude', name: 'longitude', desc: '', args: []);
   }
 
   /// `Location - Enter Address`
@@ -202,12 +181,7 @@ class S {
 
   /// `Location`
   String get location {
-    return Intl.message(
-      'Location',
-      name: 'location',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Location', name: 'location', desc: '', args: []);
   }
 
   /// `Value cannot be null`
@@ -252,12 +226,7 @@ class S {
 
   /// `Seeing`
   String get seeing {
-    return Intl.message(
-      'Seeing',
-      name: 'seeing',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Seeing', name: 'seeing', desc: '', args: []);
   }
 
   /// `Transparency`
@@ -272,62 +241,32 @@ class S {
 
   /// `Notes:`
   String get notes {
-    return Intl.message(
-      'Notes:',
-      name: 'notes',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Notes:', name: 'notes', desc: '', args: []);
   }
 
   /// `Submit`
   String get submit {
-    return Intl.message(
-      'Submit',
-      name: 'submit',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Submit', name: 'submit', desc: '', args: []);
   }
 
   /// `Cancel`
   String get cancel {
-    return Intl.message(
-      'Cancel',
-      name: 'cancel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Cancel', name: 'cancel', desc: '', args: []);
   }
 
   /// `Add Note:`
   String get addNote {
-    return Intl.message(
-      'Add Note:',
-      name: 'addNote',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Add Note:', name: 'addNote', desc: '', args: []);
   }
 
   /// `Edit Note:`
   String get editNote {
-    return Intl.message(
-      'Edit Note:',
-      name: 'editNote',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Edit Note:', name: 'editNote', desc: '', args: []);
   }
 
   /// `Accept`
   String get accept {
-    return Intl.message(
-      'Accept',
-      name: 'accept',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Accept', name: 'accept', desc: '', args: []);
   }
 
   /// `New Observation`
@@ -352,12 +291,7 @@ class S {
 
   /// `Add`
   String get add {
-    return Intl.message(
-      'Add',
-      name: 'add',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Add', name: 'add', desc: '', args: []);
   }
 
   /// `Save Checklist`
@@ -402,22 +336,12 @@ class S {
 
   /// `Equipment`
   String get equipment {
-    return Intl.message(
-      'Equipment',
-      name: 'equipment',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Equipment', name: 'equipment', desc: '', args: []);
   }
 
   /// `Checklist`
   String get checklist {
-    return Intl.message(
-      'Checklist',
-      name: 'checklist',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Checklist', name: 'checklist', desc: '', args: []);
   }
 
   /// `List of Objects`
@@ -472,12 +396,7 @@ class S {
 
   /// `Sign Out`
   String get signOut {
-    return Intl.message(
-      'Sign Out',
-      name: 'signOut',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sign Out', name: 'signOut', desc: '', args: []);
   }
 
   /// `Cannot delete. Equipment is being referenced in an observation.`
@@ -502,12 +421,7 @@ class S {
 
   /// `Telescope`
   String get telescope {
-    return Intl.message(
-      'Telescope',
-      name: 'telescope',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Telescope', name: 'telescope', desc: '', args: []);
   }
 
   /// `Canot be NULL`
@@ -542,22 +456,12 @@ class S {
 
   /// `Mount`
   String get mount {
-    return Intl.message(
-      'Mount',
-      name: 'mount',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Mount', name: 'mount', desc: '', args: []);
   }
 
   /// `Update`
   String get update {
-    return Intl.message(
-      'Update',
-      name: 'update',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Update', name: 'update', desc: '', args: []);
   }
 
   /// `New Equipment`
@@ -582,32 +486,17 @@ class S {
 
   /// `Date Range`
   String get dateRange {
-    return Intl.message(
-      'Date Range',
-      name: 'dateRange',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Date Range', name: 'dateRange', desc: '', args: []);
   }
 
   /// `From date`
   String get fromDate {
-    return Intl.message(
-      'From date',
-      name: 'fromDate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('From date', name: 'fromDate', desc: '', args: []);
   }
 
   /// `End date`
   String get endDate {
-    return Intl.message(
-      'End date',
-      name: 'endDate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('End date', name: 'endDate', desc: '', args: []);
   }
 
   /// `Observation Date:`
@@ -622,42 +511,22 @@ class S {
 
   /// `Messier`
   String get messier {
-    return Intl.message(
-      'Messier',
-      name: 'messier',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Messier', name: 'messier', desc: '', args: []);
   }
 
   /// `Save`
   String get save {
-    return Intl.message(
-      'Save',
-      name: 'save',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Save', name: 'save', desc: '', args: []);
   }
 
   /// `New Value`
   String get newValue {
-    return Intl.message(
-      'New Value',
-      name: 'newValue',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('New Value', name: 'newValue', desc: '', args: []);
   }
 
   /// `Editing`
   String get editing {
-    return Intl.message(
-      'Editing',
-      name: 'editing',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Editing', name: 'editing', desc: '', args: []);
   }
 
   /// `Unable to delete the object.`
@@ -732,22 +601,12 @@ class S {
 
   /// `Visibility`
   String get visibility {
-    return Intl.message(
-      'Visibility',
-      name: 'visibility',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Visibility', name: 'visibility', desc: '', args: []);
   }
 
   /// `Circumpolar`
   String get circumpolar {
-    return Intl.message(
-      'Circumpolar',
-      name: 'circumpolar',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Circumpolar', name: 'circumpolar', desc: '', args: []);
   }
 
   /// `Below Horizon`
@@ -762,22 +621,12 @@ class S {
 
   /// `Rise`
   String get rise {
-    return Intl.message(
-      'Rise',
-      name: 'rise',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Rise', name: 'rise', desc: '', args: []);
   }
 
   /// `Set`
   String get set {
-    return Intl.message(
-      'Set',
-      name: 'set',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Set', name: 'set', desc: '', args: []);
   }
 
   /// `Number of Observations`
@@ -792,12 +641,7 @@ class S {
 
   /// `User Stats`
   String get userStats {
-    return Intl.message(
-      'User Stats',
-      name: 'userStats',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('User Stats', name: 'userStats', desc: '', args: []);
   }
 
   /// `Number of Equipment`
@@ -832,12 +676,7 @@ class S {
 
   /// `Delete`
   String get delete {
-    return Intl.message(
-      'Delete',
-      name: 'delete',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Delete', name: 'delete', desc: '', args: []);
   }
 
   /// `Error with Apple Sign In`
@@ -882,22 +721,12 @@ class S {
 
   /// `Sign In Page`
   String get signInPage {
-    return Intl.message(
-      'Sign In Page',
-      name: 'signInPage',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sign In Page', name: 'signInPage', desc: '', args: []);
   }
 
   /// `My Logbook`
   String get myLogbook {
-    return Intl.message(
-      'My Logbook',
-      name: 'myLogbook',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('My Logbook', name: 'myLogbook', desc: '', args: []);
   }
 
   /// `Astronomy Log Book`
@@ -935,9 +764,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[
-      Locale.fromSubtags(languageCode: 'en'),
-    ];
+    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
   }
 
   @override
