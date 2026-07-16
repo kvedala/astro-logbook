@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" 
     package="com.vedalaholdings.astro_log">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,6 +14,12 @@
         android:label="Astronomy Logbook"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+
+        <activity
+            android:name="com.google.android.gms.auth.api.credentials.assistedsignin.ui.GoogleSignInActivity"
+            android:theme="@android:style/Theme.Dialog" 
+            android:exported="true"
+            tools:replace="android:theme" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

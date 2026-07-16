@@ -8,16 +8,12 @@ plugins {
 
 android {
     namespace = "com.vedalaholdings.astro_log"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "29.0.13599879" // flutter.ndkVersion
+    compileSdk = 37
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     defaultConfig {
@@ -25,8 +21,8 @@ android {
         applicationId = "com.vedalaholdings.astro_log"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 25 // flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 30 // flutter.minSdkVersion
+        targetSdk = 37
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -41,7 +37,7 @@ android {
 
     dependencies {
         // Import the Firebase BoM
-        implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+        implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
         implementation("com.google.firebase:firebase-analytics")
         implementation("com.google.firebase:firebase-auth")
         implementation("com.google.firebase:firebase-firestore")

@@ -20,7 +20,7 @@
     content="A logbook for stargazers and astrophotographers to record their observations. Forget blurring your night vision, searching for a notebook, pencil and table by using a convenient red-light themed app to note your observations during an observing session. Observations are stored securely and privately in cloud accessible anywhere in the world via web interface and iOS and android apps.">
 
   <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="astro_log">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -33,12 +33,6 @@
 
   <title>astro_log</title>
   <link rel="manifest" href="manifest.json">
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = null;
-  </script>
-  <script type="application/javascript" src="/assets/packages/flutter_inappwebview/assets/web/web_support.js"
-    defer></script>
 
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
@@ -59,37 +53,32 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 
-  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js" defer></script>
+  <!-- Initialize Firebase JS SDK -->
+  <script type="text/javascript">
+    // Firebase configuration from firebase_options.dart
+    var firebaseConfig = {
+      apiKey: "AIzaSyDCPJfmW4Nn0U3qVgT_KatItS0I9nIJZIs",
+      authDomain: "astronomy-log-book.firebaseapp.com",
+      projectId: "astronomy-log-book",
+      storageBucket: "astronomy-log-book.appspot.com",
+      messagingSenderId: "703059723550",
+      appId: "1:703059723550:web:a271bb6eb147bdef22750f",
+      measurementId: "G-31HXDMKFHT"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
   <script type="text/javascript">
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js";
   </script>
 
-  <!-- This script installs service_worker.js to provide PWA functionality to
-         application. For more information, see:
-         https://developers.google.com/web/fundamentals/primers/service-workers -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
-      });
-    }
-  </script>
-  <script>
-    window.addEventListener('load', function (ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        }
-      }).then(function (engineInitializer) {
-        return engineInitializer.initializeEngine();
-      }).then(function (appRunner) {
-        return appRunner.runApp();
-      });
-    });
-  </script>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js" defer></script>
+
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 
 </html>
