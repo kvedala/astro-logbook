@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
 
 import 'generated/l10n.dart';
 
@@ -13,7 +12,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
-    final collectionRoot = 'users/${FirebaseAuth.instance.currentUser!.uid}';
+    final collectionRoot = 'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}';
 
     return Column(mainAxisSize: MainAxisSize.max, children: [
       Expanded(
@@ -67,7 +66,7 @@ class SettingsPage extends StatelessWidget {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            icon: const Icon(Ionicons.alert_circle),
+            icon: const Icon(Icons.warning_amber_rounded),
             title: Text(S.current.deleteAccount),
             content: Text(S.current.areYouSureYouWantToDeleteYourAccountThis),
             actions: [

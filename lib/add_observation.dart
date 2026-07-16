@@ -77,36 +77,36 @@ class ObservationData {
   //     this.visibility});
 
   ObservationData.fromJSON(Map<String, dynamic> json, {this.reference})
-      : title = _valueFromJSON(json, 'title'),
-        ngc = _valueFromJSON(json, 'ngc'),
-        visibility = (_valueFromJSON(json, 'visibility')),
-        seeing = (_valueFromJSON(json, 'seeing')),
-        transparency = (_valueFromJSON(json, 'transparency')),
-        messier = _valueFromJSON(json, 'messier'),
-        fileName = _valueFromJSON(json, 'fileName'),
-        latitude = _valueFromJSON(json, 'latitude'),
-        longitude = _valueFromJSON(json, 'longitude'),
-        location = _valueFromJSON(json, 'location'),
-        equipment = Equipment.fromReference(_valueFromJSON(json, 'equipment')),
-        dateTime = _valueFromJSON(json, 'dateTime').toDate(),
-        notes = List<String>.from(_valueFromJSON(json, 'notes'));
+    : title = _valueFromJSON(json, 'title'),
+      ngc = _valueFromJSON(json, 'ngc'),
+      visibility = (_valueFromJSON(json, 'visibility')),
+      seeing = (_valueFromJSON(json, 'seeing')),
+      transparency = (_valueFromJSON(json, 'transparency')),
+      messier = _valueFromJSON(json, 'messier'),
+      fileName = _valueFromJSON(json, 'fileName'),
+      latitude = _valueFromJSON(json, 'latitude'),
+      longitude = _valueFromJSON(json, 'longitude'),
+      location = _valueFromJSON(json, 'location'),
+      equipment = Equipment.fromReference(_valueFromJSON(json, 'equipment')),
+      dateTime = _valueFromJSON(json, 'dateTime').toDate(),
+      notes = List<String>.from(_valueFromJSON(json, 'notes'));
 
   Map<String, dynamic> toJSON() => {
-        'title': title,
-        'ngc': ngc,
-        'seeing': seeing,
-        'visibility': visibility,
-        'transparency': transparency,
-        'messier': messier,
-        'fileName': fileName,
-        'latitude': latitude,
-        'longitude': longitude,
-        'location': location,
-        'dateTime': dateTime,
-        'notes': notes,
-        'equipment': equipment.reference,
-        'reference': reference,
-      };
+    'title': title,
+    'ngc': ngc,
+    'seeing': seeing,
+    'visibility': visibility,
+    'transparency': transparency,
+    'messier': messier,
+    'fileName': fileName,
+    'latitude': latitude,
+    'longitude': longitude,
+    'location': location,
+    'dateTime': dateTime,
+    'notes': notes,
+    'equipment': equipment.reference,
+    'reference': reference,
+  };
 }
 
 /// Widget to add observation data to DB
@@ -132,7 +132,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
     'location': null,
     'dateTime': null,
     'notes': <String>[],
-    'equipment': null
+    'equipment': null,
   };
 
   // final _filenameTextController = TextEditingController();
@@ -144,8 +144,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance
-        .logScreenView(screenName: S.current.addObservation);
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: S.current.addObservation,
+    );
     _loadData(context);
     _dateTimeController.text = _responses['longitude'] == null
         ? ""
@@ -155,15 +156,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
   @override
   Widget build(BuildContext context) {
     return
-        //  FutureBuilder(
-        //   future: _responses['longitude'] == null
-        //       ? _loadData(context)
-        //       : Future.value(true),
-        //   builder: (context, snap) =>
-        Scaffold(
-      appBar: AppBar(
-        title: Text(S.current.recordObservation),
-      ),
+    //  FutureBuilder(
+    //   future: _responses['longitude'] == null
+    //       ? _loadData(context)
+    //       : Future.value(true),
+    //   builder: (context, snap) =>
+    Scaffold(
+      appBar: AppBar(title: Text(S.current.recordObservation)),
       body: Container(
         padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
         child: _responses['longitude'] == null
@@ -190,93 +189,105 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 validator: (value) => value == null
                                     ? S.current.cannotBeNull
                                     : value.isEmpty
-                                        ? S.current.cannotBeEmpty
-                                        : null,
+                                    ? S.current.cannotBeEmpty
+                                    : null,
                                 onSaved: (value) => _responses['title'] = value,
                                 onChanged: (value) =>
                                     _responses['title'] = value,
                               ),
                             ),
                             Expanded(
-                              child: Row(children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: S.current.messierNumber,
-                                    ),
-                                    initialValue: _responses['messier'] == null
-                                        ? ""
-                                        : _responses['messier'].toString(),
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(
-                                      signed: false,
-                                      decimal: false,
-                                    ),
-                                    readOnly: false,
-                                    inputFormatters: [
-                                      TextInputFormatter.withFunction(
-                                          (oldValue, newValue) => newValue.text
-                                                  .contains(RegExp(r'[^0-9]'))
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: S.current.messierNumber,
+                                      ),
+                                      initialValue:
+                                          _responses['messier'] == null
+                                          ? ""
+                                          : _responses['messier'].toString(),
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                            signed: false,
+                                            decimal: false,
+                                          ),
+                                      readOnly: false,
+                                      inputFormatters: [
+                                        TextInputFormatter.withFunction(
+                                          (oldValue, newValue) =>
+                                              newValue.text.contains(
+                                                RegExp(r'[^0-9]'),
+                                              )
                                               ? oldValue
-                                              : newValue)
-                                    ],
-                                    validator: (value) {
-                                      if (value!.isEmpty) return null;
-                                      final t = int.tryParse(value);
-                                      if (t == null) return null;
-                                      if (t <= 0) {
-                                        return S.current.cannotBeNegative;
-                                      }
-                                      if (t > 110) {
-                                        return S
-                                            .of(context)
-                                            .messierCatalogNumbersAreOnlyUpto110;
-                                      }
-                                      return null;
-                                    },
-                                    autovalidateMode: AutovalidateMode.always,
-                                    onSaved: (value) => _responses['messier'] =
-                                        int.tryParse(value!),
-                                    onChanged: (value) =>
-                                        _responses['messier'] =
-                                            int.tryParse(value),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: S.current.ngcNumber,
+                                              : newValue,
+                                        ),
+                                      ],
+                                      validator: (value) {
+                                        if (value!.isEmpty) return null;
+                                        final t = int.tryParse(value);
+                                        if (t == null) return null;
+                                        if (t <= 0) {
+                                          return S.current.cannotBeNegative;
+                                        }
+                                        if (t > 110) {
+                                          return S
+                                              .of(context)
+                                              .messierCatalogNumbersAreOnlyUpto110;
+                                        }
+                                        return null;
+                                      },
+                                      autovalidateMode: AutovalidateMode.always,
+                                      onSaved: (value) =>
+                                          _responses['messier'] = int.tryParse(
+                                            value!,
+                                          ),
+                                      onChanged: (value) =>
+                                          _responses['messier'] = int.tryParse(
+                                            value,
+                                          ),
                                     ),
-                                    initialValue: _responses['ngc'] == null
-                                        ? ""
-                                        : _responses['ngc'].toString(),
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(),
-                                    readOnly: false,
-                                    validator: (value) {
-                                      if (value!.isEmpty) return null;
-                                      final t = int.tryParse(value);
-                                      return t == null
-                                          ? S.current.notAValidNumber
-                                          : t <= 0
-                                              ? S.current.cannotBeNegative
-                                              : null;
-                                    },
-                                    autovalidateMode: AutovalidateMode.always,
-                                    onSaved: (value) => _responses['ngc'] =
-                                        int.tryParse(value!),
-                                    onChanged: (value) =>
-                                        _responses['ngc'] = int.tryParse(value),
-                                    inputFormatters: [
-                                      TextInputFormatter.withFunction(
-                                          (oldValue, newValue) => newValue.text
-                                                  .contains(RegExp(r'[^0-9]'))
-                                              ? oldValue
-                                              : newValue)
-                                    ],
                                   ),
-                                ),
-                              ]),
+                                  Expanded(
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: S.current.ngcNumber,
+                                      ),
+                                      initialValue: _responses['ngc'] == null
+                                          ? ""
+                                          : _responses['ngc'].toString(),
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(),
+                                      readOnly: false,
+                                      validator: (value) {
+                                        if (value!.isEmpty) return null;
+                                        final t = int.tryParse(value);
+                                        return t == null
+                                            ? S.current.notAValidNumber
+                                            : t <= 0
+                                            ? S.current.cannotBeNegative
+                                            : null;
+                                      },
+                                      autovalidateMode: AutovalidateMode.always,
+                                      onSaved: (value) => _responses['ngc'] =
+                                          int.tryParse(value!),
+                                      onChanged: (value) => _responses['ngc'] =
+                                          int.tryParse(value),
+                                      inputFormatters: [
+                                        TextInputFormatter.withFunction(
+                                          (oldValue, newValue) =>
+                                              newValue.text.contains(
+                                                RegExp(r'[^0-9]'),
+                                              )
+                                              ? oldValue
+                                              : newValue,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -293,94 +304,108 @@ class _AddObservationPageState extends State<AddObservationPage> {
                       // ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(children: [
-                          Expanded(
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: "Latitude",
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Latitude",
+                                ),
+                                initialValue: _responses['latitude'] == null
+                                    ? ""
+                                    : _responses['latitude'].toString(),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      signed: true,
+                                      decimal: true,
+                                    ),
+                                // readOnly: true,
+                                validator: (value) {
+                                  final number = num.tryParse(value!);
+                                  if (number == null) {
+                                    return S.current.notANumber;
+                                  }
+                                  if (number < -90 || number > 90) {
+                                    return S.current.invalidRange;
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) =>
+                                    _responses['latitude'] = num.parse(value!),
+                                onChanged: (value) {
+                                  final numeric = num.tryParse(value);
+                                  if (numeric == null) return;
+                                  setState(
+                                    () => _responses['latitude'] = numeric,
+                                  );
+                                  _updateAddresses();
+                                },
                               ),
-                              initialValue: _responses['latitude'] == null
-                                  ? ""
-                                  : _responses['latitude'].toString(),
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                      signed: true, decimal: true),
-                              // readOnly: true,
-                              validator: (value) {
-                                final number = num.tryParse(value!);
-                                if (number == null) {
-                                  return S.current.notANumber;
-                                }
-                                if (number < -90 || number > 90) {
-                                  return S.current.invalidRange;
-                                }
-                                return null;
-                              },
-                              onSaved: (value) =>
-                                  _responses['latitude'] = num.parse(value!),
-                              onChanged: (value) {
-                                final numeric = num.tryParse(value);
-                                if (numeric == null) return;
-                                setState(
-                                    () => _responses['latitude'] = numeric);
-                                _updateAddresses();
-                              },
                             ),
-                          ),
-                          Text(
-                            _responses['latitude'] == null
-                                ? ""
-                                : decimalDegreesToDMS(
-                                    _responses['latitude'], 'lat'),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ]),
+                            Text(
+                              _responses['latitude'] == null
+                                  ? ""
+                                  : decimalDegreesToDMS(
+                                      _responses['latitude'],
+                                      'lat',
+                                    ),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(children: [
-                          Expanded(
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                labelText: S.current.longitude,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: S.current.longitude,
+                                ),
+                                initialValue: _responses['longitude'] == null
+                                    ? ""
+                                    : _responses['longitude'].toString(),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      signed: true,
+                                      decimal: true,
+                                    ),
+                                // readOnly: true,
+                                validator: (value) {
+                                  final number = num.tryParse(value!);
+                                  if (number == null) {
+                                    return S.current.notANumber;
+                                  }
+                                  if (number < -180 || number > 180) {
+                                    return S.current.invalidRange;
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) =>
+                                    _responses['longitude'] = num.parse(value!),
+                                onChanged: (value) {
+                                  final numeric = num.tryParse(value);
+                                  if (numeric == null) return;
+                                  setState(
+                                    () => _responses['longitude'] = numeric,
+                                  );
+                                  _updateAddresses();
+                                  // longitudeWidget.build(context);
+                                },
                               ),
-                              initialValue: _responses['longitude'] == null
-                                  ? ""
-                                  : _responses['longitude'].toString(),
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                      signed: true, decimal: true),
-                              // readOnly: true,
-                              validator: (value) {
-                                final number = num.tryParse(value!);
-                                if (number == null) {
-                                  return S.current.notANumber;
-                                }
-                                if (number < -180 || number > 180) {
-                                  return S.current.invalidRange;
-                                }
-                                return null;
-                              },
-                              onSaved: (value) =>
-                                  _responses['longitude'] = num.parse(value!),
-                              onChanged: (value) {
-                                final numeric = num.tryParse(value);
-                                if (numeric == null) return;
-                                setState(
-                                    () => _responses['longitude'] = numeric);
-                                _updateAddresses();
-                                // longitudeWidget.build(context);
-                              },
                             ),
-                          ),
-                          Text(
-                            _responses['longitude'] == null
-                                ? ""
-                                : decimalDegreesToDMS(
-                                    _responses['longitude'], 'long'),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ]),
+                            Text(
+                              _responses['longitude'] == null
+                                  ? ""
+                                  : decimalDegreesToDMS(
+                                      _responses['longitude'],
+                                      'long',
+                                    ),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -404,7 +429,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 decoration: InputDecoration(
                                   labelText: S.current.location,
                                 ),
-                                value: _responses['location'],
+                                initialValue: _responses['location'],
                                 items: List.generate(
                                   _possibleLocations.length,
                                   (index) => DropdownMenuItem(
@@ -416,63 +441,69 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                   ),
                                 ),
                                 onChanged: (dynamic newItem) => setState(
-                                    () => _responses['location'] = newItem),
+                                  () => _responses['location'] = newItem,
+                                ),
                                 validator: (dynamic value) => value == null
                                     ? S.current.valueCannotBeNull
                                     : (value.isEmpty
-                                        ? S.current.valueCannotBeEmpty
-                                        : null),
+                                          ? S.current.valueCannotBeEmpty
+                                          : null),
                                 onSaved: (dynamic value) =>
                                     _responses['location'] = value,
                               ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(children: [
-                          Expanded(
-                            child: DropdownButtonFormField<DocumentReference>(
-                              isExpanded: true,
-                              isDense: false,
-                              decoration: InputDecoration(
-                                labelText: S.current.equipmentUsed,
-                              ),
-                              value: _responses['equipment'],
-                              items: _equipments.isEmpty
-                                  ? []
-                                  : List.generate(
-                                      _equipments.length,
-                                      (index) => DropdownMenuItem(
-                                        value: _equipments[index].reference,
-                                        child: _equipments[index],
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<DocumentReference>(
+                                isExpanded: true,
+                                isDense: false,
+                                decoration: InputDecoration(
+                                  labelText: S.current.equipmentUsed,
+                                ),
+                                initialValue: _responses['equipment'],
+                                items: _equipments.isEmpty
+                                    ? []
+                                    : List.generate(
+                                        _equipments.length,
+                                        (index) => DropdownMenuItem(
+                                          value: _equipments[index].reference,
+                                          child: _equipments[index],
+                                        ),
                                       ),
-                                    ),
-                              onChanged: (newItem) => setState(
-                                  () => _responses['equipment'] = newItem),
-                              validator: (value) => value == null
-                                  ? S.current.valueCannotBeNull
-                                  : null,
-                              onSaved: (value) =>
-                                  _responses['equipment'] = value,
+                                onChanged: (newItem) => setState(
+                                  () => _responses['equipment'] = newItem,
+                                ),
+                                validator: (value) => value == null
+                                    ? S.current.valueCannotBeNull
+                                    : null,
+                                onSaved: (value) =>
+                                    _responses['equipment'] = value,
+                              ),
                             ),
-                          ),
-                          IconButton(
+                            IconButton(
                               icon: const Icon(Icons.add_link),
-                              onPressed: () =>
-                                  Equipment.addEquipment(context).then(
-                                    (v) async {
-                                      while (!context.mounted) {
-                                        await Future.delayed(
-                                            const Duration(milliseconds: 100));
-                                      }
-                                      if (!context.mounted) {
-                                        Exception("Context not mounted");
-                                        return;
-                                      }
-                                      _loadEquipment(context, force: true)
-                                          .then((v) => setState(() {}));
-                                    },
-                                  )),
-                        ]),
+                              onPressed: () => Equipment.addEquipment(context)
+                                  .then((v) async {
+                                    while (!context.mounted) {
+                                      await Future.delayed(
+                                        const Duration(milliseconds: 100),
+                                      );
+                                    }
+                                    if (!context.mounted) {
+                                      Exception("Context not mounted");
+                                      return;
+                                    }
+                                    _loadEquipment(
+                                      context,
+                                      force: true,
+                                    ).then((v) => setState(() {}));
+                                  }),
+                            ),
+                          ],
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -484,72 +515,84 @@ class _AddObservationPageState extends State<AddObservationPage> {
                           readOnly: true,
                           onTap: () async {
                             await showDatePicker(
-                                    context: context,
-                                    initialDate: _responses['dateTime'],
-                                    firstDate: DateTime(1900),
-                                    lastDate: DateTime.now())
-                                .then((date) async {
+                              context: context,
+                              initialDate: _responses['dateTime'],
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            ).then((date) async {
                               if (date == null) return;
                               while (!context.mounted) {
                                 await Future.delayed(
-                                    const Duration(milliseconds: 100));
+                                  const Duration(milliseconds: 100),
+                                );
                               }
                               if (!context.mounted) {
                                 Exception("Context not mounted");
                                 return;
                               }
                               final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.fromDateTime(
-                                      _responses['dateTime']));
+                                context: context,
+                                initialTime: TimeOfDay.fromDateTime(
+                                  _responses['dateTime'],
+                                ),
+                              );
                               if (time == null) return;
 
-                              _responses['dateTime'] = DateTime(date.year,
-                                  date.month, date.day, time.hour, time.minute);
-                              setState(() => _dateTimeController.text =
-                                  DateFormat('dd MMM, yyyy HH:mm')
-                                      .format(_responses['dateTime']));
+                              _responses['dateTime'] = DateTime(
+                                date.year,
+                                date.month,
+                                date.day,
+                                time.hour,
+                                time.minute,
+                              );
+                              setState(
+                                () => _dateTimeController.text = DateFormat(
+                                  'dd MMM, yyyy HH:mm',
+                                ).format(_responses['dateTime']),
+                              );
                             });
                           },
                           validator: (value) =>
                               value!.isEmpty ? S.current.cannotBeEmpty : null,
                         ),
                       ),
-                      Row(children: [
-                        Expanded(
-                          child: SliderOption(
-                            S.current.seeing,
-                            (value) => _responses['seeing'] = value,
-                            initialValue: _responses['seeing'] ?? 0,
-                            minValue: 1.0,
-                            maxValue: 5.0,
-                            divisions: 4,
-                            prefixIcon: Icons.remove_red_eye,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SliderOption(
+                              S.current.seeing,
+                              (value) => _responses['seeing'] = value,
+                              initialValue: _responses['seeing'] ?? 0,
+                              minValue: 1.0,
+                              maxValue: 5.0,
+                              divisions: 4,
+                              prefixIcon: Icons.remove_red_eye,
+                            ),
                           ),
-                        ),
-                        // Expanded(
-                        //   child: SliderOption(
-                        //     "Visibility",
-                        //     (value) => _responses['visibility'] = value,
-                        //     initialValue: _responses['visibility'] ?? 0,
-                        //     minValue: 1.0,
-                        //     maxValue: 5.0,
-                        //     divisions: 4,
-                        //     prefixIcon: Icons.visibility,
-                        //   ),
-                        // ),
-                        Expanded(
-                          child: SliderOption(
-                            S.current.transparency,
-                            (value) => _responses['transparency'] = value,
-                            initialValue: _responses['transparency'] ?? 0,
-                            minValue: 1.0,
-                            maxValue: 5.0,
-                            divisions: 4,
-                            prefixIcon: Icons.cloud_circle,
+                          // Expanded(
+                          //   child: SliderOption(
+                          //     "Visibility",
+                          //     (value) => _responses['visibility'] = value,
+                          //     initialValue: _responses['visibility'] ?? 0,
+                          //     minValue: 1.0,
+                          //     maxValue: 5.0,
+                          //     divisions: 4,
+                          //     prefixIcon: Icons.visibility,
+                          //   ),
+                          // ),
+                          Expanded(
+                            child: SliderOption(
+                              S.current.transparency,
+                              (value) => _responses['transparency'] = value,
+                              initialValue: _responses['transparency'] ?? 0,
+                              minValue: 1.0,
+                              maxValue: 5.0,
+                              divisions: 4,
+                              prefixIcon: Icons.cloud_circle,
+                            ),
                           ),
-                        ),
-                      ]),
+                        ],
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 5),
                         child: Row(
@@ -576,48 +619,49 @@ class _AddObservationPageState extends State<AddObservationPage> {
                                 itemCount: _responses['notes'].length,
                                 itemBuilder: (context, index) => Dismissible(
                                   key: Key(_responses['notes'][index]),
-                                  background: Container(
-                                    color: Colors.red,
-                                  ),
+                                  background: Container(color: Colors.red),
                                   child: ListTile(
                                     leading: Text("${index + 1}"),
                                     title: Text(_responses['notes'][index]),
                                     onTap: () => _addNote(context, index),
                                   ),
-                                  onDismissed: (event) => setState(() =>
-                                      _responses['notes'].removeAt(index)),
+                                  onDismissed: (event) => setState(
+                                    () => _responses['notes'].removeAt(index),
+                                  ),
                                 ),
                               ),
                       ),
                       Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            ElevatedButton.icon(
-                              label: Text(S.current.submit),
-                              icon: const Icon(Icons.send_rounded),
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  _formKey.currentState!.save();
-                                  await saveToDB().then((v) async {
-                                    while (!context.mounted) {
-                                      await Future.delayed(
-                                          const Duration(milliseconds: 100));
-                                    }
-                                    if (!context.mounted) {
-                                      Exception("Context not mounted");
-                                      return;
-                                    }
-                                    return v ? Navigator.pop(context) : null;
-                                  });
-                                }
-                              },
-                            ),
-                            ElevatedButton.icon(
-                              label: Text(S.current.cancel),
-                              icon: const Icon(Icons.cancel_rounded),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ]),
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton.icon(
+                            label: Text(S.current.submit),
+                            icon: const Icon(Icons.send_rounded),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                await saveToDB().then((v) async {
+                                  while (!context.mounted) {
+                                    await Future.delayed(
+                                      const Duration(milliseconds: 100),
+                                    );
+                                  }
+                                  if (!context.mounted) {
+                                    Exception("Context not mounted");
+                                    return;
+                                  }
+                                  return v ? Navigator.pop(context) : null;
+                                });
+                              }
+                            },
+                          ),
+                          ElevatedButton.icon(
+                            label: Text(S.current.cancel),
+                            icon: const Icon(Icons.cancel_rounded),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -628,7 +672,8 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
   void _addNote(BuildContext context, [int index = -1]) async {
     final noteController = TextEditingController(
-        text: index == -1 ? null : _responses['notes'][index]);
+      text: index == -1 ? null : _responses['notes'][index],
+    );
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -680,10 +725,12 @@ class _AddObservationPageState extends State<AddObservationPage> {
       await firestore
           .collection('users/${auth.currentUser!.uid}/observations')
           .add(_responses)
-          .then((ref) async => await FirebaseAnalytics.instance.logEvent(
-                name: observation,
-                parameters: {"path": ref.path},
-              ));
+          .then(
+            (ref) async => await FirebaseAnalytics.instance.logEvent(
+              name: observation,
+              parameters: {"path": ref.path},
+            ),
+          );
     } catch (e) {
       // debugPrint(e);
       return false;
@@ -704,16 +751,22 @@ class _AddObservationPageState extends State<AddObservationPage> {
     if (permission == gps.PermissionStatus.granted ||
         permission == gps.PermissionStatus.grantedLimited) {
       final value = await location.getLocation().timeout(
-          const Duration(seconds: 5),
-          onTimeout: () =>
-              gps.LocationData.fromMap({'latitude': 0, 'longitude': 0}));
+        const Duration(seconds: 5),
+        onTimeout: () =>
+            gps.LocationData.fromMap({'latitude': 0, 'longitude': 0}),
+      );
       final temp = DateTime.fromMillisecondsSinceEpoch(value.time!.toInt());
       if (mounted) {
         setState(() {
           _responses['latitude'] = value.latitude;
           _responses['longitude'] = value.longitude;
-          _responses['dateTime'] =
-              DateTime(temp.year, temp.month, temp.day, temp.hour, temp.minute);
+          _responses['dateTime'] = DateTime(
+            temp.year,
+            temp.month,
+            temp.day,
+            temp.hour,
+            temp.minute,
+          );
         });
       }
 
@@ -729,15 +782,18 @@ class _AddObservationPageState extends State<AddObservationPage> {
 
   Future<void> _updateAddresses() async {
     try {
-      final places = await placemarkFromCoordinates(
-          _responses['latitude'], _responses['longitude']);
+      final places = await Geocoding().placemarkFromCoordinates(
+        (_responses['latitude'] as num).toDouble(),
+        (_responses['longitude'] as num).toDouble(),
+      );
       if (mounted) {
         setState(() {
           _possibleLocations = List.generate(
-              places.length,
-              (index) =>
-                  "${places[index].name!}, ${places[index].subLocality!}, ${places[index].locality!}, ${places[index].country!} ${places[index].postalCode!}",
-              growable: false);
+            places.length,
+            (index) =>
+                "${places[index].name!}, ${places[index].locality!}, ${places[index].country!} ${places[index].postalCode!}",
+            growable: false,
+          );
         });
       }
     } catch (e) {
@@ -761,8 +817,10 @@ class _AddObservationPageState extends State<AddObservationPage> {
   }
 
   /// Get the list of user's equipment from DB
-  Future<void> _loadEquipment(BuildContext context,
-      {bool force = false}) async {
+  Future<void> _loadEquipment(
+    BuildContext context, {
+    bool force = false,
+  }) async {
     if (_equipments.isNotEmpty && !force) return;
 
     final firestore = FirebaseFirestore.instance;
@@ -771,8 +829,9 @@ class _AddObservationPageState extends State<AddObservationPage> {
       final docs = await firestore
           .collection('users/${auth.currentUser!.uid}/equipments')
           .get();
-      _equipments =
-          docs.docs.map((query) => Equipment.fromQuery(query)).toList();
+      _equipments = docs.docs
+          .map((query) => Equipment.fromQuery(query))
+          .toList();
       return;
     } catch (e) {
       // debugPrint(e);

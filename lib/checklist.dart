@@ -62,7 +62,7 @@ class CheckList extends StatelessWidget {
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection(
-                    'users/${FirebaseAuth.instance.currentUser!.uid}/checklist')
+                    'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/checklist')
                 .snapshots(),
             builder: (context, snap) {
               if (!snap.hasData) {

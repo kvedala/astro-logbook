@@ -8,7 +8,7 @@ import 'ra_dec.dart';
 Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
   final data = await rootBundle.loadString("assets/messier.csv");
 
-  var out1 = const CsvToListConverter().convert(data);
+  var out1 = csv.decode(data);
   out1.removeAt(0);
   final out2 = out1.map<Messier>((item) {
     final ra = item[4] as String;
@@ -50,7 +50,7 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
 Future<QuerySnapshot<Map<String, dynamic>>> uploadNGC() async {
   final data = await rootBundle.loadString("assets/NGCObjects.csv");
 
-  var out1 = const CsvToListConverter().convert(data);
+  var out1 = csv.decode(data);
   out1.removeAt(0);
   final out2 = out1.map<NGC>((item) {
     return NGC(

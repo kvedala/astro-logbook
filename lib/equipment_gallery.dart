@@ -12,7 +12,7 @@ class EquipmentGallery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userID = FirebaseAuth.instance.currentUser!.uid;
+    final userID = FirebaseAuth.instance.currentUser?.uid ?? '';
     return Column(
       children: [
         StreamBuilder(

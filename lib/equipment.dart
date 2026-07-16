@@ -166,7 +166,7 @@ class Equipment extends StatelessWidget {
               reference == null
                   ? await FirebaseFirestore.instance
                       .collection(
-                          'users/${FirebaseAuth.instance.currentUser!.uid}/equipments')
+                          'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/equipments')
                       .add(data)
                       .then((ref) async {
                       while (!context.mounted) {

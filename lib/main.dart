@@ -13,35 +13,36 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // await uploadMessier();
-  // await uploadNGC();
-
-  // check if is running on Web
-  if (kIsWeb) {
-    // initialiaze the facebook javascript SDK
-    FacebookAuth.i.webAndDesktopInitialize(
-      appId: "437381314078679",
-      cookie: true,
-      xfbml: true,
-      version: "v12.0",
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
     );
+    if (kIsWeb) {
+      try {
+        FacebookAuth.i.webAndDesktopInitialize(
+          appId: "437381314078679",
+          cookie: true,
+          xfbml: true,
+          version: "v12.0",
+        );
+      } catch (e) {
+        debugPrint('Facebook init error: $e');
+      }
+    }
+    await S.load(Locale.fromSubtags(languageCode: 'en'));
+  } catch (e) {
+    debugPrint('Initialization error: $e');
   }
-  await S.load(Locale.fromSubtags(
-      languageCode: 'en')); // You need this before everything else
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // debugShowCheckedModeBanner: false,
-      title: S.current.appTitle,
+      title: 'astro_log',
       darkTheme: ThemeData.from(
         colorScheme: ColorScheme.dark(
           primary: Colors.red[900]!,
@@ -69,12 +70,14 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: ThemeMode.dark,
-      // home: MyHomePage(title: 'Astronomy Log Book'),
-      initialRoute: MyRoutes.signInPageRoute,
       routes: MyRoutes.routeMap,
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-      ],
+      navigatorObservers: kIsWeb
+          ? []
+          : [
+              FirebaseAnalyticsObserver(
+                analytics: FirebaseAnalytics.instance,
+              ),
+            ],
       localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,

@@ -3,44 +3,51 @@ description: Keep logs of your astronomical observations.
 publish_to: none
 version: 2.7.1+303
 environment:
-  sdk: ">=3.5.0 <4.0.0"
+  sdk: ">=3.8.0 <4.0.0"
 dependencies:
   flutter:
     sdk: flutter
-  pdf: ^3.10.0
+  pdf: ^3.12.0
   intl: ^0.20.2
-  location: ^8.0.0
-  printing: ^5.11.0
-  geocoding: ^4.0.0
-  firebase_core: ^3.1.1
-  cloud_firestore: ^5.0.2
-  firebase_auth: ^5.1.1
-  firebase_analytics: ^11.1.0
-  google_sign_in: ^6.1.4
-  flutter_signin_button: ^2.0.0
-  sign_in_with_apple: ^7.0.1
-  flutter_facebook_auth: ^7.0.1
-  cupertino_icons: ^1.0.5
-  ionicons: ^0.2.2
-  collection: ^1.19.0
-  crypto: ^3.0.3
-  csv: ^6.0.0
-  flutter_inappwebview: ^6.0.0-beta.24+1
-  package_info_plus: ^8.0.0
+  location: ^9.0.0
+  printing: ^5.14.3
+  geocoding: ^5.0.0
+  firebase_core: ^4.10.0
+  cloud_firestore: ^6.5.0
+  firebase_auth: ^6.5.2
+  firebase_analytics: ^12.4.2
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.1.0
+  flutter_facebook_auth: ^7.1.2
+  cupertino_icons: ^1.0.9
+  collection: ^1.19.1
+  crypto: ^3.0.7
+  csv: ^8.0.0
+  flutter_inappwebview: ^6.1.5
+  package_info_plus: ^10.1.0
   flutter_localizations:
     sdk: flutter
+  json_annotation: ^4.12.0
+  cached_network_image: ^3.4.1
+  get: ^4.7.3
+  firebase_crashlytics: ^5.2.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.14.2
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
-# flutter_icons:
-#   android: launcher_icon
-#   ios: true
-#   remove_alpha_ios: true
-#   image_path: images/logo.png
-#   web:
-#     generate: true
+  build_runner: ^2.15.0
+  json_serializable: ^6.14.0
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "images/logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+
 flutter:
   generate: true
   uses-material-design: true

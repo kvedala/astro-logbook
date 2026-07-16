@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'checklist.dart';
@@ -45,7 +44,7 @@ final tabNames = [
         Navigator.pushNamed(context, MyRoutes.addObservationPageRoute),
   ),
   MyTab(
-    const Icon(Ionicons.telescope),
+    const Icon(Icons.travel_explore),
     (context) => S.current.equipment,
     const EquipmentGallery(),
     (BuildContext context) async => await Equipment.addEquipment(context),
@@ -94,9 +93,9 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
         ),
         ListTile(
           leading: const Icon(Icons.account_circle, size: 40),
-          title: Text(FirebaseAuth.instance.currentUser!.displayName ??
+          title: Text(FirebaseAuth.instance.currentUser?.displayName ??
               S.current.noDisplayNameAvailable),
-          subtitle: Text(FirebaseAuth.instance.currentUser!.email ??
+          subtitle: Text(FirebaseAuth.instance.currentUser?.email ??
               S.current.noPublicEmailAvailable),
         ),
         ...tabNames.map(

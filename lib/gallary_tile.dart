@@ -562,7 +562,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
   void _deleteObservation(BuildContext context) async {
     final store = FirebaseFirestore.instance;
     final collectionPath =
-        'users/${FirebaseAuth.instance.currentUser!.uid}/observations/';
+        'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations/';
     await store
         .collection(collectionPath)
         .where('title', isEqualTo: widget.tile.title)

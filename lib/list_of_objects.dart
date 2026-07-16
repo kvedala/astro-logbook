@@ -50,7 +50,7 @@ class ListOfObjects extends StatelessWidget {
             return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
               future: FirebaseFirestore.instance
                   .collection(
-                      "users/${FirebaseAuth.instance.currentUser!.uid}/observations")
+                      "users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations")
                   // .where("messier", isGreaterThan: 0)
                   .get(const GetOptions(source: Source.cache)),
               builder: (context, snap3) => snap3.connectionState !=
