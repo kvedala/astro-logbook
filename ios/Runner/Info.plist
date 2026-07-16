@@ -43,8 +43,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FacebookAppID</key>
 	<string>437381314078679</string>
-    <key>FacebookClientToken</key>
-    <string>b43e8595ee67c824919c164eff3ec0bb</string>
+	<key>FacebookClientToken</key>
+	<string>b43e8595ee67c824919c164eff3ec0bb</string>
 	<key>FacebookDisplayName</key>
 	<string>Astronomy Logbook</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -58,16 +58,37 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you and for computation of rise and setting times of various celestial objects.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Please provide access to your GPS so that the app can pre-fill your coordinates for you and for computation of rise and setting times of various celestial objects.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDarkContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

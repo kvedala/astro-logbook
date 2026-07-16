@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
 import 'confirm_dialog.dart';
+import 'generated/l10n.dart';
 import 'utils.dart';
 import 'equipment.dart';
 import 'add_observation.dart';
@@ -81,7 +82,7 @@ class GallaryTile extends StatefulWidget {
   });
 
   /// Generate a gallery tile using data from [ObservationData] object.
-  GallaryTile.fromObservation(ObservationData data, {Key? key, this.reference})
+  GallaryTile.fromObservation(ObservationData data, {super.key, this.reference})
       : title = data.title,
         filePath = data.fileName,
         image = null,
@@ -95,8 +96,7 @@ class GallaryTile extends StatefulWidget {
         latitude = data.latitude,
         longitude = data.longitude,
         location = data.location,
-        equipment = data.equipment,
-        super(key: key);
+        equipment = data.equipment;
 
   @override
   State<GallaryTile> createState() => _GallaryTileState();
@@ -135,17 +135,17 @@ class _GallaryTileState extends State<GallaryTile> {
                 widget.messier == null
                     ? const SizedBox()
                     : Text(
-                        "Messier# ${widget.messier}",
+                        "${S.current.messierNumber} ${widget.messier}",
                         style: const TextStyle(fontSize: 15),
                       ),
                 widget.ngc == null
                     ? const SizedBox()
                     : Text(
-                        "NGC# ${widget.ngc}",
+                        "${S.current.ngcNumber} ${widget.ngc}",
                         style: const TextStyle(fontSize: 15),
                       ),
                 Text(
-                  "Observation Date: ${widget.time!.yMMMd} ${widget.time!.hourMinute} (${widget.time!.timeZoneName})",
+                  "${S.current.observationDate} ${widget.time!.yMMMd} ${widget.time!.hourMinute} (${widget.time!.timeZoneName})",
                   style: const TextStyle(fontSize: 15),
                 ),
               ],
@@ -219,6 +219,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
       lastDate: DateTime.now(),
     ).then((newDate) async {
       if (newDate == null) return;
+      while (!context.mounted) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      if (!context.mounted) {
+        Exception("Context not mounted");
+        return;
+      }
       await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(widget.tile.time!),
@@ -226,7 +233,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
         if (newTime == null) return;
         newDate = newDate!
             .add(Duration(hours: newTime.hour, minutes: newTime.minute));
-
+        while (!context.mounted) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        if (!context.mounted) {
+          Exception("Context not mounted");
+          return;
+        }
         await confirmDialog(context, 'New Time: $newDate').then((v) {
           if (v != ConfirmAction.accept) return;
           widget.tableItems[key].text =
@@ -246,19 +259,19 @@ class _ShowDetailsState extends State<_ShowDetails> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editing "$key"'),
+        title: Text('${S.current.editing} "$key"'),
         contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
         content: TextField(controller: newValue),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: Text(S.current.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text('Save'),
+            child: Text(S.current.save),
             onPressed: () {
-              confirmDialog(context, 'New Value: ${newValue.text}')
-                  .then((value) {
+              confirmDialog(context, '${S.current.newValue}: ${newValue.text}')
+                  .then((value) async {
                 if (value != ConfirmAction.accept) return;
                 widget.tableItems[key].runtimeType == TextEditingController
                     ? widget.tableItems[key].text = newValue.text
@@ -266,6 +279,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
                 setState(() {});
                 widget.tile.reference!
                     .update({key.toLowerCase(): newValue.text});
+                while (!context.mounted) {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                }
+                if (!context.mounted) {
+                  Exception("Context not mounted");
+                  return;
+                }
                 Navigator.pop(context, newValue.text);
               });
             },
@@ -287,7 +307,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editing "$key"'),
+        title: Text('${S.current.editing} "$key"'),
         contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
         content: TextField(
           controller: newValue,
@@ -295,18 +315,18 @@ class _ShowDetailsState extends State<_ShowDetails> {
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: Text(S.current.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text('Save'),
+            child: Text(S.current.save),
             onPressed: () {
               final v = key == 'Latitude' || key == 'Longitude'
                   ? num.tryParse(newValue.text)
                   : int.tryParse(newValue.text);
               if (v == null) return;
-              confirmDialog(context, 'New Value: ${newValue.text}')
-                  .then((value) {
+              confirmDialog(context, '${S.current.newValue}: ${newValue.text}')
+                  .then((value) async {
                 if (value != ConfirmAction.accept) return;
                 if (key == 'Latitude') {
                   widget.tableItems[key].text = decimalDegreesToDMS(v, 'lat');
@@ -317,6 +337,13 @@ class _ShowDetailsState extends State<_ShowDetails> {
                 }
                 setState(() {});
                 widget.tile.reference!.update({key.toLowerCase(): v});
+                while (!context.mounted) {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                }
+                if (!context.mounted) {
+                  Exception("Context not mounted");
+                  return;
+                }
                 Navigator.pop(context, newValue.text);
               });
             },
@@ -434,19 +461,31 @@ class _ShowDetailsState extends State<_ShowDetails> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: ButtonBar(
+          child: OverflowBar(
             children: [
               ElevatedButton.icon(
                 icon: const Icon(Icons.close_rounded),
-                label: const Text("Close details"),
+                label: Text(S.current.closeDetails),
                 onPressed: () => Navigator.pop(context),
               ),
               ElevatedButton.icon(
                 icon: const Icon(Icons.delete_forever_rounded),
-                label: const Text("Delete observation"),
-                onPressed: () async => (await confirmDeleteTile(context))!
-                    ? _deleteObservation(context)
-                    : null,
+                label: Text(S.current.deleteObservation),
+                onPressed: () async =>
+                    confirmDeleteTile(context).then((e) async {
+                  while (!context.mounted) {
+                    await Future.delayed(const Duration(milliseconds: 100));
+                  }
+                  if (!context.mounted) {
+                    Exception("Context not mounted");
+                    return;
+                  }
+                  return e == null
+                      ? null
+                      : e
+                          ? _deleteObservation(context)
+                          : null;
+                }),
               ),
             ],
           ),
@@ -460,7 +499,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Add note"),
+        title: Text(S.current.addNote),
         content: TextField(
           controller: textController,
           textCapitalization: TextCapitalization.sentences,
@@ -493,7 +532,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Edit note"),
+        title: Text(S.current.editNote),
         content: TextField(
           controller: textController,
           textCapitalization: TextCapitalization.sentences,
@@ -523,38 +562,66 @@ class _ShowDetailsState extends State<_ShowDetails> {
   void _deleteObservation(BuildContext context) async {
     final store = FirebaseFirestore.instance;
     final collectionPath =
-        'users/${FirebaseAuth.instance.currentUser!.uid}/observations/';
-    final result = await store
+        'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations/';
+    await store
         .collection(collectionPath)
         .where('title', isEqualTo: widget.tile.title)
         .where('dateTime', isEqualTo: widget.tile.time)
-        .get();
-    if (result.size != 1) {
+        .get()
+        .then((result) async {
+      while (!context.mounted) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      if (!context.mounted) {
+        Exception("Context not mounted");
+        return;
+      }
+      if (result.size != 1) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Column(children: [
+              Text(S.current.unableToDeleteTheObject),
+              Text(result.toString()),
+            ]),
+          ),
+        );
+        return await Future.delayed(const Duration(seconds: 1), () async {
+          while (!context.mounted) {
+            await Future.delayed(const Duration(milliseconds: 100));
+          }
+          if (!context.mounted) {
+            Exception("Context not mounted");
+            return;
+          }
+          Navigator.pop(context);
+        });
+      }
+      // else clause
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: Column(children: [
-            const Text("Unable to delete the object."),
-            Text(result.toString()),
-          ]),
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
         ),
       );
-      return await Future.delayed(
-          const Duration(seconds: 1), () => Navigator.pop(context));
-    }
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-    selectedTiles.remove(result.docs[0].reference);
-    await store.doc(collectionPath + result.docs[0].id).delete().then((value) {
-      Navigator.pop(context);
-      Navigator.pop(context);
+      selectedTiles.remove(result.docs[0].reference);
+      await store
+          .doc(collectionPath + result.docs[0].id)
+          .delete()
+          .then((value) async {
+        while (!context.mounted) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        if (!context.mounted) {
+          Exception("Context not mounted");
+          return;
+        }
+        Navigator.pop(context);
+        Navigator.pop(context);
+      });
+      return;
     });
-    return;
   }
 }

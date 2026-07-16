@@ -3,15 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'equipment.dart';
+import 'generated/l10n.dart';
 import 'utils.dart';
 
 /// Widget to show a gallery of equipments and add as needed
 class EquipmentGallery extends StatelessWidget {
-  const EquipmentGallery({Key? key}) : super(key: key);
+  const EquipmentGallery({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final userID = FirebaseAuth.instance.currentUser!.uid;
+    final userID = FirebaseAuth.instance.currentUser?.uid ?? '';
     return Column(
       children: [
         StreamBuilder(
@@ -42,31 +43,58 @@ class EquipmentGallery extends StatelessWidget {
                           ),
                         ),
                         confirmDismiss: (dir) async {
-                          final ret = await FirebaseFirestore.instance
+                          return await FirebaseFirestore.instance
                               .collection('users/$userID/observations')
                               .where('equipment',
                                   isEqualTo: snap.data!.docs[index].reference)
                               .limit(1)
                               .get()
-                              .then((doc) => doc.size == 0
-                                  ? confirmDeleteTile(context)
-                                  : null);
-                          if (ret != null) return ret;
+                              .then((doc) async {
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                            } else {
+                              doc.size == 0 ? confirmDeleteTile(context) : null;
+                            }
+                          }).then((ret) async {
+                            if (ret != null) return false;
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                              return false;
+                            }
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                Future.delayed(const Duration(seconds: 2),
+                                    () async {
+                                  while (!context.mounted) {
+                                    await Future.delayed(
+                                        const Duration(milliseconds: 100));
+                                  }
+                                  if (!context.mounted) {
+                                    Exception("Context not mounted");
+                                    return;
+                                  }
+                                  Navigator.pop(context);
+                                });
+                                return Text(
+                                  S
+                                      .of(context)
+                                      .cannotDeleteEquipmentIsBeingReferencedInAnObservation,
+                                  style: const TextStyle(fontSize: 20),
+                                );
+                              },
+                            );
 
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              Future.delayed(const Duration(seconds: 2),
-                                  () => Navigator.pop(context));
-                              return const Text(
-                                "Cannot delete. Equipment is being referenced "
-                                "in an observation.",
-                                style: TextStyle(fontSize: 20),
-                              );
-                            },
-                          );
-
-                          return false;
+                            return false;
+                          });
                         },
                         onDismissed: (dir) async {
                           FirebaseFirestore.instance

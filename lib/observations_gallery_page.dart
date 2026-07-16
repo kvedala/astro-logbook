@@ -21,7 +21,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     super.initState();
     // FirebaseAnalytics.instance.
     FirebaseAnalytics.instance
-        .setCurrentScreen(screenName: "Observations Gallery");
+        .logScreenView(screenName: "Observations Gallery");
   }
 
   @override
@@ -34,7 +34,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
           ? FutureBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
               future: FirebaseFirestore.instance
                   .collection(
-                      'users/${FirebaseAuth.instance.currentUser!.uid}/observations')
+                      'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations')
                   .get()
                   .then((snap) => snap.docs
                       .where((doc) => selectedTiles.contains(doc.reference))
@@ -124,7 +124,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
 
     if (searchState['date'] != null) {
       return firestore
-          .collection('users/${auth.currentUser!.uid}/observations')
+          .collection('users/${auth.currentUser?.uid ?? ''}/observations')
           .where('dateTime', isGreaterThanOrEqualTo: searchState['date'].start)
           .where('dateTime', isLessThanOrEqualTo: searchState['date'].end)
           // .orderBy('dateTime', descending: true)
@@ -132,7 +132,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     } else if (searchState['messier'].isNotEmpty ||
         searchState['ngc'].isNotEmpty) {
       return firestore
-          .collection('users/${auth.currentUser!.uid}/observations')
+          .collection('users/${auth.currentUser?.uid ?? ''}/observations')
           .where('messier', isEqualTo: int.tryParse(searchState['messier']))
           .where('ngc', isEqualTo: int.tryParse(searchState['ngc']))
           // .where('title', arrayContains: stringSearchController.text)
@@ -141,7 +141,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
           .snapshots();
     } else {
       return firestore
-          .collection('users/${auth.currentUser!.uid}/observations')
+          .collection('users/${auth.currentUser?.uid ?? ''}/observations')
           .orderBy('dateTime', descending: true)
           .snapshots();
     }

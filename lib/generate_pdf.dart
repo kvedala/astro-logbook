@@ -9,6 +9,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:flutter/material.dart';
 
+import 'generated/l10n.dart';
 import 'utils.dart';
 
 ///
@@ -16,14 +17,14 @@ class GeneratePDF extends StatelessWidget {
   final List<DocumentReference?> selectedTiles;
 
   GeneratePDF(this.selectedTiles, {super.key}) {
-    FirebaseAnalytics.instance.setCurrentScreen(screenName: "PDF Output");
+    FirebaseAnalytics.instance.logScreenView(screenName: "PDF Output");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Selected observations"),
+        title: Text(S.current.selectedObservations),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _getData(),
@@ -33,7 +34,7 @@ class GeneratePDF extends StatelessWidget {
               )
             : PdfPreview(
                 initialPageFormat: PdfPageFormat.letter,
-                build: (format) => _buildDoc(snap.data),
+                build: (format) => _buildDoc(context, snap.data),
                 pdfFileName: "astrolog_export.pdf",
               ),
       ),
@@ -60,12 +61,13 @@ class GeneratePDF extends StatelessWidget {
     return outData;
   }
 
-  Future<Uint8List> _buildDoc(List<Map<String, dynamic>>? data) {
+  Future<Uint8List> _buildDoc(
+      BuildContext context, List<Map<String, dynamic>>? data) {
     final pdfDocument = pw.Document(
-        title: "Observation Summary",
+        title: S.current.observationSummary,
         author: FirebaseAuth.instance.currentUser!.displayName,
         creator: "Astronomy Logbook",
-        subject: "Astronomy and Stargazing");
+        subject: S.current.astronomyAndStargazing);
 
     pdfDocument.addPage(
       pw.MultiPage(
@@ -76,8 +78,8 @@ class GeneratePDF extends StatelessWidget {
             // pw.Text(DateTime.now().yMMMd),
           ],
         ),
-        build: (context) => data!
-            .map((e) => _observation2Tile(e['data'], e['equipment']))
+        build: (_) => data!
+            .map((e) => _observation2Tile(context, e['data'], e['equipment']))
             .toList(),
       ),
     );
@@ -85,8 +87,8 @@ class GeneratePDF extends StatelessWidget {
     return pdfDocument.save();
   }
 
-  pw.Widget _observation2Tile(
-      Map<String, dynamic> data, Map<String, dynamic> equipment) {
+  pw.Widget _observation2Tile(BuildContext context, Map<String, dynamic> data,
+      Map<String, dynamic> equipment) {
     final DateTime dateTime = data['dateTime'].toDate();
 
     return pw.Container(
@@ -132,7 +134,7 @@ class GeneratePDF extends StatelessWidget {
             ),
             pw.TableRow(
               children: [
-                pw.Text("Location"),
+                pw.Text(S.current.location),
                 pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
@@ -142,42 +144,39 @@ class GeneratePDF extends StatelessWidget {
               ],
             ),
             pw.TableRow(children: [
-              pw.Text("Equipment"),
+              pw.Text(S.current.equipment),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text(equipment['telescope'] +
-                      " (${equipment['aperture']}mm, f/" +
-                      (equipment['focalLength'] / equipment['aperture'])
-                          .toStringAsFixed(1) +
-                      ")"),
+                  pw.Text(
+                      "${equipment['telescope']} (${equipment['aperture']}mm, f/${(equipment['focalLength'] / equipment['aperture']).toStringAsFixed(1)})"),
                   pw.Text(equipment['mount']),
                 ],
               ),
             ]),
             pw.TableRow(
               children: [
-                pw.Text("Sky conditions"),
+                pw.Text(S.current.skyConditions),
                 pw.Table(columnWidths: {
                   0: const pw.FixedColumnWidth(5)
                 }, children: [
                   pw.TableRow(children: [
-                    pw.Text("Seeing:"),
+                    pw.Text("${S.current.seeing}:"),
                     pw.Text("${data['seeing']}")
                   ]),
                   pw.TableRow(children: [
-                    pw.Text("Visibility:"),
+                    pw.Text("${S.current.visibility}:"),
                     pw.Text("${data['visibility']}")
                   ]),
                   pw.TableRow(children: [
-                    pw.Text("Transparency:"),
+                    pw.Text("${S.current.transparency}:"),
                     pw.Text("${data['transparency']}")
                   ]),
                 ]),
               ],
             ),
           ]),
-          pw.Text("Notes: "),
+          pw.Text("${S.current.notes}: "),
           pw.ListView.builder(
             itemCount: data['notes'].length,
             itemBuilder: (context, index) => pw.Bullet(

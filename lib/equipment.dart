@@ -3,6 +3,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'generated/l10n.dart';
+
 /// Get and display equipment details.
 ///
 /// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
@@ -59,7 +61,7 @@ class Equipment extends StatelessWidget {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Add new equipment"),
+        title: Text(S.current.addNewEquipment),
         content: Form(
           key: equipmentKey,
           autovalidateMode: AutovalidateMode.always,
@@ -70,16 +72,16 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Telescope ",
+                    decoration: InputDecoration(
+                      labelText: S.current.telescope,
                     ),
                     initialValue: data['telescope'],
                     keyboardType: TextInputType.name,
                     readOnly: false,
                     validator: (value) => value == null
-                        ? "Canot be NULL"
+                        ? S.current.canotBeNull
                         : value.isEmpty
-                            ? "Cannot be empty"
+                            ? S.current.cannotBeEmpty
                             : null,
                     onSaved: (value) => data['telescope'] = value,
                   ),
@@ -87,8 +89,8 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Telescope Aperture (mm)",
+                    decoration: InputDecoration(
+                      labelText: S.current.telescopeApertureMm,
                     ),
                     initialValue: data['aperture'] == null
                         ? ""
@@ -98,9 +100,9 @@ class Equipment extends StatelessWidget {
                     validator: (value) {
                       num? number = num.tryParse(value!);
                       return number == null
-                          ? "Not a valid number"
+                          ? S.current.notAValidNumber
                           : number < 0
-                              ? "Cannot be negative"
+                              ? S.current.cannotBeNegative
                               : null;
                     },
                     onSaved: (value) => data['aperture'] = num.parse(value!),
@@ -109,8 +111,8 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Focal Length (mm)",
+                    decoration: InputDecoration(
+                      labelText: S.current.focalLengthMm,
                     ),
                     initialValue: data['focalLength'] == null
                         ? ""
@@ -120,9 +122,9 @@ class Equipment extends StatelessWidget {
                     validator: (value) {
                       num? number = num.tryParse(value!);
                       return number == null
-                          ? "Not a valid number"
+                          ? S.current.notAValidNumber
                           : number < 0
-                              ? "Cannot be negative"
+                              ? S.current.cannotBeNegative
                               : null;
                     },
                     onSaved: (value) => data['focalLength'] = num.parse(value!),
@@ -131,16 +133,16 @@ class Equipment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Mount",
+                    decoration: InputDecoration(
+                      labelText: S.current.mount,
                     ),
                     initialValue: data['mount'],
                     keyboardType: TextInputType.name,
                     readOnly: false,
                     validator: (value) => value == null
-                        ? "Cannot be NULL"
+                        ? S.current.cannotBeNull
                         : value.isEmpty
-                            ? "Cannot be empty"
+                            ? S.current.cannotBeEmpty
                             : null,
                     onSaved: (value) => data['mount'] = value,
                   ),
@@ -152,38 +154,66 @@ class Equipment extends StatelessWidget {
         actions: [
           ElevatedButton.icon(
             icon: const Icon(Icons.cancel_rounded),
-            label: const Text("Cancel"),
+            label: Text(S.current.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.done_rounded),
-            label: Text(reference == null ? "Add" : "Update"),
+            label: Text(reference == null ? S.current.add : S.current.update),
             onPressed: () async {
               if (!equipmentKey.currentState!.validate()) return;
               equipmentKey.currentState!.save();
               reference == null
                   ? await FirebaseFirestore.instance
                       .collection(
-                          'users/${FirebaseAuth.instance.currentUser!.uid}/equipments')
+                          'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/equipments')
                       .add(data)
-                      .then((ref) async =>
-                          await FirebaseAnalytics.instance.logEvent(
-                            name: "New Equipment",
-                            parameters: {"path": ref.path},
-                          ))
-                      .whenComplete(() {
+                      .then((ref) async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: S.current.newEquipment,
+                        parameters: {"path": ref.path},
+                      );
+                    }).whenComplete(() async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
                       Navigator.pop(context);
                       returnVal = true;
                     })
                   : await FirebaseFirestore.instance
                       .doc(reference.path)
                       .update(data)
-                      .then((ref) async =>
-                          await FirebaseAnalytics.instance.logEvent(
-                            name: "Updated Equipment",
-                            parameters: {"path": reference.path},
-                          ))
-                      .whenComplete(() {
+                      .then((ref) async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: S.current.updatedEquipment,
+                        parameters: {"path": reference.path},
+                      );
+                    }).whenComplete(() async {
+                      while (!context.mounted) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                      if (!context.mounted) {
+                        Exception("Context not mounted");
+                        return;
+                      }
                       Navigator.pop(context);
                       returnVal = true;
                     });
@@ -219,10 +249,8 @@ class Equipment extends StatelessWidget {
 
     return ListTile(
       visualDensity: VisualDensity.compact,
-      title: Text(dataMap['telescope'] +
-          " (${dataMap['aperture']}mm, f/" +
-          (dataMap['focalLength'] / dataMap['aperture']).toStringAsFixed(1) +
-          ")"),
+      title: Text(
+          "${dataMap['telescope']} (${dataMap['aperture']}mm, f/${(dataMap['focalLength'] / dataMap['aperture']).toStringAsFixed(1)})"),
       subtitle: Text(dataMap['mount']),
       onTap: onTap,
     );

@@ -8,21 +8,23 @@ import 'objects.dart';
 
 /// Page to display the observations as a gallery
 class ListOfObjects extends StatelessWidget {
-  const ListOfObjects({Key? key}) : super(key: key);
+  const ListOfObjects({super.key});
 
   @override
   Widget build(BuildContext context) {
     FirebaseAnalytics.instance
-        .setCurrentScreen(screenName: "List of Messier Objects");
+        .logScreenView(screenName: "List of Messier Objects");
     // print("Test: ${DateTime.utc(1994, 6, 16, 18).JulianDay}"); // must be -2024.75
     return FutureBuilder<gps.LocationData?>(
       future: _getLocation(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return Column(children: const [
-            CircularProgressIndicator(),
-            Text("Getting current GPS location...")
-          ]);
+          return const Center(
+            child: Column(children: [
+              CircularProgressIndicator(),
+              Text("Getting current GPS location...")
+            ]),
+          );
         }
         if (snap.data == null) {
           return const Center(
@@ -40,7 +42,7 @@ class ListOfObjects extends StatelessWidget {
             // if (snap2.connectionState != ConnectionState.done)
             //   return Center(child: CircularProgressIndicator());
             if (snap2.data == null) {
-              return Column(children: const [
+              return const Column(children: [
                 CircularProgressIndicator(),
                 Text("Loading Messier data...")
               ]);
@@ -48,12 +50,12 @@ class ListOfObjects extends StatelessWidget {
             return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
               future: FirebaseFirestore.instance
                   .collection(
-                      "users/${FirebaseAuth.instance.currentUser!.uid}/observations")
+                      "users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations")
                   // .where("messier", isGreaterThan: 0)
                   .get(const GetOptions(source: Source.cache)),
               builder: (context, snap3) => snap3.connectionState !=
                       ConnectionState.done
-                  ? Column(children: const [
+                  ? const Column(children: [
                       CircularProgressIndicator(),
                       Text("Loading viewed data...")
                     ])

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
+import 'generated/l10n.dart';
 import 'ra_dec.dart';
 import 'rise_times.dart';
 
@@ -104,11 +105,11 @@ abstract class Catalog extends StatelessWidget {
           riseTimes == null
               ? const SizedBox()
               : riseTimes!.circumpolar
-                  ? const Text("Circumpolar")
+                  ? Text(S.current.circumpolar)
                   : riseTimes!.belowHorizon
-                      ? const Text("Below Horizon")
+                      ? Text(S.current.belowHorizon)
                       : Text(
-                          "Rise: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
+                          "${S.current.rise}: ${DateFormat("HH:mm").format(riseTimes!.riseTime!)}"),
         ]),
         TableRow(children: [
           Text("DEC: ${dec.toString()}"),
@@ -118,7 +119,7 @@ abstract class Catalog extends StatelessWidget {
               : (riseTimes!.circumpolar | riseTimes!.belowHorizon)
                   ? const SizedBox()
                   : Text(
-                      "Set: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
+                      "${S.current.set}: ${DateFormat("HH:mm").format(riseTimes!.setTime!)}"),
         ]),
       ]),
       trailing: visible,
@@ -131,19 +132,13 @@ abstract class Catalog extends StatelessWidget {
 /// Convenience class to store Messier Objects.
 /// Displays as a list tile.
 class Messier extends Catalog {
-  Messier(int id, String type, RightAscession ra, Declination dec,
+  Messier(super.id, String type, super.ra, super.dec,
       {super.key,
-      String? difficulty,
-      num? magnitude,
-      bool viewed = false,
-      gps.LocationData? currentLocation})
-      : super(id, ra, dec,
-            name: "Messier",
-            difficulty: difficulty,
-            type: type,
-            magnitude: magnitude,
-            viewed: viewed,
-            currentLocation: currentLocation);
+      super.difficulty,
+      super.magnitude,
+      super.viewed,
+      super.currentLocation})
+      : super(name: "Messier", type: type);
 
   factory Messier.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {
@@ -162,19 +157,13 @@ class Messier extends Catalog {
 /// Convenience class to store NGC Objects.
 /// Displays as a list tile.
 class NGC extends Catalog {
-  NGC(int id, String type, RightAscession ra, Declination dec,
+  NGC(super.id, String type, super.ra, super.dec,
       {super.key,
-      String? difficulty,
-      num? magnitude,
-      bool viewed = false,
-      gps.LocationData? currentLocation})
-      : super(id, ra, dec,
-            name: "NGC",
-            difficulty: difficulty,
-            type: type,
-            magnitude: magnitude,
-            viewed: viewed,
-            currentLocation: currentLocation);
+      super.difficulty,
+      super.magnitude,
+      super.viewed,
+      super.currentLocation})
+      : super(name: "NGC", type: type);
 
   factory NGC.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {
@@ -193,19 +182,13 @@ class NGC extends Catalog {
 /// Convenience class to store Caldwell Objects.
 /// Displays as a list tile.
 class Caldwell extends Catalog {
-  Caldwell(int id, String type, RightAscession ra, Declination dec,
+  Caldwell(super.id, String type, super.ra, super.dec,
       {super.key,
-      String? difficulty,
-      num? magnitude,
-      bool viewed = false,
-      gps.LocationData? currentLocation})
-      : super(id, ra, dec,
-            name: "Caldwell",
-            difficulty: difficulty,
-            type: type,
-            magnitude: magnitude,
-            viewed: viewed,
-            currentLocation: currentLocation);
+      super.difficulty,
+      super.magnitude,
+      super.viewed,
+      super.currentLocation})
+      : super(name: "Caldwell", type: type);
 
   factory Caldwell.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {

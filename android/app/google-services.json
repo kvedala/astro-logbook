@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "703059723550-i8om003b51m9lc989er8o82s9r69bagk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vedalaholdings.astro_log",
+            "certificate_hash": "12ecbbd6ee7999662558cb0790cc26dfe6dfde4c"
+          }
+        },
+        {
           "client_id": "703059723550-lhjug8il1bos0sl52b8ebr181rsra2jg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -35,6 +43,14 @@
           "android_info": {
             "package_name": "com.vedalaholdings.astro_log",
             "certificate_hash": "df705d3013adb3ec1bbd430f2bfcf0e93c48738a"
+          }
+        },
+        {
+          "client_id": "703059723550-vq6nf8q16qpfg1oephbkdhomqj3uc6ka.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vedalaholdings.astro_log",
+            "certificate_hash": "daf6a6c27e3bf0562fb836ae15db3f465b4ecaf2"
           }
         },
         {

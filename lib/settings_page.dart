@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
+
+import 'generated/l10n.dart';
 
 /// Page to display the observations as a gallery
 class SettingsPage extends StatelessWidget {
@@ -11,15 +12,16 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
-    final collectionRoot = 'users/${FirebaseAuth.instance.currentUser!.uid}';
+    final collectionRoot = 'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}';
 
     return Column(mainAxisSize: MainAxisSize.max, children: [
       Expanded(
         child: Column(mainAxisSize: MainAxisSize.max, children: [
-          Text("User Stats", style: Theme.of(context).textTheme.headlineSmall),
+          Text(S.current.userStats,
+              style: Theme.of(context).textTheme.headlineSmall),
           Table(children: [
             TableRow(children: [
-              Text("Number of Observations:",
+              Text("${S.current.numberOfObservations}:",
                   style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
@@ -37,7 +39,7 @@ class SettingsPage extends StatelessWidget {
               ),
             ]),
             TableRow(children: [
-              Text("Number of Equipment:",
+              Text("${S.current.numberOfEquipment}:",
                   style: Theme.of(context).textTheme.titleMedium),
               FutureBuilder<AggregateQuerySnapshot>(
                 future: store
@@ -59,24 +61,23 @@ class SettingsPage extends StatelessWidget {
       ),
       ElevatedButton.icon(
         icon: const Icon(Icons.person_remove),
-        label: const Text("Delete Account"),
+        label: Text(S.current.deleteAccount),
         onPressed: () => showDialog<bool?>(
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            icon: const Icon(Ionicons.alert_circle),
-            title: const Text("Delete Account"),
-            content: const Text(
-                "Are you sure you want to delete your account? This action cannot be undone."),
+            icon: const Icon(Icons.warning_amber_rounded),
+            title: Text(S.current.deleteAccount),
+            content: Text(S.current.areYouSureYouWantToDeleteYourAccountThis),
             actions: [
               ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context, true),
                   icon: const Icon(Icons.done),
-                  label: const Text("Delete")),
+                  label: Text(S.current.delete)),
               ElevatedButton.icon(
                   icon: const Icon(Icons.cancel),
                   onPressed: () => Navigator.pop(context, false),
-                  label: const Text("Cancel")),
+                  label: Text(S.current.cancel)),
             ],
           ),
         ).then((result) {
@@ -100,15 +101,48 @@ class SettingsPage extends StatelessWidget {
                 .toList(growable: false),
           }).then(
               (value) => auth.currentUser!.reload().then(
-                  (_) => auth.currentUser!.delete().then(
-                      (_) => Navigator.pushReplacementNamed(context, '/'),
-                      onError: (e) => ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(
-                              content: Text(e.toString().split("] ").last)))),
-                  onError: (e) => ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())))),
-              onError: (e) => ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(e.toString()))));
+                      (_) => auth.currentUser!.delete().then((_) async {
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                              return;
+                            }
+                            Navigator.pushReplacementNamed(context, '/');
+                          }, onError: (e) async {
+                            while (!context.mounted) {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
+                            }
+                            if (!context.mounted) {
+                              Exception("Context not mounted");
+                              return;
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(e.toString().split("] ").last)));
+                          }), onError: (e) async {
+                    while (!context.mounted) {
+                      await Future.delayed(const Duration(milliseconds: 100));
+                    }
+                    if (!context.mounted) {
+                      Exception("Context not mounted");
+                      return;
+                    }
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(e.toString())));
+                  }), onError: (e) async {
+            while (!context.mounted) {
+              await Future.delayed(const Duration(milliseconds: 100));
+            }
+            if (!context.mounted) {
+              Exception("Context not mounted");
+              return;
+            }
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(e.toString())));
+          });
         }),
       )
     ]);

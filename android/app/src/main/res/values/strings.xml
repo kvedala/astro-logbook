@@ -4,4 +4,6 @@
     <string name="facebook_app_id">437381314078679</string>
     <string name="facebook_client_token">b43e8595ee67c824919c164eff3ec0bb</string>
     <!-- <string name="fb_login_protocol_scheme">fb437381314078679</string> -->
+    <!-- Must be the WEB client ID (client_type 3) from google-services.json -->
+    <string name="default_web_client_id">703059723550-cbb9tamahrr7h8m4lr3l32luqee9ac7d.apps.googleusercontent.com</string>
 </resources>

@@ -45,7 +45,7 @@ extension CheckExtension on DateTime {
 Future<bool?> confirmDeleteTile(BuildContext context) =>
     showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => ButtonBar(
+      builder: (context) => OverflowBar(
         children: [
           // Expanded(
           //     child: Text(
