@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'generated/l10n.dart';
@@ -194,7 +200,9 @@ class _SignInPageState extends State<SignInPage> {
       } catch (e) {
         debugPrint('Web Google sign-in error: $e');
         _setLoadingState(google: false);
-        _showError('Google Sign-In Error', e.toString());
+        if (!_isCancellation(e)) {
+          _showError('Google Sign-In Error', e.toString());
+        }
       }
       return;
     }
@@ -215,19 +223,33 @@ class _SignInPageState extends State<SignInPage> {
         _setLoadingState(google: false);
         _navigateToHome();
       }
-    } on FirebaseAuthException catch (error) {
-      debugPrint('Google sign-in error: $error');
-      _setLoadingState(google: false);
-      if (error.code != 'canceled' &&
-          error.code != 'web-context-canceled' &&
-          error.code != 'popup-closed-by-user') {
-        _showError('Google Sign-In Error', error.toString());
-      }
     } catch (error) {
       debugPrint('Google sign-in error: $error');
       _setLoadingState(google: false);
-      _showError('Google Sign-In Error', error.toString());
+      if (!_isCancellation(error)) {
+        _showError('Google Sign-In Error', error.toString());
+      }
     }
+  }
+
+  /// True when the user dismissed the provider's sign-in UI
+  bool _isCancellation(Object error) {
+    const cancelCodes = {
+      'canceled',
+      'cancelled',
+      'web-context-canceled',
+      'web-context-cancelled',
+      'popup-closed-by-user',
+      'cancelled-popup-request',
+    };
+    if (error is FirebaseAuthException) {
+      return cancelCodes.contains(error.code);
+    }
+    if (error is PlatformException) {
+      return cancelCodes.contains(error.code.toLowerCase()) ||
+          (error.message ?? '').toLowerCase().contains('cancel');
+    }
+    return false;
   }
 
   /// Perform signin with apple ID
@@ -253,17 +275,41 @@ class _SignInPageState extends State<SignInPage> {
         _setLoadingState(apple: false);
         _navigateToHome();
       }
-    } on FirebaseAuthException catch (error) {
-      debugPrint('Apple sign-in error: $error');
-      _setLoadingState(apple: false);
-      if (error.code != 'canceled' && error.code != 'popup-closed-by-user') {
-        _showError('Apple Sign-In Error', error.toString());
-      }
     } catch (error) {
       debugPrint('Apple sign-in error: $error');
       _setLoadingState(apple: false);
-      _showError('Apple Sign-In Error', error.toString());
+      if (!_isCancellation(error)) {
+        _showError('Apple Sign-In Error', error.toString());
+      }
     }
+  }
+
+  /// Facebook Limited Login (iOS): exchanges the OIDC token for a Firebase credential
+  Future<void> _facebookLimitedLogin() async {
+    final random = Random.secure();
+    final rawNonce = base64UrlEncode(
+      List<int>.generate(32, (_) => random.nextInt(256)),
+    );
+    final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+    final result = await FacebookAuth.instance.login(
+      permissions: const ['email', 'public_profile'],
+      loginTracking: LoginTracking.limited,
+      nonce: hashedNonce,
+    );
+
+    if (result.status == LoginStatus.cancelled) {
+      throw FirebaseAuthException(code: 'canceled');
+    }
+    final token = result.accessToken;
+    if (result.status != LoginStatus.success || token == null) {
+      throw Exception(result.message ?? 'Facebook login failed');
+    }
+
+    final credential = OAuthProvider(
+      'facebook.com',
+    ).credential(idToken: token.tokenString, rawNonce: rawNonce);
+    await authInstance!.signInWithCredential(credential);
   }
 
   /// signin with facebook
@@ -273,12 +319,18 @@ class _SignInPageState extends State<SignInPage> {
     _setLoadingState(facebook: true);
 
     try {
-      final provider = FacebookAuthProvider()..addScope('email');
       if (kIsWeb) {
-        provider.setCustomParameters({'display': 'popup'});
+        final provider = FacebookAuthProvider()
+          ..addScope('email')
+          ..setCustomParameters({'display': 'popup'});
         await authInstance!.signInWithPopup(provider);
         await _logSignIn("Facebook-Web");
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        // Firebase refuses generic-IDP Facebook login on iOS; use Limited Login
+        await _facebookLimitedLogin();
+        await _logSignIn("Facebook");
       } else {
+        final provider = FacebookAuthProvider()..addScope('email');
         await authInstance!.signInWithProvider(provider);
         await _logSignIn("Facebook");
       }
@@ -287,17 +339,12 @@ class _SignInPageState extends State<SignInPage> {
         _setLoadingState(facebook: false);
         _navigateToHome();
       }
-    } on FirebaseAuthException catch (e) {
-      debugPrint('Facebook Firebase auth error: ${e.code} - ${e.message}');
-      _setLoadingState(facebook: false);
-      _showError(
-        'Facebook Sign-In Error',
-        e.message ?? 'Authentication failed',
-      );
     } catch (error) {
       debugPrint('Facebook sign-in error: $error');
       _setLoadingState(facebook: false);
-      _showError('Facebook Sign-In Error', error.toString());
+      if (!_isCancellation(error)) {
+        _showError('Facebook Sign-In Error', error.toString());
+      }
     }
   }
 

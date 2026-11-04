@@ -47,8 +47,6 @@
 	<string>b43e8595ee67c824919c164eff3ec0bb</string>
 	<key>FacebookDisplayName</key>
 	<string>Astronomy Logbook</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
@@ -56,6 +54,10 @@
 		<string>fbauth2</string>
 		<string>fbshareextension</string>
 	</array>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>

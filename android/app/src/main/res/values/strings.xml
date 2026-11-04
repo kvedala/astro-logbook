@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Astronomy Log Book</string>
+    <string name="facebook_app_id">437381314078679</string>
+    <string name="facebook_client_token">b43e8595ee67c824919c164eff3ec0bb</string>
 </resources>
