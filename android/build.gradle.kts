@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.LibraryExtension
+
 allprojects {
     repositories {
         google()
@@ -8,7 +10,7 @@ allprojects {
 subprojects {
     afterEvaluate {
         if (pluginManager.hasPlugin("com.android.library")) {
-            configure<com.android.build.gradle.LibraryExtension> {
+            configure<LibraryExtension> {
                 compileSdk = 37
             }
         }
