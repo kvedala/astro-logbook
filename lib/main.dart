@@ -2,13 +2,12 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'generated/l10n.dart';
 import 'routes.dart';
 import 'sign_in.dart';
 import 'firebase_options.dart';
+
 // import 'uploadobjects.dart';
 
 void main() async {
@@ -17,18 +16,6 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    if (kIsWeb) {
-      try {
-        FacebookAuth.i.webAndDesktopInitialize(
-          appId: "437381314078679",
-          cookie: true,
-          xfbml: true,
-          version: "v12.0",
-        );
-      } catch (e) {
-        debugPrint('Facebook init error: $e');
-      }
-    }
     await S.load(Locale.fromSubtags(languageCode: 'en'));
   } catch (e) {
     debugPrint('Initialization error: $e');
@@ -73,11 +60,7 @@ class MyApp extends StatelessWidget {
       routes: MyRoutes.routeMap,
       navigatorObservers: kIsWeb
           ? []
-          : [
-              FirebaseAnalyticsObserver(
-                analytics: FirebaseAnalytics.instance,
-              ),
-            ],
+          : [FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: S.delegate.supportedLocales,
     );

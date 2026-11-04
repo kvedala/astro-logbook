@@ -1,13 +1,7 @@
-import 'dart:convert';
-import 'dart:math';
-import 'package:crypto/crypto.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'generated/l10n.dart';
 import 'routes.dart';
@@ -27,7 +21,6 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   FirebaseAuth? authInstance;
-  bool appleSignInAvailable = false;
   bool _isInitialized = false;
 
   // Loading states for each provider
@@ -76,7 +69,6 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _initializeApp() async {
     await _initFirebaseAuth();
-    await _initGoogleSignIn();
     if (mounted) {
       setState(() {
         _isInitialized = true;
@@ -101,13 +93,6 @@ class _SignInPageState extends State<SignInPage> {
             }
           }
         });
-
-        try {
-          appleSignInAvailable = await SignInWithApple.isAvailable();
-        } catch (e) {
-          debugPrint('Apple Sign-In not available: $e');
-          appleSignInAvailable = false;
-        }
       } catch (e) {
         debugPrint('FirebaseAuth initialization error: $e');
         // Retry after delay
@@ -123,15 +108,6 @@ class _SignInPageState extends State<SignInPage> {
 
   /// google sign-in scopes
   final scopes = <String>['email', 'profile'];
-
-  Future<void> _initGoogleSignIn() async {
-    // Do not initialize on web; we use FirebaseAuth.signInWithPopup for web
-    if (kIsWeb) return;
-
-    // V7 API: Must call initialize() exactly once before other methods
-    await GoogleSignIn.instance.initialize();
-    debugPrint('Google Sign-In ready (v7 API)');
-  }
 
   @override
   void dispose() {
@@ -226,26 +202,11 @@ class _SignInPageState extends State<SignInPage> {
     _setLoadingState(google: true);
 
     try {
-      // V7 API: Use singleton and authenticate() method
-      final GoogleSignInAccount googleUser =
-          await GoogleSignIn.instance.authenticate();
-
-      // Get authentication tokens (idToken only, synchronous in v7)
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-      // Get access token via authorization client
-      final GoogleSignInClientAuthorization authorization =
-          await googleUser.authorizationClient.authorizationForScopes(scopes) ??
-          await googleUser.authorizationClient.authorizeScopes(scopes);
-
-      // Create Firebase credential
-      final credentials = GoogleAuthProvider.credential(
-        accessToken: authorization.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase
-      await authInstance!.signInWithCredential(credentials);
+      final provider = GoogleAuthProvider();
+      for (var scope in scopes) {
+        provider.addScope(scope);
+      }
+      await authInstance!.signInWithProvider(provider);
 
       // Log analytics
       await _logSignIn('Google');
@@ -254,10 +215,12 @@ class _SignInPageState extends State<SignInPage> {
         _setLoadingState(google: false);
         _navigateToHome();
       }
-    } on GoogleSignInException catch (error) {
+    } on FirebaseAuthException catch (error) {
       debugPrint('Google sign-in error: $error');
       _setLoadingState(google: false);
-      if (error.code != GoogleSignInExceptionCode.canceled) {
+      if (error.code != 'canceled' &&
+          error.code != 'web-context-canceled' &&
+          error.code != 'popup-closed-by-user') {
         _showError('Google Sign-In Error', error.toString());
       }
     } catch (error) {
@@ -267,80 +230,34 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  /// Generates a cryptographically secure random nonce, to be included in a
-  /// credential request.
-  String generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(
-      length,
-      (_) => charset[random.nextInt(charset.length)],
-    ).join();
-  }
-
-  /// Returns the sha256 hash of [input] in hex notation.
-  String sha256ofString(String input) {
-    final bytes = utf8.encode(input);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
   /// Perform signin with apple ID
   Future<void> _appleSignIn(BuildContext context) async {
     if (_isAppleSigningIn) return;
 
     _setLoadingState(apple: true);
 
-    if (!appleSignInAvailable) {
-      // Web platform Apple Sign-In
-      try {
-        final provider = OAuthProvider("apple.com")
-          ..addScope('email')
-          ..addScope('name');
-
-        await authInstance!.signInWithPopup(provider);
-        await _logSignIn("Apple-Web");
-        _setLoadingState(apple: false);
-      } catch (e) {
-        debugPrint('Web Apple sign-in error: $e');
-        _setLoadingState(apple: false);
-        _showError('Apple Sign-In Error', e.toString());
-      }
-      return;
-    }
-
-    // Native platform Apple Sign-In
-    final rawNonce = generateNonce();
-    final nonce = sha256ofString(rawNonce);
-
     try {
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-        nonce: nonce,
-      );
+      final provider = OAuthProvider('apple.com')
+        ..addScope('email')
+        ..addScope('name');
 
-      final oauthCredential = OAuthProvider(
-        "apple.com",
-      ).credential(idToken: appleCredential.identityToken, rawNonce: rawNonce);
-
-      await authInstance!.signInWithCredential(oauthCredential);
-
-      // Update display name if provided
-      if (appleCredential.givenName != null) {
-        await authInstance!.currentUser!.updateDisplayName(
-          "${appleCredential.givenName} ${appleCredential.familyName}",
-        );
+      if (kIsWeb) {
+        await authInstance!.signInWithPopup(provider);
+        await _logSignIn('Apple-Web');
+      } else {
+        await authInstance!.signInWithProvider(provider);
+        await _logSignIn('Apple');
       }
-
-      await _logSignIn("Apple");
 
       if (mounted) {
         _setLoadingState(apple: false);
         _navigateToHome();
+      }
+    } on FirebaseAuthException catch (error) {
+      debugPrint('Apple sign-in error: $error');
+      _setLoadingState(apple: false);
+      if (error.code != 'canceled' && error.code != 'popup-closed-by-user') {
+        _showError('Apple Sign-In Error', error.toString());
       }
     } catch (error) {
       debugPrint('Apple sign-in error: $error');
@@ -356,31 +273,13 @@ class _SignInPageState extends State<SignInPage> {
     _setLoadingState(facebook: true);
 
     try {
+      final provider = FacebookAuthProvider()..addScope('email');
       if (kIsWeb) {
-        // Web platform Facebook Sign-In
-        FacebookAuthProvider facebookProvider = FacebookAuthProvider()
-          ..addScope('email')
-          ..setCustomParameters({'display': 'popup'});
-
-        await authInstance!.signInWithPopup(facebookProvider);
+        provider.setCustomParameters({'display': 'popup'});
+        await authInstance!.signInWithPopup(provider);
         await _logSignIn("Facebook-Web");
       } else {
-        // Native platform Facebook Sign-In
-        final accessToken = await FacebookAuth.instance.login(
-          permissions: const ['email', 'public_profile'],
-        );
-
-        if (accessToken.accessToken == null) {
-          throw Exception('Facebook login returned no access token');
-        }
-
-        final FacebookAuthCredential credential =
-            FacebookAuthProvider.credential(
-                  accessToken.accessToken!.tokenString,
-                )
-                as FacebookAuthCredential;
-
-        await authInstance!.signInWithCredential(credential);
+        await authInstance!.signInWithProvider(provider);
         await _logSignIn("Facebook");
       }
 
@@ -558,10 +457,6 @@ class _SignInPageState extends State<SignInPage> {
   Future<void> signOut(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
-      if (!kIsWeb) {
-        // V6 API: Create instance and sign out
-        await GoogleSignIn.instance.signOut();
-      }
     } catch (e) {
       debugPrint('Error signing out: $e');
     }
