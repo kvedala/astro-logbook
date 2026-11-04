@@ -1,16 +1,16 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:location/location.dart' as gps;
 
 import 'ra_dec.dart';
 
 extension on gps.LocationData {
   /// latitude value in radian
-  double? get latRadian => latitude! * pi / 180;
+  double get latRadian => latitude * pi / 180;
 
   /// longitude value in radian
-  // double? get longRadian => longitude! * pi / 180;
+  // ignore: unused_element
+  double? get longRadian => longitude * pi / 180;
 }
 
 /// Supporting class for rise and set time computations
@@ -43,26 +43,31 @@ class RiseSetTimes {
   /// [setTime] for the given date of [when]. If [when] is not provided, the
   /// times are calculated for today.
   factory RiseSetTimes.forObject(
-          RightAscession ra, Declination dec, gps.LocationData location,
-          [DateTime? when]) =>
-      ((dec.degree - location.latitude!).abs() >= 90)
-          ? const RiseSetTimes(belowHorizon: true)
-          : ((dec.degree + location.latitude!).abs() >= 90)
-              ? const RiseSetTimes(circumpolar: true)
-              : _compute(ra, dec, location, when);
+    RightAscession ra,
+    Declination dec,
+    gps.LocationData location, [
+    DateTime? when,
+  ]) => ((dec.degree - location.latitude).abs() >= 90)
+      ? const RiseSetTimes(belowHorizon: true)
+      : ((dec.degree + location.latitude).abs() >= 90)
+      ? const RiseSetTimes(circumpolar: true)
+      : _compute(ra, dec, location, when);
 
   /// Compute the rise and set times
   static RiseSetTimes _compute(
-      RightAscession ra, Declination dec, gps.LocationData location,
-      [DateTime? when]) {
+    RightAscession ra,
+    Declination dec,
+    gps.LocationData location, [
+    DateTime? when,
+  ]) {
     when ??= DateTime.now(); // if when was not defined
     final now = when.toUtc();
 
     // Step 1: calculate semi diurnal arc
-    double H = acos(-tan(dec.radian) * tan(location.latRadian!)); // in radian
+    double H = acos(-tan(dec.radian) * tan(location.latRadian)); // in radian
     H = H * 180 / pi; // in degree
     if (H < 0) {
-      debugPrint("Got negative angle");
+      // debugPrint("Got negative angle");
       H += 180;
     }
     // debugPrint("H: $H");
@@ -72,23 +77,30 @@ class RiseSetTimes {
 
     // Step 2: Get UTC time using LST, Jualian Date and longitude.
     // 𝐿𝑆𝑇 = 100.46 + 0.985647 𝑑 + 𝐿𝑂𝑁 + 15 𝑈𝑇
-    double ut = (ra.degree -
+    double ut =
+        (ra.degree -
             100.46 -
             (0.985647 * _getJ2000(now)) -
-            location.longitude!) /
+            location.longitude) /
         15;
     if (ut < 0 || ut >= 24) ut %= 24;
     // debugPrint("UT: $UT");
     // debugPrint("JD: ${_getJ2000(ra.hour, ra.minute, ra.second)}");
 
     // Step 3: Convert to Local date and time (local hour angle)
-    final lha = DateTime.utc(now.year, now.month, now.day, ut.floor(),
-        ((ut - ut.floor()) * 60).round());
+    final lha = DateTime.utc(
+      now.year,
+      now.month,
+      now.day,
+      ut.floor(),
+      ((ut - ut.floor()) * 60).round(),
+    );
     // debugPrint("LHA: ${LHA.toIso8601String()}");
 
     return RiseSetTimes(
-      riseTime:
-          lha.subtract(Duration(minutes: (H * 60 / 15).round())).toLocal(),
+      riseTime: lha
+          .subtract(Duration(minutes: (H * 60 / 15).round()))
+          .toLocal(),
       setTime: lha.add(Duration(minutes: (H * 60 / 15).round())).toLocal(),
     );
   }
