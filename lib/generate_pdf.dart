@@ -45,6 +45,7 @@ class GeneratePDF extends StatelessWidget {
     List<Map<String, dynamic>> outData = [];
 
     for (var element in selectedTiles) {
+      // Keep native PDF exports offline-capable; web can fetch from the server.
       final DocumentSnapshot<Map<String, dynamic>> data = await (element!.get(
               const GetOptions(
                   source: !kIsWeb ? Source.cache : Source.serverAndCache))

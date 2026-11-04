@@ -40,6 +40,7 @@ class _CheckListItemState extends State<CheckListItem> {
 
   @override
   void dispose() {
+    // Save changed values when the item leaves the widget tree.
     if (widget.hasChanged) _updateItem();
     super.dispose();
   }

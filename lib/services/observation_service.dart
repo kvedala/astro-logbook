@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/observation_data.dart';
 
+/// Firestore access for the signed-in user's observations.
 class ObservationService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -12,6 +13,7 @@ class ObservationService {
     int? limit,
     DocumentSnapshot? startAfter,
   }) async {
+    // Keep the cursor aligned with the same descending order used for paging.
     Query query = _firestore
         .collection('$_userPath/observations')
         .orderBy('dateTime', descending: true);

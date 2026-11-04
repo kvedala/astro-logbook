@@ -43,6 +43,7 @@ class EquipmentGallery extends StatelessWidget {
                           ),
                         ),
                         confirmDismiss: (dir) async {
+                          // Block removal if an observation still references it.
                           return await FirebaseFirestore.instance
                               .collection('users/$userID/observations')
                               .where('equipment',

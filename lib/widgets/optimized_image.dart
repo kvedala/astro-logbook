@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+/// Uses cached loading and scales decoded images when display dimensions are set.
 class OptimizedImage extends StatelessWidget {
   final String? imagePath;
   final double? width;

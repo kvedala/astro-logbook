@@ -6,6 +6,7 @@ import 'gallary_tile.dart';
 import 'generate_pdf.dart';
 
 /// Track search filter data
+// Shared by the filter controls and the observation gallery's Firestore query.
 final Map<String, dynamic> searchState = {
   'messier': "",
   'ngc': "",

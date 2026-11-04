@@ -47,6 +47,7 @@ class _PaginatedObservationListState extends State<PaginatedObservationList> {
     }
     final snapshot = await query.get();
     if (snapshot.docs.isNotEmpty) {
+      // Reuse the last result as the cursor for the next page.
       _lastDocument = snapshot.docs.last;
       final newObservations = snapshot.docs
           .map(
@@ -56,6 +57,7 @@ class _PaginatedObservationListState extends State<PaginatedObservationList> {
           .toList();
       setState(() {
         _observations.addAll(newObservations);
+        // A short page means there are no further results to request.
         _hasMore = snapshot.docs.length == _pageSize;
         _isLoading = false;
       });

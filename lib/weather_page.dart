@@ -36,6 +36,7 @@ class WeatherPage extends StatelessWidget {
         initialFile: 'assets/astrospheric.html',
         onLoadStop: (controller, url) => getCurrentPosition.then(
           (position) async {
+            // Set the embedded forecast size before its initialization script runs.
             await controller.evaluateJavascript(source: """
 const d = document.getElementById('AstrosphericContainer');
 ${screen.width > screen.height ? "d.style.width = '' + ${screen.width.toStringAsFixed(5)} + ' px'; d.style.height = '100%'" : "d.style.width = '100%'; d.style.height = '' + ${screen.width.toStringAsFixed(5)} + ' px"};

@@ -576,6 +576,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
         Exception("Context not mounted");
         return;
       }
+      // Only delete when the title/time pair identifies exactly one document.
       if (result.size != 1) {
         showDialog(
           context: context,

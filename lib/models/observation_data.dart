@@ -19,6 +19,7 @@ class ObservationData {
   final DateTime? dateTime;
   final List<String> notes;
 
+  // The Firestore document reference is attached separately and is not serialized.
   @JsonKey(includeFromJson: false, includeToJson: false)
   final DocumentReference? reference;
 
@@ -45,6 +46,7 @@ class ObservationData {
 
   Map<String, dynamic> toJson() => _$ObservationDataToJson(this);
 
+  // Firestore stores this field as a Timestamp, not a JSON date string.
   static DateTime? _dateTimeFromJson(dynamic timestamp) =>
       timestamp != null ? (timestamp as Timestamp).toDate() : null;
 

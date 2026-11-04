@@ -83,6 +83,7 @@ class SettingsPage extends StatelessWidget {
         ).then((result) {
           if (result == null) return;
           if (!result) return;
+          // Record the deletion before removing the Firebase Auth account.
           store.collection('$collectionRoot/deleted').add({
             'timestamp': DateTime.now(),
             'displayName': auth.currentUser!.displayName,

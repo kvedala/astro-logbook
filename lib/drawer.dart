@@ -121,6 +121,7 @@ Widget drawer(BuildContext context, StreamController<MyTab> display) {
                   Exception("Context not mounted");
                   return;
                 }
+                // Clear authenticated routes before returning to sign-in.
                 while (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }

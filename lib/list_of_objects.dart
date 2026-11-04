@@ -48,6 +48,7 @@ class ListOfObjects extends StatelessWidget {
               ]);
             }
             return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              // Mark catalog entries as viewed when this user has a matching log.
               future: FirebaseFirestore.instance
                   .collection(
                       "users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations")
@@ -77,6 +78,7 @@ class ListOfObjects extends StatelessWidget {
     );
   }
 
+  /// Returns null if location is unavailable, so rise/set times are omitted.
   Future<gps.LocationData?> _getLocation() async {
     gps.Location location = gps.Location();
 

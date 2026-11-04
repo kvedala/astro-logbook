@@ -485,22 +485,23 @@ class _AddObservationPageState extends State<AddObservationPage> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.add_link),
-                              onPressed: () => Equipment.addEquipment(context)
-                                  .then((v) async {
-                                    while (!context.mounted) {
-                                      await Future.delayed(
-                                        const Duration(milliseconds: 100),
-                                      );
-                                    }
-                                    if (!context.mounted) {
-                                      Exception("Context not mounted");
-                                      return;
-                                    }
-                                    _loadEquipment(
-                                      context,
-                                      force: true,
-                                    ).then((v) => setState(() {}));
-                                  }),
+                              onPressed: () =>
+                                  Equipment.addEquipment(context)
+                                      .then((v) async {
+                                        while (!context.mounted) {
+                                          await Future.delayed(
+                                            const Duration(milliseconds: 100),
+                                          );
+                                        }
+                                        if (!context.mounted) {
+                                          Exception("Context not mounted");
+                                          return;
+                                        }
+                                        _loadEquipment(
+                                          context,
+                                          force: true,
+                                        ).then((v) => setState(() {}));
+                                      }),
                             ),
                           ],
                         ),
@@ -806,7 +807,7 @@ class _AddObservationPageState extends State<AddObservationPage> {
       //     {
       //       "latlng": "${_responses['latitude']},"
       //           "${_responses['longitude']}",
-      //       'key': "AIzaSyDCPJfmW4Nn0U3qVgT_KatItS0I9nIJZIs"
+      //       'key': ""
       //     }));
       // if (responses.statusCode != 200) {
       //   _possibleLocations = [];

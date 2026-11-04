@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+/// Renders the loading, error, empty, and success states for a [Future].
 class AsyncWidget<T> extends StatelessWidget {
   const AsyncWidget({
     super.key,

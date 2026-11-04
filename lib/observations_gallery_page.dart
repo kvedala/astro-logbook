@@ -122,6 +122,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
 
+    // Date and catalog searches use separate Firestore query shapes.
     if (searchState['date'] != null) {
       return firestore
           .collection('users/${auth.currentUser?.uid ?? ''}/observations')

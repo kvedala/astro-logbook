@@ -80,6 +80,7 @@ abstract class Catalog extends StatelessWidget {
     } else if (riseTimes!.circumpolar ||
         riseTimes!.riseTime!.hour >= 18 ||
         riseTimes!.setTime!.hour <= 5) {
+      // Highlight targets that are up during the evening/night observing window.
       visible = Icon(Icons.done, color: Colors.green[900]);
     } else {
       visible = Icon(Icons.cancel, color: Colors.red[900]);

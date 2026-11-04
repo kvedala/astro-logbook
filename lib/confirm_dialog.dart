@@ -45,6 +45,7 @@ class ConfirmDialog extends StatelessWidget {
   }
 }
 
+/// Shows confirmation and treats dismissal of the dialog as rejection.
 Future<ConfirmAction> confirmDialog(BuildContext context, String? displayMsg,
         {String okBtnText = "Accept", String noBtnText = "Reject"}) =>
     showDialog<ConfirmAction>(

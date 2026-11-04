@@ -17,6 +17,7 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Debug builds use debug providers; release builds use platform attestation.
     if (!kIsWeb) {
       await FirebaseAppCheck.instance.activate(
         providerApple: kDebugMode

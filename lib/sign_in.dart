@@ -232,8 +232,9 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  /// True when the user dismissed the provider's sign-in UI
+  /// Distinguishes user dismissal from sign-in failures across provider SDKs.
   bool _isCancellation(Object error) {
+    // Providers report a dismissed UI with different native and web error codes.
     const cancelCodes = {
       'canceled',
       'cancelled',
@@ -246,6 +247,7 @@ class _SignInPageState extends State<SignInPage> {
       return cancelCodes.contains(error.code);
     }
     if (error is PlatformException) {
+      // Some native SDKs expose cancellation only in the platform error text.
       return cancelCodes.contains(error.code.toLowerCase()) ||
           (error.message ?? '').toLowerCase().contains('cancel');
     }
@@ -290,6 +292,7 @@ class _SignInPageState extends State<SignInPage> {
     final rawNonce = base64UrlEncode(
       List<int>.generate(32, (_) => random.nextInt(256)),
     );
+    // Facebook receives the hash; Firebase checks the matching raw nonce.
     final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
 
     final result = await FacebookAuth.instance.login(
@@ -299,6 +302,7 @@ class _SignInPageState extends State<SignInPage> {
     );
 
     if (result.status == LoginStatus.cancelled) {
+      // Normalize cancellation so the shared sign-in handler treats it quietly.
       throw FirebaseAuthException(code: 'canceled');
     }
     final token = result.accessToken;
