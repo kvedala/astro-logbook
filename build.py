@@ -11,6 +11,34 @@ log.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s", level=log.INFO)
 
 
+KEY_PROPS = os.path.join("android", "key.properties")
+SIGNING_ENV = {
+    "storeFile": "ANDROID_KEYSTORE_PATH",
+    "storePassword": "ANDROID_KEYSTORE_PASSWORD",
+    "keyAlias": "ANDROID_KEY_ALIAS",
+    "keyPassword": "ANDROID_KEY_PASSWORD",
+}
+
+
+def setupAndroidSigning() -> bool:
+    """Ensure release signing is configured.
+
+    Returns True if a temporary key.properties was generated from env vars.
+    """
+    if os.path.exists(KEY_PROPS):
+        return False
+    missing = [v for v in SIGNING_ENV.values() if not os.environ.get(v)]
+    if missing:
+        log.error("Release signing not configured. Create %s or set: %s",
+                  KEY_PROPS, ", ".join(missing))
+        raise SystemExit(1)
+    with open(KEY_PROPS, 'wt') as f:
+        for prop, var in SIGNING_ENV.items():
+            f.write(f"{prop}={os.environ[var]}\n")
+    os.chmod(KEY_PROPS, 0o600)
+    return True
+
+
 def getBuildCount() -> int:
     output = subprocess.check_output(["git", "rev-list", "--count", "HEAD"])
     return int(output)
@@ -75,8 +103,15 @@ if __name__ == '__main__':
                         env=os.environ.copy(), shell=False, cwd=".")
 
     log.info(f"Building: {args.type}")
-    subprocess.call(["flutter", "build", args.type],
-                    env=os.environ.copy(), shell=False, cwd=".")
+    generatedKeyProps = False
+    if args.type in ('apk', 'appbundle'):
+        generatedKeyProps = setupAndroidSigning()
+    try:
+        subprocess.call(["flutter", "build", args.type],
+                        env=os.environ.copy(), shell=False, cwd=".")
+    finally:
+        if generatedKeyProps:
+            os.remove(KEY_PROPS)
     log.info("Building: Done")
 
     if args.install is not None:
