@@ -1,0 +1,10 @@
+:root { color-scheme: dark; }
+body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #0b0d17; color: #d8dbe8; line-height: 1.6; }
+header, main, footer { max-width: 760px; margin: 0 auto; padding: 1rem 1.25rem; }
+header { text-align: center; padding-top: 2.5rem; }
+header img { width: 110px; height: auto; border-radius: 20px; }
+h1, h2 { color: #fff; }
+a { color: #ff6b6b; }
+nav a { margin: 0 .6rem; }
+.buttons a { display: inline-block; margin: .3rem; padding: .5rem 1rem; border: 1px solid #ff6b6b; border-radius: 8px; text-decoration: none; }
+footer { text-align: center; font-size: .85rem; color: #8a8fa6; }
