@@ -316,6 +316,24 @@ class _SignInPageState extends State<SignInPage> {
     await authInstance!.signInWithCredential(credential);
   }
 
+  /// Facebook Login (Android): exchanges the Facebook access token for a Firebase credential
+  Future<void> _facebookClassicLogin() async {
+    final result = await FacebookAuth.instance.login(
+      permissions: const ['email', 'public_profile'],
+    );
+
+    if (result.status == LoginStatus.cancelled) {
+      throw FirebaseAuthException(code: 'canceled');
+    }
+    final token = result.accessToken;
+    if (result.status != LoginStatus.success || token == null) {
+      throw Exception(result.message ?? 'Facebook login failed');
+    }
+
+    final credential = FacebookAuthProvider.credential(token.tokenString);
+    await authInstance!.signInWithCredential(credential);
+  }
+
   /// signin with facebook
   Future<void> _facebookSignIn(BuildContext context) async {
     if (_isFacebookSigningIn) return;
@@ -334,8 +352,8 @@ class _SignInPageState extends State<SignInPage> {
         await _facebookLimitedLogin();
         await _logSignIn("Facebook");
       } else {
-        final provider = FacebookAuthProvider()..addScope('email');
-        await authInstance!.signInWithProvider(provider);
+        // Android requires the Facebook SDK flow, then a Firebase credential
+        await _facebookClassicLogin();
         await _logSignIn("Facebook");
       }
 
