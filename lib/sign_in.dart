@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'generated/l10n.dart';
@@ -28,6 +29,10 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   FirebaseAuth? authInstance;
   bool _isInitialized = false;
+
+  bool get _isApplePlatform =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
 
   // Loading states for each provider
   bool _isGoogleSigningIn = false;
@@ -371,87 +376,108 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Widget _signInPage(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        FilledButton.icon(
-          onPressed: _isGoogleSigningIn ? null : () => _googleSignIn(context),
-          icon: const Icon(Icons.login),
-          label: Text(S.current.signInWithGoogle),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Welcome', textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+              Text(
+                'Sign in to continue to your logbook.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              if (_isApplePlatform) ...[
+                _providerButton(
+                  context: context,
+                  label: S.current.signInWithApple,
+                  icon: FontAwesomeIcons.apple,
+                  isLoading: _isAppleSigningIn,
+                  onPressed: () => _appleSignIn(context),
+                ),
+                const SizedBox(height: 12),
+              ],
+              _providerButton(
+                context: context,
+                label: S.current.signInWithGoogle,
+                icon: FontAwesomeIcons.google,
+                isLoading: _isGoogleSigningIn,
+                onPressed: () => _googleSignIn(context),
+              ),
+              const SizedBox(height: 12),
+              _providerButton(
+                context: context,
+                label: S.current.signInWithFacebook,
+                icon: FontAwesomeIcons.facebookF,
+                isLoading: _isFacebookSigningIn,
+                onPressed: () => _facebookSignIn(context),
+              ),
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _providerButton({
+    required BuildContext context,
+    required String label,
+    required FaIconData icon,
+    required bool isLoading,
+    required VoidCallback onPressed,
+  }) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final foregroundColor =
+        theme.textTheme.labelLarge?.color ?? colors.onSurface;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 280),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: isLoading ? null : onPressed,
+          icon: isLoading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: foregroundColor,
+                  ),
+                )
+              : FaIcon(icon),
+          label: Text(label),
           style: FilledButton.styleFrom(
-            minimumSize: const Size(280, 44),
+            backgroundColor: colors.surfaceContainerHigh,
+            foregroundColor: foregroundColor,
+            minimumSize: const Size(0, 52),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: colors.primary, width: 1.2),
             ),
+            elevation: 3,
+            textStyle: theme.textTheme.labelLarge,
           ),
         ),
-        if (_isGoogleSigningIn)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: FilledButton.icon(
-            onPressed: _isAppleSigningIn ? null : () => _appleSignIn(context),
-            icon: const Icon(Icons.apple),
-            label: Text(S.current.signInWithApple),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(280, 44),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-        ),
-        if (_isAppleSigningIn)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: FilledButton.icon(
-            onPressed: _isFacebookSigningIn
-                ? null
-                : () => _facebookSignIn(context),
-            icon: const Icon(Icons.facebook),
-            label: Text(S.current.signInWithFacebook),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(280, 44),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-        ),
-        if (_isFacebookSigningIn)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ),
-        if (_errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Text(
-              _errorMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-              textAlign: TextAlign.center,
-            ),
-          ),
-      ],
+      ),
     );
   }
 
