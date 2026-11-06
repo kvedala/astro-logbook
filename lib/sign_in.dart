@@ -219,6 +219,8 @@ class _SignInPageState extends State<SignInPage> {
       for (var scope in scopes) {
         provider.addScope(scope);
       }
+      // Always show the account chooser instead of reusing the browser's default account.
+      provider.setCustomParameters({'prompt': 'select_account'});
       await authInstance!.signInWithProvider(provider);
 
       // Log analytics
