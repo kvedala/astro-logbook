@@ -5,10 +5,11 @@ import 'package:flutter/services.dart';
 import 'objects.dart';
 import 'ra_dec.dart';
 
+/// Parse the bundled Messier catalog and upload its normalized records.
 Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
   final data = await rootBundle.loadString("assets/messier.csv");
 
-  var out1 = const CsvToListConverter().convert(data);
+  var out1 = csv.decode(data);
   out1.removeAt(0);
   final out2 = out1.map<Messier>((item) {
     final ra = item[4] as String;
@@ -19,6 +20,7 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
       dec = dec.substring(1);
     }
 
+    // The CSV stores coordinates as formatted sexagesimal strings.
     int splitIndexRA = ra.indexOf("h ");
     int splitIndexDEC = dec.indexOf("°");
 
@@ -37,6 +39,7 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
 
   for (final element in out2) {
     var j = element.json;
+    // Catalog display state is local to a user, not shared catalog data.
     j.remove('viewed');
     j.remove('catalog');
     await FirebaseFirestore.instance
@@ -47,10 +50,11 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadMessier() async {
   return FirebaseFirestore.instance.collection("/messier").orderBy("mid").get();
 }
 
+/// Parse the bundled NGC catalog and upload its normalized records.
 Future<QuerySnapshot<Map<String, dynamic>>> uploadNGC() async {
   final data = await rootBundle.loadString("assets/NGCObjects.csv");
 
-  var out1 = const CsvToListConverter().convert(data);
+  var out1 = csv.decode(data);
   out1.removeAt(0);
   final out2 = out1.map<NGC>((item) {
     return NGC(

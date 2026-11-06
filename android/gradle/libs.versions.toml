@@ -1,0 +1,31 @@
+[versions]
+androidGradle = "9.5.0"
+annotationJvm = "1.11.0"
+firebaseBomVersion = "35.1.0"
+gradle = "9.5.0"
+gradleVersion = "9.5.0"
+junit = "4.13.2"
+junitJupiter = "6.1.3"
+kotlinGradlePlugin = "2.4.21"
+kotlinxSerializationJson = "1.12.0"
+mockitoCore = "5.24.0"
+mockk = "1.14.11"
+ndk = "30.0.16248370"
+
+[libraries]
+androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
+build-gradle-v932 = { module = "com.android.tools.build:gradle", version.ref = "androidGradle" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-bom-v3510 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "gradle" }
+gradle-v932 = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
+junit = { module = "junit:junit", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlinGradlePlugin" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoCore" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+
+[plugins]

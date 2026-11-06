@@ -1,0 +1,27 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+/// Uses cached loading and scales decoded images when display dimensions are set.
+class OptimizedImage extends StatelessWidget {
+  final String? imagePath;
+  final double? width;
+  final double? height;
+
+  const OptimizedImage({super.key, this.imagePath, this.width, this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imagePath == null) return const SizedBox();
+
+    return CachedNetworkImage(
+      imageUrl: imagePath!,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const CircularProgressIndicator(),
+      errorWidget: (context, url, error) => const Icon(Icons.error),
+      memCacheWidth: width?.toInt(),
+      memCacheHeight: height?.toInt(),
+    );
+  }
+}

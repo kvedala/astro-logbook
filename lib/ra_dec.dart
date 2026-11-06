@@ -22,6 +22,7 @@ class RightAscession {
   double get hours => hour + (minute + (second / 60)) / 60;
 
   /// get the value in decimal degrees
+  // Right ascension is measured in hours, with 15 degrees per hour.
   double get degree => hours * 15;
 
   /// get the value in decimal radian
@@ -60,6 +61,7 @@ class Declination {
 
   /// get the value in decimal degree
   double get degree {
+    // Apply the sign to the complete degree-minute-second magnitude.
     final val = (_deg) + ((_minute) + (_second / 60)) / 60;
     return _sign == "+" ? val : -val;
   }

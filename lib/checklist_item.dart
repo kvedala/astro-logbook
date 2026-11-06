@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Checklist item widget
 class CheckListItem extends StatefulWidget {
@@ -40,6 +40,7 @@ class _CheckListItemState extends State<CheckListItem> {
 
   @override
   void dispose() {
+    // Save changed values when the item leaves the widget tree.
     if (widget.hasChanged) _updateItem();
     super.dispose();
   }

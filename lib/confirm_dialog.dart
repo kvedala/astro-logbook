@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
+import 'generated/l10n.dart';
 
 enum ConfirmAction { reject, accept }
 
@@ -22,10 +24,10 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Are you sure?'),
+      title: Text(S.current.areYouSure),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         displayMsg == null ? const SizedBox() : Text(displayMsg!),
-        const Text('This action cannot be undone.'),
+        Text(S.current.thisActionCannotBeUndone),
       ]),
       actions: [
         TextButton.icon(
@@ -43,6 +45,7 @@ class ConfirmDialog extends StatelessWidget {
   }
 }
 
+/// Shows confirmation and treats dismissal of the dialog as rejection.
 Future<ConfirmAction> confirmDialog(BuildContext context, String? displayMsg,
         {String okBtnText = "Accept", String noBtnText = "Reject"}) =>
     showDialog<ConfirmAction>(

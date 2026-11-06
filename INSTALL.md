@@ -2,7 +2,7 @@
 
 Pre-built applications are available and utilize the cloud resources hosted by the author (myself). These are:
 1. Web version: https://astrolog.vedala.holdings
-2. Android: https://play.google.com/store/apps/details?id=com.vedalaholdings.astro_log
+2. Android: https://play.google.com/store/apps/details?id=com.vedalaholdings.astro_log2
 3. iOS: https://appdistribution.firebase.dev/i/8c0b75f66438e0ed 
 
 It is also, however, easy to build this app for yourself so that you alone are in control of the data, unless you 
@@ -47,6 +47,14 @@ The build directory by default is: `<repo root>/build/web`. The files therein ca
 your hosting server. The current app is hosted using [FirebaseHosting](https://firebase.google.com/docs/hosting).
 
 ### Build for Android
+
+Android uses the FlutterFire configuration in `lib/firebase_options.dart` without
+`google-services.json`. Running `flutterfire configure` may re-add the Google
+Services Gradle plugin. Without native Firebase resources, Android Analytics
+previously reported a missing `google_app_id` and disabled itself.
+Crashlytics remains enabled, but automatic Android release mapping-file uploads
+are disabled because they require that plugin. Obfuscated Android stack traces
+may therefore be unreadable in Crashlytics.
 
 ```sh
 flutter build apk --release

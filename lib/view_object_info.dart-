@@ -1,0 +1,39 @@
+import 'package:flutter/material.dart';
+import 'package:pdfx/pdfx.dart';
+
+class ViewObjectInfo extends StatelessWidget {
+  final String type;
+  final int id;
+  const ViewObjectInfo(this.type, this.id, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final pdfView = PdfController(
+      document:
+          PdfDocument.openAsset('assets/Roger Fell - Messier Companion.pdf'),
+      initialPage: id + 8,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('$type $id'),
+      ),
+      // body: InAppWebView(
+      //   initialUrlRequest: URLRequest(
+      //     url: WebUri.uri(Uri.parse('https://wikipedia.org/wiki/${type}_$id')),
+      //   ),
+      //   initialSettings: InAppWebViewSettings(
+      //     forceDark: ForceDark.ON,
+      //     transparentBackground: true,
+      //     allowsInlineMediaPlayback: true,
+      //     sharedCookiesEnabled: true,
+      //     // applicationNameForUserAgent:
+      //     //     'Astronomy Logbook (https://github.com/kvedala/astro-logbook)',
+      //   ),
+      // ),
+      body: PdfView(
+        controller: pdfView,
+      ),
+    );
+  }
+}

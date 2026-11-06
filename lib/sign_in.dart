@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:crypto/crypto.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:material_ui/material_ui.dart';
 
+import 'generated/l10n.dart';
 import 'routes.dart';
 
 /// Main sign in page
@@ -24,29 +26,93 @@ class SignInPage extends StatefulWidget {
   // }
 }
 
-/// variable to store google-signin state
-GoogleSignIn? googleSignIn;
-
 class _SignInPageState extends State<SignInPage> {
   FirebaseAuth? authInstance;
-  bool appleSignInAvailable = false;
+  bool _isInitialized = false;
 
-  void _initFirebaseAuth() async {
+  bool get _isApplePlatform =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  // Loading states for each provider
+  bool _isGoogleSigningIn = false;
+  bool _isAppleSigningIn = false;
+  bool _isFacebookSigningIn = false;
+
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Only initialize on native platforms; web is handled by main.dart
+    if (!kIsWeb) {
+      _initializeApp();
+    } else {
+      // On web, Firebase is already initialized by main.dart
+      // Just get the instance and set up listeners
+      _initFirebaseAuthWeb();
+    }
+  }
+
+  Future<void> _initFirebaseAuthWeb() async {
     if (authInstance == null) {
       authInstance = FirebaseAuth.instance;
-      // authInstance.authStateChanges().listen(
-      //       (user) => mounted ? setState(() {}) : null,
-      //       onDone: () => mounted ? setState(() {}) : null,
-      //       // onError: () => setState(() {}),
-      //       // cancelOnError: () => setState(() {}),
-      //     );
-      if (kIsWeb) await authInstance!.setPersistence(Persistence.SESSION);
 
+      // Listen to auth state changes
+      authInstance!.authStateChanges().listen((User? user) {
+        if (mounted) {
+          setState(() {});
+          if (user != null) {
+            debugPrint('Firebase auth state: User signed in - ${user.email}');
+          } else {
+            debugPrint('Firebase auth state: User signed out');
+          }
+        }
+      });
+    }
+
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
+  }
+
+  Future<void> _initializeApp() async {
+    await _initFirebaseAuth();
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
+  }
+
+  Future<void> _initFirebaseAuth() async {
+    if (authInstance == null) {
       try {
-        appleSignInAvailable = await SignInWithApple.isAvailable();
+        authInstance = FirebaseAuth.instance;
+        if (kIsWeb) await authInstance!.setPersistence(Persistence.SESSION);
+
+        // Listen to auth state changes
+        authInstance!.authStateChanges().listen((User? user) {
+          if (mounted) {
+            setState(() {});
+            if (user != null) {
+              debugPrint('Firebase auth state: User signed in - ${user.email}');
+            } else {
+              debugPrint('Firebase auth state: User signed out');
+            }
+          }
+        });
       } catch (e) {
-        debugPrint(e.toString());
-        appleSignInAvailable = false;
+        debugPrint('FirebaseAuth initialization error: $e');
+        // Retry after delay
+        if (mounted) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (mounted) {
+            _initFirebaseAuth();
+          }
+        }
       }
     }
   }
@@ -55,292 +121,439 @@ class _SignInPageState extends State<SignInPage> {
   final scopes = <String>['email', 'profile'];
 
   @override
-  void initState() {
-    super.initState();
-    _initFirebaseAuth();
-
-    googleSignIn = GoogleSignIn(scopes: scopes);
-  }
-
-  @override
   void dispose() {
     super.dispose();
   }
 
+  // Helper methods for state management
+  void _setLoadingState({bool? google, bool? apple, bool? facebook}) {
+    if (mounted) {
+      setState(() {
+        if (google != null) _isGoogleSigningIn = google;
+        if (apple != null) _isAppleSigningIn = apple;
+        if (facebook != null) _isFacebookSigningIn = facebook;
+      });
+    }
+  }
+
+  void _showError(String title, String message) {
+    if (mounted) {
+      setState(() {
+        _errorMessage = message;
+      });
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                if (mounted) {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                }
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> _logSignIn(String method) async {
+    try {
+      await FirebaseAnalytics.instance.logLogin(
+        loginMethod: method,
+        parameters: {
+          "uid": authInstance!.currentUser!.uid,
+          "name": authInstance!.currentUser!.displayName ?? "",
+          "email": authInstance!.currentUser!.email ?? "",
+          "phone": authInstance!.currentUser!.phoneNumber ?? "",
+        },
+      );
+    } catch (e) {
+      debugPrint('Failed to log analytics: $e');
+    }
+  }
+
+  void _navigateToHome() {
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed(MyRoutes.homePage);
+    }
+  }
+
   /// perform sign-in by google
-  void _googleSignIn(BuildContext context) async {
+  Future<void> _googleSignIn(BuildContext context) async {
+    if (_isGoogleSigningIn) return;
+
     if (kIsWeb) {
+      _setLoadingState(google: true);
       try {
         final provider = GoogleAuthProvider();
         for (var scope in scopes) {
           provider.addScope(scope);
         }
         await authInstance!.signInWithPopup(provider);
-        setState(() {});
-        // Navigator.popAndPushNamed(context, HomePageRoute);
+        await _logSignIn("Google-Web");
+        if (mounted) {
+          _setLoadingState(google: false);
+        }
       } catch (e) {
-        debugPrint(e.toString());
+        debugPrint('Web Google sign-in error: $e');
+        _setLoadingState(google: false);
+        if (!_isCancellation(e)) {
+          _showError('Google Sign-In Error', e.toString());
+        }
       }
-
       return;
     }
 
+    _setLoadingState(google: true);
+
     try {
-      final account = await googleSignIn!.signIn();
-      final googleAuth = await account!.authentication;
-      final credentials = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
-      );
+      final provider = GoogleAuthProvider();
+      for (var scope in scopes) {
+        provider.addScope(scope);
+      }
+      await authInstance!.signInWithProvider(provider);
 
-      await authInstance!.signInWithCredential(credentials);
+      // Log analytics
+      await _logSignIn('Google');
 
-      // final List<String> names = _user.user.displayName.split(' ');
-      // addUsertoDB(
-      //     email: _user.user.email,
-      //     phoneNumber: _user.user.phoneNumber,
-      //     firstName: names[0],
-      //     lastName: names.length == 2 ? names[1] : " ");
-      setState(() {});
-      // Navigator.popAndPushNamed(context, HomePageRoute);
+      if (mounted) {
+        _setLoadingState(google: false);
+        _navigateToHome();
+      }
     } catch (error) {
-      debugPrint(error.toString());
+      debugPrint('Google sign-in error: $error');
+      _setLoadingState(google: false);
+      if (!_isCancellation(error)) {
+        _showError('Google Sign-In Error', error.toString());
+      }
     }
   }
 
-  /// Generates a cryptographically secure random nonce, to be included in a
-  /// credential request.
-  String generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
-  }
-
-  /// Returns the sha256 hash of [input] in hex notation.
-  String sha256ofString(String input) {
-    final bytes = utf8.encode(input);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
+  /// Distinguishes user dismissal from sign-in failures across provider SDKs.
+  bool _isCancellation(Object error) {
+    // Providers report a dismissed UI with different native and web error codes.
+    const cancelCodes = {
+      'canceled',
+      'cancelled',
+      'web-context-canceled',
+      'web-context-cancelled',
+      'popup-closed-by-user',
+      'cancelled-popup-request',
+    };
+    if (error is FirebaseAuthException) {
+      return cancelCodes.contains(error.code);
+    }
+    if (error is PlatformException) {
+      // Some native SDKs expose cancellation only in the platform error text.
+      return cancelCodes.contains(error.code.toLowerCase()) ||
+          (error.message ?? '').toLowerCase().contains('cancel');
+    }
+    return false;
   }
 
   /// Perform signin with apple ID
-  void _appleSignIn() async {
-    if (!appleSignInAvailable) {
-      try {
-        // Create and configure an OAuthProvider for Sign In with Apple.
-        final provider = OAuthProvider("apple.com")
-          ..addScope('email')
-          ..addScope('name');
+  Future<void> _appleSignIn(BuildContext context) async {
+    if (_isAppleSigningIn) return;
 
-        // Sign in the user with Firebase.
-        await FirebaseAuth.instance.signInWithPopup(provider);
-        setState(() {});
-      } catch (e) {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => AlertDialog(
-                  title: const Text("Error with Apple Sign In"),
-                  content: Text(e.toString()),
-                ));
-        Future.delayed(
-            const Duration(seconds: 2), () => Navigator.pop(context));
-      }
-      return;
-    }
+    _setLoadingState(apple: true);
 
-    // To prevent replay attacks with the credential returned from Apple, we
-    // include a nonce in the credential request. When signing in in with
-    // Firebase, the nonce in the id token returned by Apple, is expected to
-    // match the sha256 hash of `rawNonce`.
-    final rawNonce = generateNonce();
-    final nonce = sha256ofString(rawNonce);
     try {
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-        // webAuthenticationOptions: WebAuthenticationOptions(
-        //   clientId: 'com.vedalaholdings.astrologbook',
-        //   redirectUri: Uri.parse(
-        //       'https://astronomy-log-book.firebaseapp.com/__/auth/handler'),
-        // ),
-        nonce: nonce,
-      );
-      final oauthCredential = OAuthProvider("apple.com").credential(
-        idToken: appleCredential.identityToken,
-        rawNonce: rawNonce,
-      );
+      final provider = OAuthProvider('apple.com')
+        ..addScope('email')
+        ..addScope('name');
 
-      // inspect(oauthCredential);
-
-      await authInstance!.signInWithCredential(oauthCredential);
-
-      if (appleCredential.givenName != null) {
-        await FirebaseAuth.instance.currentUser!.updateDisplayName(
-            "${appleCredential.givenName} ${appleCredential.familyName}");
+      if (kIsWeb) {
+        await authInstance!.signInWithPopup(provider);
+        await _logSignIn('Apple-Web');
+      } else {
+        await authInstance!.signInWithProvider(provider);
+        await _logSignIn('Apple');
       }
 
-      setState(() {});
-      // Navigator.popAndPushNamed(context, HomePageRoute);
+      if (mounted) {
+        _setLoadingState(apple: false);
+        _navigateToHome();
+      }
     } catch (error) {
-      debugPrint(error.toString());
+      debugPrint('Apple sign-in error: $error');
+      _setLoadingState(apple: false);
+      if (!_isCancellation(error)) {
+        _showError('Apple Sign-In Error', error.toString());
+      }
     }
+  }
+
+  /// Facebook Limited Login (iOS): exchanges the OIDC token for a Firebase credential
+  Future<void> _facebookLimitedLogin() async {
+    final random = Random.secure();
+    final rawNonce = base64UrlEncode(
+      List<int>.generate(32, (_) => random.nextInt(256)),
+    );
+    // Facebook receives the hash; Firebase checks the matching raw nonce.
+    final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+    final result = await FacebookAuth.instance.login(
+      permissions: const ['email', 'public_profile'],
+      loginTracking: LoginTracking.limited,
+      nonce: hashedNonce,
+    );
+
+    if (result.status == LoginStatus.cancelled) {
+      // Normalize cancellation so the shared sign-in handler treats it quietly.
+      throw FirebaseAuthException(code: 'canceled');
+    }
+    final token = result.accessToken;
+    if (result.status != LoginStatus.success || token == null) {
+      throw Exception(result.message ?? 'Facebook login failed');
+    }
+
+    final credential = OAuthProvider(
+      'facebook.com',
+    ).credential(idToken: token.tokenString, rawNonce: rawNonce);
+    await authInstance!.signInWithCredential(credential);
+  }
+
+  /// Facebook Login (Android): exchanges the Facebook access token for a Firebase credential
+  Future<void> _facebookClassicLogin() async {
+    final result = await FacebookAuth.instance.login(
+      permissions: const ['email', 'public_profile'],
+    );
+
+    if (result.status == LoginStatus.cancelled) {
+      throw FirebaseAuthException(code: 'canceled');
+    }
+    final token = result.accessToken;
+    if (result.status != LoginStatus.success || token == null) {
+      throw Exception(result.message ?? 'Facebook login failed');
+    }
+
+    final credential = FacebookAuthProvider.credential(token.tokenString);
+    await authInstance!.signInWithCredential(credential);
   }
 
   /// signin with facebook
-  void _facebookSignIn() async {
+  Future<void> _facebookSignIn(BuildContext context) async {
+    if (_isFacebookSigningIn) return;
+
+    _setLoadingState(facebook: true);
+
     try {
       if (kIsWeb) {
-        // Create a new provider
-        FacebookAuthProvider facebookProvider = FacebookAuthProvider();
-
-        facebookProvider.addScope('email');
-        facebookProvider.setCustomParameters({
-          'display': 'popup',
-        });
-
-        // Once signed in, return the UserCredential
-        await FirebaseAuth.instance.signInWithPopup(facebookProvider);
+        final provider = FacebookAuthProvider()
+          ..addScope('email')
+          ..setCustomParameters({'display': 'popup'});
+        await authInstance!.signInWithPopup(provider);
+        await _logSignIn("Facebook-Web");
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        // Firebase refuses generic-IDP Facebook login on iOS; use Limited Login
+        await _facebookLimitedLogin();
+        await _logSignIn("Facebook");
       } else {
-        final accessToken = await FacebookAuth.instance
-            .login(permissions: const ['email', 'public_profile']);
-
-        // Create a credential from the access token
-        final FacebookAuthCredential credential =
-            FacebookAuthProvider.credential(
-          accessToken.accessToken?.token ?? "",
-        ) as FacebookAuthCredential;
-        // Once signed in, return the UserCredential
-        await FirebaseAuth.instance.signInWithCredential(credential);
+        // Android requires the Facebook SDK flow, then a Firebase credential
+        await _facebookClassicLogin();
+        await _logSignIn("Facebook");
       }
-      // } on Facebo catch (e) {
-      //   debugPrint(e.message);
-      // handle the FacebookAuthException
-    } on FirebaseAuthException catch (e) {
-      // handle the FirebaseAuthException
-      debugPrint(e.message);
-    } finally {
-      setState(() {});
+
+      if (mounted) {
+        _setLoadingState(facebook: false);
+        _navigateToHome();
+      }
+    } catch (error) {
+      debugPrint('Facebook sign-in error: $error');
+      _setLoadingState(facebook: false);
+      if (!_isCancellation(error)) {
+        _showError('Facebook Sign-In Error', error.toString());
+      }
     }
-    return;
   }
 
   Widget _signInPage(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SignInButton(
-          Buttons.Google,
-          text: 'Sign in with Google',
-          onPressed: () => _googleSignIn(context),
-          padding:
-              const EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: SignInButton(
-            Buttons.Apple,
-            text: 'Sign in with Apple',
-            // shape: ShapeBorder,
-            onPressed: _appleSignIn,
-            padding: const EdgeInsets.all(10),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Welcome', textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+              Text(
+                'Sign in to continue to your logbook.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              if (_isApplePlatform) ...[
+                _providerButton(
+                  context: context,
+                  label: S.current.signInWithApple,
+                  icon: FontAwesomeIcons.apple,
+                  isLoading: _isAppleSigningIn,
+                  onPressed: () => _appleSignIn(context),
+                ),
+                const SizedBox(height: 12),
+              ],
+              _providerButton(
+                context: context,
+                label: S.current.signInWithGoogle,
+                icon: FontAwesomeIcons.google,
+                isLoading: _isGoogleSigningIn,
+                onPressed: () => _googleSignIn(context),
+              ),
+              const SizedBox(height: 12),
+              _providerButton(
+                context: context,
+                label: S.current.signInWithFacebook,
+                icon: FontAwesomeIcons.facebookF,
+                isLoading: _isFacebookSigningIn,
+                onPressed: () => _facebookSignIn(context),
+              ),
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: SignInButton(
-            Buttons.Facebook,
-            text: 'Sign in with Facebook',
-            // shape: ShapeBorder,
-            onPressed: _facebookSignIn,
-            padding: const EdgeInsets.all(10),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  Widget _providerButton({
+    required BuildContext context,
+    required String label,
+    required FaIconData icon,
+    required bool isLoading,
+    required VoidCallback onPressed,
+  }) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final foregroundColor =
+        theme.textTheme.labelLarge?.color ?? colors.onSurface;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 280),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: isLoading ? null : onPressed,
+          icon: isLoading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: foregroundColor,
+                  ),
+                )
+              : FaIcon(icon),
+          label: Text(label),
+          style: FilledButton.styleFrom(
+            backgroundColor: colors.surfaceContainerHigh,
+            foregroundColor: foregroundColor,
+            minimumSize: const Size(0, 52),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: colors.primary, width: 1.2),
+            ),
+            elevation: 3,
+            textStyle: theme.textTheme.labelLarge,
           ),
         ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign In Page"),
+        title: Text(S.current.signInPage),
         actions: const [
           // IconButton(icon: Icon(Icons.logout), onPressed: () => {}),
         ],
       ),
-      body: Center(
-          child: authInstance == null
-              ? const CircularProgressIndicator()
-              : authInstance!.currentUser == null
-                  ? _signInPage(context)
-                  : _signedIn(context)),
+      body: Center(child: _buildBody(context)),
     );
   }
 
-  Widget _signedIn(BuildContext context) {
+  Widget _buildBody(BuildContext context) {
+    // On web, use authInstance set during initialization
+    if (kIsWeb) {
+      return authInstance == null
+          ? const CircularProgressIndicator()
+          : authInstance!.currentUser == null
+          ? _signInPage(context)
+          : _signedInWidget(context);
+    }
+
+    // On native, use stored authInstance
+    return authInstance == null
+        ? const CircularProgressIndicator()
+        : authInstance!.currentUser == null
+        ? _signInPage(context)
+        : _signedInWidget(context);
+  }
+
+  Widget _signedInWidget(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TextButton.icon(
           style: ButtonStyle(
-            minimumSize: MaterialStateProperty.all(const Size(150, 50)),
-            textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
+            minimumSize: WidgetStateProperty.all(const Size(150, 50)),
+            textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 20)),
           ),
-          onPressed: () =>
-              Navigator.popAndPushNamed(context, MyRoutes.signedInPageRoute),
-          icon: const Icon(
-            Icons.book_rounded,
-            size: 30,
-          ),
-          label: const Text("My Logbook"),
+          onPressed: () {
+            Navigator.popAndPushNamed(context, MyRoutes.homePage);
+          },
+          icon: const Icon(Icons.book_rounded, size: 30),
+          label: Text(S.current.myLogbook),
         ),
-        SizedBox.fromSize(
-          size: const Size(30, 30),
-        ),
+        SizedBox.fromSize(size: const Size(30, 30)),
         TextButton.icon(
           style: ButtonStyle(
-            minimumSize: MaterialStateProperty.all(const Size(150, 50)),
-            textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 20)),
+            minimumSize: WidgetStateProperty.all(const Size(150, 50)),
+            textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 20)),
           ),
           onPressed: () {
             signOut(context);
             setState(() {});
           },
-          icon: const Icon(
-            Icons.logout,
-            size: 30,
-          ),
-          label: const Text("Sign Out"),
+          icon: const Icon(Icons.logout, size: 30),
+          label: Text(S.current.signOut),
         ),
       ],
     );
   }
 
   /// signout the current user from both google and Firebase
-  void signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut().then((value) async {
-      if (googleSignIn != null) {
-        if (await googleSignIn!.isSignedIn()) await googleSignIn!.signOut();
-      }
-    }).then((value) {
-      if (Navigator.canPop(context)) {
-        setState(() {});
-        // Navigator.popUntil(
-        //   context,
-        //   ModalRoute.withName(HomePageRoute),
-        // );
-      }
-    });
+  Future<void> signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      debugPrint('Error signing out: $e');
+    }
   }
 }
