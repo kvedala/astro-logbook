@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Astronomy Log Book</string>
+    <!-- Mirror the Android options in lib/firebase_options.dart. Native Firebase auto-initializes from these
+         (replacing google-services.json), and Dart's initializeApp must match them or it throws core/duplicate-app. -->
+    <string name="google_app_id" translatable="false">1:703059723550:android:27e3e67e20aef4ee22750f</string>
+    <string name="google_api_key" translatable="false">AIzaSyCb30ztvdH0F2bsnzzORK_l4OJZY92yL_A</string>
+    <string name="gcm_defaultSenderId" translatable="false">703059723550</string>
+    <string name="project_id" translatable="false">astronomy-log-book</string>
+    <string name="google_storage_bucket" translatable="false">astronomy-log-book.appspot.com</string>
     <string name="facebook_app_id">437381314078679</string>
     <string name="facebook_client_token">b43e8595ee67c824919c164eff3ec0bb</string>
 </resources>
