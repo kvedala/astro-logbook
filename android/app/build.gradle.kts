@@ -1,12 +1,14 @@
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.firebase.crashlytics")
+    // END: FlutterFire Configuration
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.vedalaholdings.astro_log"
+    namespace = "com.vedalaholdings.astro_log2"
     compileSdk = 37
     ndkVersion = libs.versions.ndk.get()
 
@@ -17,7 +19,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.vedalaholdings.astro_log"
+        applicationId = "com.vedalaholdings.astro_log2"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 30 // flutter.minSdkVersion
@@ -31,6 +33,10 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // The upload task requires the Google Services plugin.
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
         }
     }
 

@@ -10,7 +10,7 @@ kotlinGradlePlugin = "2.4.21"
 kotlinxSerializationJson = "1.12.0"
 mockitoCore = "5.24.0"
 mockk = "1.14.11"
-ndk = "29.0.14206865"
+ndk = "30.0.16248370"
 
 [libraries]
 androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }

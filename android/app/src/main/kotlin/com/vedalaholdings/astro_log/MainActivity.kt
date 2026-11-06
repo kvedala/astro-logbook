@@ -1,4 +1,4 @@
-package com.vedalaholdings.astro_log
+package com.vedalaholdings.astro_log2
 
 import io.flutter.embedding.android.FlutterActivity
 
