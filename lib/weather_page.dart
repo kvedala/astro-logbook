@@ -33,36 +33,39 @@ class WeatherPage extends StatelessWidget {
           //       child: Expanded(
           //         child:
           InAppWebView(
-        initialFile: 'assets/astrospheric.html',
-        onLoadStop: (controller, url) => getCurrentPosition.then(
-          (position) async {
-            // Set the embedded forecast size before its initialization script runs.
-            await controller.evaluateJavascript(source: """
+            initialFile: 'assets/astrospheric.html',
+            onLoadStop: (controller, url) =>
+                getCurrentPosition.then((position) async {
+                  // Set the embedded forecast size before its initialization script runs.
+                  await controller.evaluateJavascript(
+                    source:
+                        """
 const d = document.getElementById('AstrosphericContainer');
 ${screen.width > screen.height ? "d.style.width = '' + ${screen.width.toStringAsFixed(5)} + ' px'; d.style.height = '100%'" : "d.style.width = '100%'; d.style.height = '' + ${screen.width.toStringAsFixed(5)} + ' px"};
 console.log(d.style);"
-""");
-            await controller.evaluateJavascript(
-                source: 'm_AstrosphericEmbed.Create("AstrosphericContainer", '
-                    '${position.latitude}, ${position.longitude});');
-          },
-        ),
-        onConsoleMessage: (controller, consoleMessage) =>
-            debugPrint(consoleMessage.message),
-        initialSettings: InAppWebViewSettings(
-          // useShouldOverrideUrlLoading: true,
-          allowsInlineMediaPlayback: true,
-          sharedCookiesEnabled: true,
-          transparentBackground: true,
-          verticalScrollBarEnabled: true,
-          verticalScrollbarPosition:
-              VerticalScrollbarPosition.SCROLLBAR_POSITION_RIGHT,
+""",
+                  );
+                  await controller.evaluateJavascript(
+                    source:
+                        'm_AstrosphericEmbed.Create("AstrosphericContainer", '
+                        '${position.latitude}, ${position.longitude});',
+                  );
+                }),
+            onConsoleMessage: (controller, consoleMessage) =>
+                debugPrint(consoleMessage.message),
+            initialSettings: InAppWebViewSettings(
+              // useShouldOverrideUrlLoading: true,
+              allowsInlineMediaPlayback: true,
+              sharedCookiesEnabled: true,
+              transparentBackground: true,
+              verticalScrollBarEnabled: true,
+              verticalScrollbarPosition:
+                  VerticalScrollbarPosition.SCROLLBAR_POSITION_RIGHT,
 
-          applicationNameForUserAgent:
-              'Astronomy Logbook (https://github.com/kvedala/astro-logbook)',
-        ),
-        // onProgressChanged: (controller, progress) => loader.add(progress),
-      ),
+              applicationNameForUserAgent: 'Astronomy Logbook (https://github.com/kvedala/astro-logbook)',
+            ),
+            // onProgressChanged: (controller, progress) => loader.add(progress),
+          ),
       //     ),
       //   ),
       // ],
@@ -83,5 +86,16 @@ console.log(d.style);"
     }
 
     return Future.error(Exception('Location permission not granted.'));
+  }
+
+  static Future<gps.LocationData?> get lastKnownPosition async {
+    final location = gps.Location();
+    if (!await location.serviceEnabled()) return null;
+    final permission = await location.hasPermission();
+    if (permission != gps.PermissionStatus.granted &&
+        permission != gps.PermissionStatus.grantedLimited) {
+      return null;
+    }
+    return location.getLastKnownLocation();
   }
 }
