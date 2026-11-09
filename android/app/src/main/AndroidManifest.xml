@@ -53,9 +53,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Required for foreground location requests; background mode is not used. -->
         <service
             android:name="com.lyokone.location.FlutterLocationService"
-            tools:node="remove" />
+            tools:remove="android:foregroundServiceType" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
