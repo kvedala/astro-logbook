@@ -383,66 +383,69 @@ class _ShowDetailsState extends State<_ShowDetails> {
       ),
       body: Column(children: [
         Expanded(
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Table(
-                columnWidths: const {
-                  0: FixedColumnWidth(120),
-                  1: FlexColumnWidth(),
-                  2: FlexColumnWidth(.1)
-                },
-                children: widget.tableItems.entries
-                    .map(
-                      (e) => TableRow(
-                        children: [
-                          Text(
-                            e.key,
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          Text(
-                            (e.value.runtimeType == TextEditingController)
-                                ? e.value.text
-                                : e.value,
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          const [
-                            'Date & Time',
-                            'Location',
-                            'NGC',
-                            'Messier',
-                            'Latitude',
-                            'Longitude'
-                          ].contains(e.key)
-                              ? IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () => _updateField(context, e.key),
-                                )
-                              : const SizedBox(),
-                        ],
-                      ),
-                    )
-                    .toList(),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Table(
+                      columnWidths: const {
+                        0: FixedColumnWidth(120),
+                        1: FlexColumnWidth(),
+                        2: FixedColumnWidth(48)
+                      },
+                      children: widget.tableItems.entries
+                          .map(
+                            (e) => TableRow(
+                              children: [
+                                Text(
+                                  e.key,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                                Text(
+                                  (e.value.runtimeType == TextEditingController)
+                                      ? e.value.text
+                                      : e.value,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                                const [
+                                  'Date & Time',
+                                  'Location',
+                                  'NGC',
+                                  'Messier',
+                                  'Latitude',
+                                  'Longitude'
+                                ].contains(e.key)
+                                    ? IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () => _updateField(context, e.key),
+                                      )
+                                    : const SizedBox(),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    child: widget.tile.equipment ?? const SizedBox(),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    child: Row(
+                      children: [
+                        const Text("Notes:", style: TextStyle(fontSize: 20)),
+                        IconButton(
+                            icon: const Icon(Icons.add_box_rounded),
+                            onPressed: _addNote)
+                      ],
+                    ),
+                  ),
+                ]),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(5),
-              child: widget.tile.equipment ?? const SizedBox(),
-            ),
-            Container(
-              padding: const EdgeInsets.all(5),
-              child: Row(
-                children: [
-                  const Text("Notes:", style: TextStyle(fontSize: 20)),
-                  IconButton(
-                      icon: const Icon(Icons.add_box_rounded),
-                      onPressed: _addNote)
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
+              SliverList.builder(
                 itemCount: widget.tile.notes!.length,
                 itemBuilder: (context, index) => Dismissible(
                   key: Key(widget.tile.notes![index]),
@@ -456,8 +459,8 @@ class _ShowDetailsState extends State<_ShowDetails> {
                   onDismissed: (dir) => widget.tile.notes!.removeAt(index),
                 ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
