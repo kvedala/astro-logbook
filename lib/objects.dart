@@ -5,6 +5,7 @@ import 'package:location/location.dart' as gps;
 import 'generated/l10n.dart';
 import 'ra_dec.dart';
 import 'rise_times.dart';
+import 'wikipedia_page.dart';
 
 /// Generic Celestial object catalog
 ///
@@ -25,7 +26,7 @@ abstract class Catalog extends StatelessWidget {
   /// observing difficulty
   final String? difficulty;
 
-  /// absolute magnitude of the object
+  /// apparent magnitude of the object
   final num? magnitude;
 
   /// was this object viewed by the user
@@ -64,6 +65,7 @@ abstract class Catalog extends StatelessWidget {
         "number": id,
         "catalog": name,
         "type": type,
+        if (magnitude != null) "magnitude": magnitude,
         "ra": ra.json,
         "dec": dec.json,
         "viewed": viewed,
@@ -95,6 +97,9 @@ abstract class Catalog extends StatelessWidget {
           color: viewed ? Colors.green[900] : Colors.red[900],
         ),
       ]),
+      title: this is Messier && (this as Messier).ngcNumbers.isNotEmpty
+          ? Text('Related: ${(this as Messier).ngcNumbers.map((n) => 'NGC $n').join(', ')}')
+          : null,
       subtitle: Table(columnWidths: const {
         0: FlexColumnWidth(1),
         1: FlexColumnWidth(.75),
@@ -114,7 +119,10 @@ abstract class Catalog extends StatelessWidget {
         ]),
         TableRow(children: [
           Text("DEC: ${dec.toString()}"),
-          Text(difficulty ?? ""),
+          Text([
+            ?difficulty,
+            if (magnitude != null) 'Mag $magnitude',
+          ].join(' · ')),
           riseTimes == null
               ? const SizedBox()
               : (riseTimes!.circumpolar | riseTimes!.belowHorizon)
@@ -124,6 +132,7 @@ abstract class Catalog extends StatelessWidget {
         ]),
       ]),
       trailing: visible,
+      onTap: name == 'Messier' ? () => openMessierWikipedia(context, id) : null,
       // onLongPress: () => Navigator.push(context,
       //     MaterialPageRoute(builder: (context) => ViewObjectInfo(name, id))),
     );
@@ -133,13 +142,37 @@ abstract class Catalog extends StatelessWidget {
 /// Convenience class to store Messier Objects.
 /// Displays as a list tile.
 class Messier extends Catalog {
+  final String? designation;
+  final String? constellation;
+  final String? size;
+  final int? distanceLightYears;
+  final String? viewingSeason;
+  final List<int> ngcNumbers;
+
   Messier(super.id, String type, super.ra, super.dec,
       {super.key,
       super.difficulty,
       super.magnitude,
       super.viewed,
-      super.currentLocation})
+      super.currentLocation,
+      this.designation,
+      this.constellation,
+      this.size,
+      this.distanceLightYears,
+      this.viewingSeason,
+      this.ngcNumbers = const []})
       : super(name: "Messier", type: type);
+
+  @override
+  Map<String, dynamic> get json => {
+        ...super.json,
+        if (designation != null) 'designation': designation,
+        if (constellation != null) 'constellation': constellation,
+        if (size != null) 'size': size,
+        if (distanceLightYears != null) 'distanceLightYears': distanceLightYears,
+        if (viewingSeason != null) 'viewingSeason': viewingSeason,
+        if (ngcNumbers.isNotEmpty) 'ngcNumbers': ngcNumbers,
+      };
 
   factory Messier.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {
@@ -149,6 +182,13 @@ class Messier extends Catalog {
       RightAscession.fromJSON(json['ra']),
       Declination.fromJSON(json['dec']),
       difficulty: json['difficulty'],
+      magnitude: json['magnitude'] as num?,
+      designation: json['designation'] as String?,
+      constellation: json['constellation'] as String?,
+      size: json['size'] as String?,
+      distanceLightYears: json['distanceLightYears'] as int?,
+      viewingSeason: json['viewingSeason'] as String?,
+      ngcNumbers: (json['ngcNumbers'] as List<dynamic>? ?? []).cast<int>(),
       viewed: viewed,
       currentLocation: currentLocation,
     );
@@ -158,22 +198,41 @@ class Messier extends Catalog {
 /// Convenience class to store NGC Objects.
 /// Displays as a list tile.
 class NGC extends Catalog {
+  final String? designation;
+  final String? constellation;
+  final String? info;
+
   NGC(super.id, String type, super.ra, super.dec,
       {super.key,
       super.difficulty,
       super.magnitude,
       super.viewed,
-      super.currentLocation})
+      super.currentLocation,
+      this.designation,
+      this.constellation,
+      this.info})
       : super(name: "NGC", type: type);
+
+  @override
+  Map<String, dynamic> get json => {
+        ...super.json,
+        if (designation != null) 'designation': designation,
+        if (constellation != null) 'constellation': constellation,
+        if (info != null) 'info': info,
+      };
 
   factory NGC.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {
     return NGC(
       json['number'],
       json['type'],
-      RightAscession.fromJSON(json['ra']['degree']),
-      Declination.fromJSON(json['dec']['degree']),
+      RightAscession.fromJSON(json['ra']),
+      Declination.fromJSON(json['dec']),
       difficulty: json['difficulty'],
+      magnitude: json['magnitude'] as num?,
+      designation: json['designation'] as String?,
+      constellation: json['constellation'] as String?,
+      info: json['info'] as String?,
       viewed: viewed,
       currentLocation: currentLocation,
     );

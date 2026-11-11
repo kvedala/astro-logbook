@@ -12,6 +12,7 @@ import 'list_of_objects.dart';
 import 'observations_gallery_page.dart';
 import 'routes.dart';
 import 'settings_page.dart';
+import 'tonight_page.dart';
 import 'weather_page.dart';
 
 /// Container to define tab properties
@@ -36,6 +37,11 @@ class MyTab {
 }
 
 final tabNames = [
+  MyTab(
+    const Icon(Icons.nights_stay),
+    (context) => 'Visible tonight',
+    const TonightPage(),
+  ),
   MyTab(
     const Icon(Icons.comment),
     (context) => S.current.observations,

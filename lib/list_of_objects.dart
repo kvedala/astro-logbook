@@ -6,6 +6,14 @@ import 'package:location/location.dart' as gps;
 
 import 'objects.dart';
 
+bool messierWasViewed(Map<String, dynamic> object,
+    Iterable<Map<String, dynamic>> observations) {
+  final related = (object['ngcNumbers'] as List<dynamic>? ?? []).whereType<int>().toSet();
+  return observations.any((observation) =>
+      observation['messier'] == object['number'] ||
+      related.contains(observation['ngc']));
+}
+
 /// Page to display the observations as a gallery
 class ListOfObjects extends StatelessWidget {
   const ListOfObjects({super.key});
@@ -53,24 +61,27 @@ class ListOfObjects extends StatelessWidget {
                   .collection(
                       "users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations")
                   // .where("messier", isGreaterThan: 0)
-                  .get(const GetOptions(source: Source.cache)),
-              builder: (context, snap3) => snap3.connectionState !=
-                      ConnectionState.done
-                  ? const Column(children: [
-                      CircularProgressIndicator(),
-                      Text("Loading viewed data...")
-                    ])
-                  : ListView.builder(
-                      itemCount: snap2.data?.size,
-                      itemBuilder: (context, index) => Messier.fromJSON(
+                  .get(const GetOptions(source: Source.serverAndCache)),
+              builder: (context, snap3) {
+                if (snap3.connectionState != ConnectionState.done) {
+                  return const Column(children: [
+                    CircularProgressIndicator(),
+                    Text("Loading viewed data...")
+                  ]);
+                }
+                if (snap3.hasError || !snap3.hasData) {
+                  return Center(child: Text("Could not load observations: ${snap3.error}"));
+                }
+                return ListView.builder(
+                  itemCount: snap2.data!.size,
+                  itemBuilder: (context, index) => Messier.fromJSON(
+                      snap2.data!.docs[index].data(),
+                      messierWasViewed(
                           snap2.data!.docs[index].data(),
-                          snap3.data!.docs
-                              .where((element) =>
-                                  snap2.data!.docs[index].data()['number'] ==
-                                  element.data()["messier"])
-                              .isNotEmpty,
-                          snap.data!),
-                    ),
+                          snap3.data!.docs.map((element) => element.data())),
+                      snap.data!),
+                );
+              },
             );
           },
         );

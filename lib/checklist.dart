@@ -57,8 +57,8 @@ class CheckList extends StatelessWidget {
       // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       Text(DateTime.now().yMMMd, style: const TextStyle(fontSize: 20)),
       // ]),
-      Form(
-        child: Expanded(
+      Expanded(
+        child: Form(
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection(
