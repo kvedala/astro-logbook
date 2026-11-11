@@ -3,7 +3,7 @@ description: Keep logs of your astronomical observations.
 publish_to: none
 version: 2.9.0+356
 environment:
-  sdk: ^3.13.0
+  sdk: ">=3.13.0 <4.0.0"
 dependencies:
   flutter:
     sdk: flutter
