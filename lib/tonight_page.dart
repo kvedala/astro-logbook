@@ -20,12 +20,36 @@ final _checklistObjectIdPattern = RegExp(r'^catalog_(messier|ngc)_\d+$');
 bool isChecklistObjectDocumentId(String id) =>
     _checklistObjectIdPattern.hasMatch(id);
 
+Future<void> setChecklistMembership(
+  Transaction transaction,
+  DocumentReference<Map<String, dynamic>> reference,
+  ObservingTarget target,
+  bool selected,
+) async {
+  if (!selected) {
+    transaction.delete(reference);
+    return;
+  }
+  final item = await transaction.get(reference);
+  if (!item.exists) {
+    transaction.set(reference, {
+      'kind': 'catalogObject',
+      'catalog': target.isNgc ? 'NGC' : 'Messier',
+      'number': target.number,
+      'title': '${target.isNgc ? 'NGC' : 'M'} ${target.number}',
+      'value': false,
+    });
+  }
+}
+
 class TonightPage extends StatefulWidget {
   final Future<gps.LocationData> Function()? locationProvider;
   final Future<gps.LocationData?> Function()? lastKnownLocationProvider;
   final Stream<List<ObservingTarget>> Function()? catalogProvider;
   final Stream<List<Map<String, dynamic>>> Function()? observationsProvider;
   final Stream<Set<String>> Function()? checklistProvider;
+  final Future<void> Function(ObservingTarget target, bool selected)?
+  checklistUpdater;
   final Future<List<ObservingTarget>?> Function() Function()? ngcPageSource;
   final DateTime Function()? clock;
 
@@ -36,6 +60,7 @@ class TonightPage extends StatefulWidget {
     this.catalogProvider,
     this.observationsProvider,
     this.checklistProvider,
+    this.checklistUpdater,
     this.ngcPageSource,
     this.clock,
   });
@@ -50,6 +75,7 @@ class _TonightPageState extends State<TonightPage> {
   Stream<List<ObservingTarget>>? _catalog;
   Stream<List<Map<String, dynamic>>>? _observations;
   Stream<Set<String>>? _checklist;
+  final Set<String> _pendingChecklistIds = {};
   Timer? _nightTimer;
   DateTime? _nextNightUpdate;
 
@@ -126,34 +152,33 @@ class _TonightPageState extends State<TonightPage> {
         );
   }
 
-  Future<void> _toggleChecklist(ObservingTarget target) async {
+  Future<void> _setChecklist(ObservingTarget target, bool selected) async {
+    final id = checklistObjectDocumentId(target);
+    if (_pendingChecklistIds.contains(id)) return;
+    setState(() => _pendingChecklistIds.add(id));
     try {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) {
-        throw StateError('Sign in to manage your tonight checklist.');
-      }
-      final reference = FirebaseFirestore.instance
-          .collection('users/$uid/checklist')
-          .doc(checklistObjectDocumentId(target));
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final item = await transaction.get(reference);
-        if (item.exists) {
-          transaction.delete(reference);
-        } else {
-          transaction.set(reference, {
-            'kind': 'catalogObject',
-            'catalog': target.isNgc ? 'NGC' : 'Messier',
-            'number': target.number,
-            'title': '${target.isNgc ? 'NGC' : 'M'} ${target.number}',
-            'value': false,
-          });
+      if (widget.checklistUpdater case final updater?) {
+        await updater(target, selected);
+      } else {
+        final uid = FirebaseAuth.instance.currentUser?.uid;
+        if (uid == null) {
+          throw StateError('Sign in to manage your tonight checklist.');
         }
-      });
+        final reference = FirebaseFirestore.instance
+            .collection('users/$uid/checklist')
+            .doc(id);
+        await FirebaseFirestore.instance.runTransaction(
+          (transaction) =>
+              setChecklistMembership(transaction, reference, target, selected),
+        );
+      }
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Could not update tonight checklist: $error')),
       );
+    } finally {
+      if (mounted) setState(() => _pendingChecklistIds.remove(id));
     }
   }
 
@@ -265,7 +290,8 @@ class _TonightPageState extends State<TonightPage> {
                     checklistObjectIds: checklistSnapshot.data,
                     checklistError: checklistSnapshot.error,
                     onRetryChecklist: () => setState(() => _checklist = null),
-                    onToggleChecklist: _toggleChecklist,
+                    pendingChecklistIds: _pendingChecklistIds,
+                    onSetChecklist: _setChecklist,
                     observations: observationSnapshot.hasError
                         ? null
                         : observationSnapshot.data,
@@ -452,7 +478,8 @@ class TonightResults extends StatefulWidget {
   final Set<String>? checklistObjectIds;
   final Object? checklistError;
   final VoidCallback? onRetryChecklist;
-  final void Function(ObservingTarget target)? onToggleChecklist;
+  final Set<String> pendingChecklistIds;
+  final void Function(ObservingTarget target, bool selected)? onSetChecklist;
   final VoidCallback onRefresh;
   final void Function(ObservingTarget target) onOpenObject;
   final void Function(ObservingTarget target, bool viewed)? onOpenObservations;
@@ -469,7 +496,8 @@ class TonightResults extends StatefulWidget {
     this.checklistObjectIds,
     this.checklistError,
     this.onRetryChecklist,
-    this.onToggleChecklist,
+    this.pendingChecklistIds = const {},
+    this.onSetChecklist,
     required this.onRefresh,
     required this.onOpenObject,
     this.onOpenObservations,
@@ -634,6 +662,10 @@ class _TonightResultsState extends State<TonightResults> {
         final viewed = widget.observations == null
             ? null
             : targetWasViewed(target, widget.observations!);
+        final checklistId = checklistObjectDocumentId(target);
+        final checklistSelected = widget.checklistObjectIds?.contains(
+          checklistId,
+        );
         return ObjectTile(
           name: name,
           title: target.type.trim().isEmpty ? name : '$name · ${target.type}',
@@ -646,17 +678,16 @@ class _TonightResultsState extends State<TonightResults> {
           visibilityLabel: 'Visible in darkness tonight',
           visibility: item,
           viewed: viewed,
-          checklistSelected: widget.checklistObjectIds?.contains(
-            checklistObjectDocumentId(target),
-          ),
+          checklistSelected: checklistSelected,
+          checklistUpdating: widget.pendingChecklistIds.contains(checklistId),
           onOpenObject: () => widget.onOpenObject(target),
           onOpenObservations:
               viewed == null || widget.onOpenObservations == null
               ? null
               : () => widget.onOpenObservations!(target, viewed),
-          onToggleChecklist: widget.onToggleChecklist == null
+          onToggleChecklist: widget.onSetChecklist == null
               ? null
-              : () => widget.onToggleChecklist!(target),
+              : () => widget.onSetChecklist!(target, !checklistSelected!),
         );
       },
     );
