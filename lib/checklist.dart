@@ -14,6 +14,14 @@ class CheckList extends StatelessWidget {
   /// Body of checklist tab for the user
   CheckList({super.key});
 
+  static Future<void> saveItems(
+      WriteBatch batch, Iterable<CheckListItem> items) async {
+    for (final item in items.where((item) => item.hasChanged)) {
+      batch.update(item.reference!, {'value': item.data['value']});
+    }
+    await batch.commit();
+  }
+
   /// Add a new checklist item to the DB
   static void addCheckListItem(BuildContext context) async {
     final textController = TextEditingController();
@@ -96,14 +104,14 @@ class CheckList extends StatelessWidget {
         icon: const Icon(Icons.save_alt_rounded),
         label: Text(S.current.saveChecklist),
         onPressed: () async {
-          final batch = FirebaseFirestore.instance.batch();
-          items.where((item) => item.hasChanged).forEach((item) {
-            if (item.hasChanged) {
-              batch.set(item.reference!, item.data);
-              debugPrint("${item.title}: change-");
-            }
-          });
-          await batch.commit();
+          try {
+            await saveItems(FirebaseFirestore.instance.batch(), items);
+          } catch (error) {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not save checklist: $error')),
+            );
+          }
         },
       ),
     ]);

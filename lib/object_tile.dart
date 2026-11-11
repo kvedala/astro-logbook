@@ -11,8 +11,10 @@ class ObjectTile extends StatelessWidget {
   final TargetVisibility? visibility;
   final bool visibilityKnown;
   final bool? viewed;
+  final bool? checklistSelected;
   final VoidCallback onOpenObject;
   final VoidCallback? onOpenObservations;
+  final VoidCallback? onToggleChecklist;
 
   const ObjectTile({
     super.key,
@@ -23,8 +25,10 @@ class ObjectTile extends StatelessWidget {
     required this.visibility,
     this.visibilityKnown = true,
     required this.viewed,
+    this.checklistSelected,
     required this.onOpenObject,
     required this.onOpenObservations,
+    this.onToggleChecklist,
   });
 
   @override
@@ -101,6 +105,22 @@ class ObjectTile extends StatelessWidget {
                   ),
                   onPressed: viewed == null ? null : onOpenObservations,
                 ),
+                if (onToggleChecklist != null)
+                  IconButton(
+                    tooltip: checklistSelected == null
+                        ? 'Checklist status loading'
+                        : checklistSelected!
+                        ? 'Remove from viewing checklist'
+                        : 'Add to viewing checklist',
+                    icon: Icon(
+                      checklistSelected == true
+                          ? Icons.playlist_add_check
+                          : Icons.playlist_add,
+                    ),
+                    onPressed: checklistSelected == null
+                        ? null
+                        : onToggleChecklist,
+                  ),
               ],
             ),
             if (details.isNotEmpty)
