@@ -63,11 +63,11 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                             itemBuilder: (context, index) =>
                                 index >= snap.data!.length
                                     ? const SizedBox()
-                                    : GallaryTile.fromObservation(
-                                        ObservationData.fromJson(
+                                    : GallaryTile(
+                                        observation: ObservationData.fromJson(
                                           snap.data![index].data(),
+                                          reference: snap.data![index].reference,
                                         ),
-                                        reference: snap.data![index].reference,
                                       ),
                           ),
                         ),
@@ -101,13 +101,13 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                               itemBuilder: (context, index) =>
                                   index >= snap.data!.docs.length
                                       ? const SizedBox()
-                                      : GallaryTile.fromObservation(
-                                          ObservationData.fromJson(
+                                      : GallaryTile(
+                                          observation: ObservationData.fromJson(
                                             snap.data!.docs[index].data()
                                                 as Map<String, dynamic>,
+                                            reference:
+                                                snap.data!.docs[index].reference,
                                           ),
-                                          reference:
-                                              snap.data!.docs[index].reference,
                                         ),
                             ),
                           );

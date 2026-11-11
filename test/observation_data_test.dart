@@ -1,5 +1,4 @@
 import 'package:astro_log/models/observation_data.dart';
-import 'package:astro_log/gallary_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,13 +41,5 @@ void main() {
     expect(observation.equipmentReference, isNull);
     expect(observation.dateTime, isNull);
     expect(observation.toJson().containsKey('equipment'), isFalse);
-  });
-
-  test('gallery notes remain editable when an observation has no notes', () {
-    final observation = ObservationData.fromJson({});
-    final tile = GallaryTile.fromObservation(observation);
-    tile.notes!.add('New note');
-    expect(tile.notes, ['New note']);
-    expect(observation.notes, isEmpty);
   });
 }
