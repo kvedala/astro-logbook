@@ -14,14 +14,17 @@ import 'observation_actions.dart';
 import 'weather_page.dart';
 import 'wikipedia_page.dart';
 
+/// Create a stable ID independent of mutable checklist metadata.
 String checklistObjectDocumentId(ObservingTarget target) =>
     'catalog_${target.isNgc ? 'ngc' : 'messier'}_${target.number}';
 
 final _checklistObjectIdPattern = RegExp(r'^catalog_(messier|ngc)_\d+$');
 
+/// Recognize catalog checklist entries even when their metadata is missing.
 bool isChecklistObjectDocumentId(String id) =>
     _checklistObjectIdPattern.hasMatch(id);
 
+/// Apply the intended membership without resetting an existing checked item.
 Future<void> setChecklistMembership(
   Transaction transaction,
   DocumentReference<Map<String, dynamic>> reference,
@@ -32,6 +35,7 @@ Future<void> setChecklistMembership(
     transaction.delete(reference);
     return;
   }
+  // Repeated adds must not overwrite an existing item's checked value.
   final item = await transaction.get(reference);
   if (!item.exists) {
     transaction.set(
@@ -47,6 +51,7 @@ Future<void> setChecklistMembership(
   }
 }
 
+/// Load location, catalog and user data for the current observing night.
 class TonightPage extends StatefulWidget {
   final Future<gps.LocationData> Function()? locationProvider;
   final Future<gps.LocationData?> Function()? lastKnownLocationProvider;
@@ -159,6 +164,7 @@ class _TonightPageState extends State<TonightPage> {
 
   Future<void> _setChecklist(ObservingTarget target, bool selected) async {
     final id = checklistObjectDocumentId(target);
+    // Guard immediately as well as disabling the button on the next frame.
     if (_pendingChecklistIds.contains(id)) return;
     setState(() => _pendingChecklistIds.add(id));
     try {
@@ -342,13 +348,17 @@ class _TonightPageState extends State<TonightPage> {
   }
 }
 
+/// Read magnitude-sorted NGC pages followed by objects without known magnitude.
 class _NgcPages {
   QueryDocumentSnapshot<Map<String, dynamic>>? _cursor;
   bool _missingMagnitudes = false;
   bool _done = false;
 
+  /// Return the next page, or null once both catalog passes are exhausted.
   Future<List<ObservingTarget>?> next() async {
     if (_done) return null;
+    // Firestore excludes missing magnitude fields from an orderBy query.
+    // A second pass by number finds those targets after the sorted pass.
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance
         .collection('ngc')
         .orderBy(_missingMagnitudes ? 'number' : 'magnitude')
@@ -476,6 +486,7 @@ class _TonightHeader extends StatelessWidget {
   }
 }
 
+/// Display and incrementally load visible targets for a calculated night.
 class TonightResults extends StatefulWidget {
   final TonightSky sky;
   final bool locationPending;
@@ -543,6 +554,7 @@ class _TonightResultsState extends State<TonightResults> {
   }
 
   void _reset() {
+    // Ignore results from requests belonging to the previous sky or catalog.
     _generation++;
     if (_hasPager) _pager.cancel();
     _pager = ObservingPager(widget.sky, widget.targets, widget.ngcPageSource());

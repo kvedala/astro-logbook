@@ -83,6 +83,7 @@ final tabNames = [
   ),
 ];
 
+/// Build navigation entries that publish the selected tab to [display].
 Widget drawer(BuildContext context, StreamController<MyTab> display) {
   return Drawer(
     child: ListView(

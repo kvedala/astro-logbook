@@ -4,6 +4,7 @@ import 'generated/l10n.dart';
 
 enum ConfirmAction { reject, accept }
 
+/// Present an irreversible-action warning with accept and reject choices.
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog(
       {super.key,

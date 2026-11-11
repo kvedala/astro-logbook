@@ -4,6 +4,7 @@ import 'ra_dec.dart';
 
 part 'catalog_data.g.dart';
 
+/// The catalog fields shared by the importers and catalog widgets.
 @JsonSerializable()
 class CatalogData {
   @JsonKey(name: 'number', fromJson: _intFromJson)
@@ -61,10 +62,12 @@ class CatalogData {
   Map<String, dynamic> toJson() => _$CatalogDataToJson(this);
 }
 
+// Keep catalog identifiers strict instead of truncating non-integral numbers.
 int _intFromJson(Object? value) => value as int;
 int? _nullableIntFromJson(Object? value) => value as int?;
 List<int> _numbersFromJson(Object? value) =>
     (value as List<dynamic>? ?? []).cast<int>();
+// Legacy catalog exports omit absent links rather than writing an empty list.
 List<int>? _numbersToJson(List<int> value) => value.isEmpty ? null : value;
 Map<String, dynamic> _raToJson(RightAscession value) => value.json;
 Map<String, dynamic> _decToJson(Declination value) => value.json;

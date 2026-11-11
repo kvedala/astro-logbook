@@ -133,6 +133,7 @@ List<NGC> parseNGCCsv(String data) {
       .toList(growable: false);
 }
 
+/// Expand known constellation abbreviations while preserving unknown names.
 String constellationName(String constellation) {
   const names = {
     'And': 'Andromeda',
@@ -228,6 +229,7 @@ String constellationName(String constellation) {
   return names[value] ?? value;
 }
 
+/// Expand a stored abbreviation only when it matches the imported name.
 Map<String, dynamic> ngcConstellationUpdates(
   NGC object,
   Map<String, dynamic> existing,
@@ -302,6 +304,7 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadNGC({
     final chunk = objects.sublist(start, end);
     await firestore.runTransaction((transaction) async {
       final snapshots = <int, DocumentSnapshot<Map<String, dynamic>>>{};
+      // Complete all reads before writes, as required by Firestore transactions.
       for (final element in chunk) {
         final snapshot = await transaction.get(references[element.id]!);
         if (!snapshot.exists || snapshot.data()?['number'] != element.id) {
@@ -440,6 +443,7 @@ Future<void> syncCatalogLinks() async {
       if (!data.containsKey(entry.value.field)) {
         missing[entry.key] = entry.value;
       } else if (current is! List || !listEquals(current, entry.value.values)) {
+        // Existing links may have been curated; do not silently replace them.
         throw StateError('Existing catalog links differ at ${entry.key.path}');
       }
     }

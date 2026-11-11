@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'observation_data.g.dart';
 
+/// An observation's persisted fields, plus its separately attached document reference.
 @JsonSerializable()
 class ObservationData {
   final String? title;
@@ -15,6 +16,7 @@ class ObservationData {
   final num? seeing;
   final num? visibility;
   final num? transparency;
+  // Equipment is stored as a Firestore reference, not an embedded object.
   @JsonKey(
     name: 'equipment',
     fromJson: _referenceFromJson,
@@ -47,6 +49,7 @@ class ObservationData {
     this.reference,
   });
 
+  /// Decode Firestore fields and attach the document reference separately.
   factory ObservationData.fromJson(
     Map<String, dynamic> json, {
     DocumentReference? reference,
@@ -66,6 +69,7 @@ class ObservationData {
 
   static Object? _referenceToJson(DocumentReference? value) => value;
 
+  /// Copy the observation, preserving its reference when none is supplied.
   ObservationData copyWith({DocumentReference? reference}) {
     return ObservationData(
       title: title,

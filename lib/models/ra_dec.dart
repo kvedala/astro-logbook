@@ -60,6 +60,7 @@ class Declination {
     num secondsComponent = 0,
   }) : this(degreesComponent, minutesComponent, sign, secondsComponent);
 
+  // Firestore stores the unsigned components separately from the sign.
   @JsonKey(name: 'degree', fromJson: _intFromJson)
   int get degreesComponent => _deg;
   @JsonKey(name: 'minute')

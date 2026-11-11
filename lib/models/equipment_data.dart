@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'equipment_data.g.dart';
 
+/// Equipment document fields; observations store a reference to this document.
 @JsonSerializable()
 class EquipmentData {
   final String? telescope;

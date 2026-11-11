@@ -7,9 +7,11 @@ import 'package:astronomia/solar.dart' as solar;
 
 import '../models/observing_target.dart';
 
+/// Whether the magnitude can participate in brightness ordering.
 bool hasKnownMagnitude(ObservingTarget target) =>
     target.magnitude != null && target.magnitude!.isFinite;
 
+/// Lower magnitudes are brighter; missing and non-finite values sort last.
 int compareBrightness(ObservingTarget a, ObservingTarget b) {
   final aKnown = hasKnownMagnitude(a);
   final bKnown = hasKnownMagnitude(b);
@@ -39,6 +41,7 @@ class ObservingPager {
           messier.map(sky.visibility).whereType<TargetVisibility>().toList()
             ..sort((a, b) => compareBrightness(a.target, b.target));
 
+  /// Append up to [limit] visible, deduplicated targets in brightness order.
   Future<void> loadMore({int limit = 25}) async {
     final end = results.length + limit;
     while (results.length < end && !_cancelled) {
@@ -49,6 +52,7 @@ class ObservingPager {
           _ngcDone = true;
           break;
         }
+        // Either catalog can carry the link, so exclude duplicates in both directions.
         _ngc
           ..clear()
           ..addAll(
@@ -83,21 +87,25 @@ class ObservingPager {
     }
   }
 
+  /// Discard future page results when this pager is no longer current.
   void cancel() => _cancelled = true;
 }
 
+/// A start and end time bounding a period of darkness or visibility.
 class TimeInterval {
   final DateTime start;
   final DateTime end;
   const TimeInterval(this.start, this.end);
 }
 
+/// A horizon or twilight crossing, including its direction.
 class SkyEvent {
   final DateTime time;
   final bool rising;
   const SkyEvent(this.time, this.rising);
 }
 
+/// Visibility intervals and the highest-altitude time for one target.
 class TargetVisibility {
   final ObservingTarget target;
   final DateTime bestTime;
@@ -148,6 +156,7 @@ class TonightSky {
   }
 
   static const _radians = math.pi / 180;
+  // Julian days use a noon-based epoch, while Unix timestamps use midnight.
   double _jd(DateTime time) =>
       time.toUtc().millisecondsSinceEpoch / 86400000 + 2440587.5;
 
@@ -161,11 +170,13 @@ class TonightSky {
     return math.asin(sine.clamp(-1.0, 1.0)) / _radians;
   }
 
+  /// Calculate the apparent solar altitude in degrees at [time].
   double sunAltitude(DateTime time) {
     final position = solar.apparentEquatorial(_jd(time));
     return _altitude(time, position.ra, position.dec);
   }
 
+  /// Calculate the geocentric lunar altitude in degrees at [time].
   double moonAltitude(DateTime time) {
     final jd = _jd(time);
     final position = moon.position(jd);
@@ -179,6 +190,7 @@ class TonightSky {
     return _altitude(time, eq.ra, eq.dec);
   }
 
+  /// Calculate the illuminated fraction of the Moon at [time].
   double moonIllumination(DateTime time) =>
       moonillum.illuminated(moonillum.phaseAngle3(_jd(time)));
 
@@ -213,6 +225,7 @@ class TonightSky {
     return events;
   }
 
+  // The solar threshold approximates the apparent upper limb at the horizon.
   late final List<SkyEvent> sunEvents = _crossings(sunAltitude, -0.833);
   // The geocentric threshold includes approximate lunar parallax and refraction.
   late final List<SkyEvent> moonEvents = _crossings(moonAltitude, 0.125);
@@ -233,6 +246,7 @@ class TonightSky {
     return intervals;
   }();
 
+  /// Find when [target] is above the horizon during astronomical darkness.
   TargetVisibility? visibility(ObservingTarget target) {
     DateTime? best;
     var maxAltitude = 0.0;
@@ -241,6 +255,7 @@ class TonightSky {
       final sidereal = astro.mean(_jd(interval.start)) * 2 * math.pi / 86400;
       final untilTransit =
           (target.ra.radian - longitude * _radians - sidereal) % (2 * math.pi);
+      // A fixed target returns to transit after a sidereal, not solar, day.
       const siderealDayMicros = 86164.0905 * 1e6;
       final transit = interval.start.add(
         Duration(
@@ -267,6 +282,7 @@ class TonightSky {
         }
       }
       boundaries.sort();
+      // Test each monotonic segment separately to retain short visibility windows.
       DateTime? visibleStart =
           _altitude(interval.start, target.ra.radian, target.dec.radian) > 0
           ? interval.start
@@ -278,6 +294,7 @@ class TonightSky {
         final rightUp =
             _altitude(right, target.ra.radian, target.dec.radian) > 0;
         if (leftUp == rightUp) continue;
+        // Bisect the crossing until its time is bracketed within 30 seconds.
         while (right.difference(left) > const Duration(seconds: 30)) {
           final mid = left.add(right.difference(left) ~/ 2);
           if ((_altitude(mid, target.ra.radian, target.dec.radian) > 0) ==

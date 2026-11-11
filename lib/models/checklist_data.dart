@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'checklist_data.g.dart';
 
+/// Custom checklist items may omit the metadata used by catalog items.
 @JsonSerializable()
 class ChecklistData {
   @JsonKey(required: true)

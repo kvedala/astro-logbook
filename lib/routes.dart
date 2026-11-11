@@ -4,6 +4,7 @@ import 'add_observation.dart';
 import 'sign_in.dart';
 import 'signed_in.dart';
 
+/// Named routes used by the sign-in flow and observation form.
 class MyRoutes {
 // const String HomePageRoute = '/';
   static const String signInPageRoute = '/';

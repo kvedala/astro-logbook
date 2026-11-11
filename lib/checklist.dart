@@ -15,6 +15,7 @@ class CheckList extends StatelessWidget {
   /// Body of checklist tab for the user
   CheckList({super.key});
 
+  /// Persist changed check states without replacing catalog metadata.
   static Future<void> saveItems(
       WriteBatch batch, Iterable<CheckListItem> items) async {
     for (final item in items.where((item) => item.hasChanged)) {

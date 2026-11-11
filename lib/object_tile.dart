@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'services/tonight_service.dart';
 
+/// Display a catalog target with independent navigation and status actions.
 class ObjectTile extends StatelessWidget {
   final String name;
   final String title;

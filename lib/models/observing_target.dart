@@ -4,6 +4,7 @@ import 'ra_dec.dart';
 
 part 'observing_target.g.dart';
 
+/// A read-only view of either catalog used for visibility calculations.
 @JsonSerializable(constructor: '_json', createToJson: false)
 class ObservingTarget {
   @JsonKey(fromJson: _intFromJson)
@@ -55,6 +56,7 @@ class ObservingTarget {
     this.messierNumbers = const [],
   });
 
+  /// Decode a Messier document using its NGC links and collection identity.
   factory ObservingTarget.fromMessierJson(Map<String, dynamic> json) =>
       _$ObservingTargetFromJson({
         ...json,
@@ -62,6 +64,7 @@ class ObservingTarget {
         'messierNumbers': null,
       });
 
+  /// Decode an NGC document using its Messier links and collection identity.
   factory ObservingTarget.fromNgcJson(Map<String, dynamic> json) =>
       _$ObservingTargetFromJson({...json, 'isNgc': true, 'ngcNumbers': null});
 }
