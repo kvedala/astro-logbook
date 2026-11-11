@@ -183,12 +183,44 @@ void main() {
     expect(catalog, hasLength(7840));
     expect(catalog.first.json['number'], 1);
     expect(catalog.first.json['designation'], 'UGC 57');
-    expect(catalog.first.json['constellation'], 'Peg');
+    expect(catalog.first.json['constellation'], 'Pegasus');
     expect(catalog.first.json['magnitude'], 13);
     expect(catalog.first.json['info'], 'Size: 1.9  F, S, R, bet *11 and *14');
     expect(catalog[3].json.containsKey('designation'), isFalse);
     expect(catalog[3].json.containsKey('magnitude'), isFalse);
   });
+
+  test(
+    'NGC updates expand only matching legacy constellation abbreviations',
+    () {
+      final object = parseNGCCsv(
+        'ObjectNum,Name,Type,Constellation,Magnitude,Info,RAHour,RAMinute,DecSign,DecDeg,DecMinute\n'
+        '1,UGC 57,Galaxy,Pegasus,13,Notes,0,7.3,+,27,43',
+      ).single;
+      expect(
+        ngcUpdates(object, {'constellation': 'Peg'})['constellation'],
+        'Pegasus',
+      );
+      expect(
+        ngcUpdates(object, {
+          'constellation': 'Pegasus',
+        }).containsKey('constellation'),
+        isFalse,
+      );
+      expect(
+        ngcUpdates(object, {
+          'constellation': 'And',
+        }).containsKey('constellation'),
+        isFalse,
+      );
+      expect(
+        ngcUpdates(object, {
+          'constellation': 'Custom',
+        }).containsKey('constellation'),
+        isFalse,
+      );
+    },
+  );
 
   test('NGC import omits literal nulls instead of storing text', () {
     final catalog = parseNGCCsv(

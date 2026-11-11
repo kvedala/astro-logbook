@@ -13,7 +13,7 @@ The app can be compiled for Android and iOS smartphones and tablets and also as 
 
 The maintenance function `uploadMessier()` in [lib/uploadobjects.dart](lib/uploadobjects.dart) adds missing catalog fields from the bundled CSV to existing `messier` Firestore documents, without replacing existing values. These include apparent magnitude, designation, constellation, size, distance in light-years, and viewing season. Running it requires Firestore write access.
 
-`uploadNGC()` adds missing NGC designations, constellations, magnitudes, and catalog notes in resumable transactions, and removes legacy `"null"` difficulty placeholders. `syncCatalogLinks()` stores associations from the two CSV files in both collections. Linked NGC observations count as viewed in the Messier list, including related objects such as NGC 6603 within M24.
+`uploadNGC()` adds missing NGC designations, constellations, magnitudes, and catalog notes in resumable transactions, expands existing constellation abbreviations when they match the bundled catalog, and removes legacy `"null"` difficulty placeholders. Use `uploadNGC(constellationsOnly: true)` to update only matching legacy constellation abbreviations. `syncCatalogLinks()` stores associations from the two CSV files in both collections. Linked NGC observations count as viewed in the Messier list, including related objects such as NGC 6603 within M24.
 
 # Downloads
 * Online web app - https://astrolog.vedala.holdings

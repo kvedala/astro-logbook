@@ -133,7 +133,116 @@ List<NGC> parseNGCCsv(String data) {
       .toList(growable: false);
 }
 
-/// Prepare missing NGC fields and remove legacy string null placeholders.
+String constellationName(String constellation) {
+  const names = {
+    'And': 'Andromeda',
+    'Ant': 'Antlia',
+    'Aps': 'Apus',
+    'Aql': 'Aquila',
+    'Aqr': 'Aquarius',
+    'Ara': 'Ara',
+    'Ari': 'Aries',
+    'Aur': 'Auriga',
+    'Boo': 'Boötes',
+    'CMa': 'Canis Major',
+    'CMi': 'Canis Minor',
+    'CVn': 'Canes Venatici',
+    'Cae': 'Caelum',
+    'Cam': 'Camelopardalis',
+    'Cap': 'Capricornus',
+    'Car': 'Carina',
+    'Cas': 'Cassiopeia',
+    'Cen': 'Centaurus',
+    'Cep': 'Cepheus',
+    'Cet': 'Cetus',
+    'Cha': 'Chamaeleon',
+    'Cir': 'Circinus',
+    'Cnc': 'Cancer',
+    'Col': 'Columba',
+    'Com': 'Coma Berenices',
+    'CrA': 'Corona Australis',
+    'CrB': 'Corona Borealis',
+    'Crt': 'Crater',
+    'Cru': 'Crux',
+    'Crv': 'Corvus',
+    'Cyg': 'Cygnus',
+    'Del': 'Delphinus',
+    'Dor': 'Dorado',
+    'Dra': 'Draco',
+    'Equ': 'Equuleus',
+    'Eri': 'Eridanus',
+    'For': 'Fornax',
+    'Gem': 'Gemini',
+    'Gru': 'Grus',
+    'Her': 'Hercules',
+    'Hor': 'Horologium',
+    'Hya': 'Hydra',
+    'Hyi': 'Hydrus',
+    'Ind': 'Indus',
+    'LMi': 'Leo Minor',
+    'Lac': 'Lacerta',
+    'Leo': 'Leo',
+    'Lep': 'Lepus',
+    'Lib': 'Libra',
+    'Lup': 'Lupus',
+    'Lyn': 'Lynx',
+    'Lyr': 'Lyra',
+    'Men': 'Mensa',
+    'Mic': 'Microscopium',
+    'Mon': 'Monoceros',
+    'Mus': 'Musca',
+    'Nor': 'Norma',
+    'Oct': 'Octans',
+    'Oph': 'Ophiuchus',
+    'Ori': 'Orion',
+    'Pav': 'Pavo',
+    'Peg': 'Pegasus',
+    'Per': 'Perseus',
+    'Phe': 'Phoenix',
+    'Pic': 'Pictor',
+    'PsA': 'Piscis Austrinus',
+    'Psc': 'Pisces',
+    'Pup': 'Puppis',
+    'Pyx': 'Pyxis',
+    'Ret': 'Reticulum',
+    'Scl': 'Sculptor',
+    'Sco': 'Scorpius',
+    'Sct': 'Scutum',
+    'Ser': 'Serpens',
+    'Sex': 'Sextans',
+    'Sge': 'Sagitta',
+    'Sgr': 'Sagittarius',
+    'Tau': 'Taurus',
+    'Tel': 'Telescopium',
+    'TrA': 'Triangulum Australe',
+    'Tri': 'Triangulum',
+    'Tuc': 'Tucana',
+    'UMa': 'Ursa Major',
+    'UMi': 'Ursa Minor',
+    'Vel': 'Vela',
+    'Vir': 'Virgo',
+    'Vol': 'Volans',
+    'Vul': 'Vulpecula',
+  };
+  final value = constellation.trim();
+  return names[value] ?? value;
+}
+
+Map<String, dynamic> ngcConstellationUpdates(
+  NGC object,
+  Map<String, dynamic> existing,
+) {
+  final constellation = existing['constellation'];
+  if (constellation is String &&
+      object.constellation != null &&
+      constellation != object.constellation &&
+      constellationName(constellation) == object.constellation) {
+    return {'constellation': object.constellation};
+  }
+  return {};
+}
+
+/// Prepare missing fields and correct known legacy constellation abbreviations.
 Map<String, dynamic> ngcUpdates(NGC object, Map<String, dynamic> existing) {
   final fields = object.json
     ..remove('viewed')
@@ -141,6 +250,7 @@ Map<String, dynamic> ngcUpdates(NGC object, Map<String, dynamic> existing) {
   fields.removeWhere(
     (key, value) => value == null || existing.containsKey(key),
   );
+  fields.addAll(ngcConstellationUpdates(object, existing));
   final difficulty = existing['difficulty'];
   if (difficulty is String && difficulty.trim().toLowerCase() == 'null') {
     fields['difficulty'] = FieldValue.delete();
@@ -148,12 +258,14 @@ Map<String, dynamic> ngcUpdates(NGC object, Map<String, dynamic> existing) {
   return fields;
 }
 
-/// Add missing catalog fields without replacing existing Firestore values.
+/// Add missing catalog fields and expand matching constellation abbreviations.
 ///
 /// Each transaction commits up to 100 documents. If interrupted, rerunning
 /// the importer safely continues with fields that are still missing.
+/// Set [constellationsOnly] to update only matching legacy abbreviations.
 Future<QuerySnapshot<Map<String, dynamic>>> uploadNGC({
   void Function(int completed, int total)? onProgress,
+  bool constellationsOnly = false,
 }) async {
   final objects = parseNGCCsv(
     await rootBundle.loadString("assets/NGCObjects.csv"),
@@ -198,7 +310,10 @@ Future<QuerySnapshot<Map<String, dynamic>>> uploadNGC({
         snapshots[element.id] = snapshot;
       }
       for (final element in chunk) {
-        final fields = ngcUpdates(element, snapshots[element.id]!.data()!);
+        final existingFields = snapshots[element.id]!.data()!;
+        final fields = constellationsOnly
+            ? ngcConstellationUpdates(element, existingFields)
+            : ngcUpdates(element, existingFields);
         if (fields.isNotEmpty) {
           transaction.update(references[element.id]!, fields);
         }
