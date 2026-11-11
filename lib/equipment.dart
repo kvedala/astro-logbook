@@ -4,10 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'generated/l10n.dart';
+import 'models/equipment_data.dart';
 
 /// Get and display equipment details.
 ///
-/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class Equipment extends StatelessWidget {
   /// DB reference to the equipment document
   final DocumentReference? reference;
@@ -163,11 +163,12 @@ class Equipment extends StatelessWidget {
             onPressed: () async {
               if (!equipmentKey.currentState!.validate()) return;
               equipmentKey.currentState!.save();
+              final equipmentData = EquipmentData.fromJson(data).toJson();
               reference == null
                   ? await FirebaseFirestore.instance
                       .collection(
                           'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/equipments')
-                      .add(data)
+                      .add(equipmentData)
                       .then((ref) async {
                       while (!context.mounted) {
                         await Future.delayed(const Duration(milliseconds: 100));
@@ -193,7 +194,7 @@ class Equipment extends StatelessWidget {
                     })
                   : await FirebaseFirestore.instance
                       .doc(reference.path)
-                      .update(data)
+                      .update(equipmentData)
                       .then((ref) async {
                       while (!context.mounted) {
                         await Future.delayed(const Duration(milliseconds: 100));
@@ -245,13 +246,13 @@ class Equipment extends StatelessWidget {
   }
 
   Widget _buildTile(DocumentSnapshot data) {
-    final Map<String, dynamic> dataMap = data.data() as Map<String, dynamic>;
+    final equipment = EquipmentData.fromJson(data.data() as Map<String, dynamic>);
 
     return ListTile(
       visualDensity: VisualDensity.compact,
       title: Text(
-          "${dataMap['telescope']} (${dataMap['aperture']}mm, f/${(dataMap['focalLength'] / dataMap['aperture']).toStringAsFixed(1)})"),
-      subtitle: Text(dataMap['mount']),
+          "${equipment.telescope} (${equipment.aperture}mm, f/${(equipment.focalLength! / equipment.aperture!).toStringAsFixed(1)})"),
+      subtitle: Text(equipment.mount!),
       onTap: onTap,
     );
   }

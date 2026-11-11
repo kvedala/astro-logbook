@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:location/location.dart' as gps;
 
-import 'ra_dec.dart';
+import 'models/ra_dec.dart';
 
 extension on gps.LocationData {
   /// latitude value in radian

@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'objects.dart';
-import 'ra_dec.dart';
+import 'models/ra_dec.dart';
 
 /// Parse the Messier CSV into normalized records.
 List<Messier> parseMessierCsv(String data) {

@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'generated/l10n.dart';
 import 'utils.dart';
 import 'checklist_item.dart';
+import 'models/checklist_data.dart';
 
 /// Body of checklist tab
 class CheckList extends StatelessWidget {
@@ -52,10 +53,7 @@ class CheckList extends StatelessWidget {
       FirebaseFirestore.instance
           .collection(
               'users/${FirebaseAuth.instance.currentUser!.uid}/checklist')
-          .add({
-        'title': textController.text,
-        'value': false,
-      });
+          .add(ChecklistData(title: textController.text, value: false).toJson());
     }
   }
 
@@ -78,13 +76,17 @@ class CheckList extends StatelessWidget {
               }
 
               items.clear();
-              items.addAll(snap.data!.docs.expand((doc) => [
-                    CheckListItem(
-                      doc.get('title'),
-                      reference: doc.reference,
-                      initialValue: doc.get('value'),
-                    ),
-                  ]));
+              items.addAll(snap.data!.docs.map((doc) {
+                final data = ChecklistData.fromJson({
+                  'title': doc.get('title'),
+                  'value': doc.get('value'),
+                });
+                return CheckListItem(
+                  data.title,
+                  reference: doc.reference,
+                  initialValue: data.value,
+                );
+              }));
               return ListView.builder(
                 itemCount: snap.data!.size,
                 itemBuilder: (context, index) => Dismissible(

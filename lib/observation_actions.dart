@@ -3,7 +3,8 @@ import 'package:material_ui/material_ui.dart';
 
 import 'add_observation.dart';
 import 'gallary_tile.dart';
-import 'services/tonight_service.dart';
+import 'models/observing_target.dart';
+import 'models/observation_data.dart';
 
 bool matchesCatalogObservation({
   required int number,
@@ -100,7 +101,7 @@ class _TargetObservationsPage extends StatelessWidget {
             ),
             itemCount: docs.length,
             itemBuilder: (context, index) => GallaryTile.fromObservation(
-              ObservationData.fromJSON(docs[index].data()),
+              ObservationData.fromJson(docs[index].data()),
               reference: docs[index].reference,
             ),
           );

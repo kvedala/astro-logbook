@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:astro_log/object_tile.dart';
 import 'package:astro_log/observation_actions.dart';
-import 'package:astro_log/ra_dec.dart';
+import 'package:astro_log/models/ra_dec.dart';
+import 'package:astro_log/models/observing_target.dart';
 import 'package:astro_log/services/tonight_service.dart';
 import 'package:astro_log/tonight_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

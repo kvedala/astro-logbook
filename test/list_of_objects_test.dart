@@ -1,6 +1,6 @@
 import 'package:astro_log/list_of_objects.dart';
 import 'package:astro_log/objects.dart';
-import 'package:astro_log/ra_dec.dart';
+import 'package:astro_log/models/ra_dec.dart';
 import 'package:astro_log/services/tonight_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';

@@ -10,6 +10,7 @@ import 'object_tile.dart';
 import 'observation_actions.dart';
 import 'objects.dart';
 import 'services/tonight_service.dart';
+import 'models/observing_target.dart';
 import 'wikipedia_page.dart';
 
 bool messierWasViewed(

@@ -7,6 +7,8 @@ import 'package:location/location.dart' as gps;
 import 'package:material_ui/material_ui.dart';
 
 import 'services/tonight_service.dart';
+import 'models/observing_target.dart';
+import 'models/checklist_data.dart';
 import 'object_tile.dart';
 import 'observation_actions.dart';
 import 'weather_page.dart';
@@ -32,13 +34,16 @@ Future<void> setChecklistMembership(
   }
   final item = await transaction.get(reference);
   if (!item.exists) {
-    transaction.set(reference, {
-      'kind': 'catalogObject',
-      'catalog': target.isNgc ? 'NGC' : 'Messier',
-      'number': target.number,
-      'title': '${target.isNgc ? 'NGC' : 'M'} ${target.number}',
-      'value': false,
-    });
+    transaction.set(
+      reference,
+      ChecklistData(
+        kind: 'catalogObject',
+        catalog: target.isNgc ? 'NGC' : 'Messier',
+        number: target.number,
+        title: '${target.isNgc ? 'NGC' : 'M'} ${target.number}',
+        value: false,
+      ).toJson(),
+    );
   }
 }
 

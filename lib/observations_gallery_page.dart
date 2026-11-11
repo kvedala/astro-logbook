@@ -3,7 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'add_observation.dart';
+import 'models/observation_data.dart';
 import 'filter_widget.dart';
 import 'gallary_tile.dart';
 
@@ -64,7 +64,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                                 index >= snap.data!.length
                                     ? const SizedBox()
                                     : GallaryTile.fromObservation(
-                                        ObservationData.fromJSON(
+                                        ObservationData.fromJson(
                                           snap.data![index].data(),
                                         ),
                                         reference: snap.data![index].reference,
@@ -102,7 +102,7 @@ class _ObservationsGallaryState extends State<ObservationsGallary> {
                                   index >= snap.data!.docs.length
                                       ? const SizedBox()
                                       : GallaryTile.fromObservation(
-                                          ObservationData.fromJSON(
+                                          ObservationData.fromJson(
                                             snap.data!.docs[index].data()
                                                 as Map<String, dynamic>,
                                           ),

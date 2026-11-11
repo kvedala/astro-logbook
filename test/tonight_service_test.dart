@@ -1,4 +1,6 @@
-import 'package:astro_log/ra_dec.dart';
+import 'package:astro_log/models/ra_dec.dart';
+import 'package:astro_log/models/observing_target.dart';
+import 'package:astro_log/objects.dart';
 import 'package:astro_log/list_of_objects.dart';
 import 'package:astro_log/services/tonight_service.dart';
 import 'package:astro_log/uploadobjects.dart';
@@ -200,6 +202,77 @@ void main() {
     expect(target.type, 'Supernova Remnant');
     expect(target.magnitude, isNull);
     expect(target.ra.hours, closeTo(5.575, 0.001));
+  });
+
+  test('catalog adapters preserve coordinate and relationship formats', () {
+    final json = <String, dynamic>{
+      'number': 31,
+      'type': 'Galaxy',
+      'ra': {'hour': 0, 'minute': 42.7},
+      'dec': {'degree': 41, 'minute': 16, 'sign': '-'},
+      'ngcNumbers': [224],
+      'messierNumbers': [31],
+    };
+    final messier = ObservingTarget.fromMessierJson(json);
+    final ngc = ObservingTarget.fromNgcJson(json);
+    expect(messier.isNgc, isFalse);
+    expect(messier.ngcNumbers, [224]);
+    expect(messier.messierNumbers, isEmpty);
+    expect(ngc.isNgc, isTrue);
+    expect(ngc.ngcNumbers, isEmpty);
+    expect(ngc.messierNumbers, [31]);
+    expect(messier.ra.json, {'hour': 0, 'minute': 42.7, 'second': 0});
+    expect(messier.dec.json, {
+      'degree': 41,
+      'minute': 16,
+      'second': 0,
+      'sign': '-',
+    });
+
+    expect(messier.dec.degree, closeTo(-41.2667, 0.001));
+    expect(
+      () => ObservingTarget.fromMessierJson({...json, 'number': 31.5}),
+      throwsA(isA<TypeError>()),
+    );
+    expect(
+      ObservingTarget.fromNgcJson({...json, 'messierNumbers': null})
+          .messierNumbers,
+      isEmpty,
+    );
+  });
+
+  test('catalog widgets preserve their persisted record shapes', () {
+    final json = <String, dynamic>{
+      'number': 31,
+      'type': 'Galaxy',
+      'ra': {'hour': 0, 'minute': 42.7},
+      'dec': {'degree': 41, 'minute': 16, 'sign': '+'},
+      'ngcNumbers': [224],
+      'constellation': 'Andromeda',
+      'info': 'NGC information',
+    };
+    final messier = Messier.fromJSON(json, true);
+    expect(messier.json, {
+      'number': 31,
+      'catalog': 'Messier',
+      'type': 'Galaxy',
+      'ra': {'hour': 0, 'minute': 42.7, 'second': 0},
+      'dec': {'degree': 41, 'minute': 16, 'second': 0, 'sign': '+'},
+      'difficulty': null,
+      'viewed': true,
+      'constellation': 'Andromeda',
+      'ngcNumbers': [224],
+    });
+    final ngc = NGC.fromJSON(json);
+    expect(ngc.json['catalog'], 'NGC');
+    expect(ngc.json['info'], 'NGC information');
+    expect(ngc.json.containsKey('ngcNumbers'), isFalse);
+    expect(
+      Messier.fromJSON({...json, 'ngcNumbers': null}).json.containsKey(
+        'ngcNumbers',
+      ),
+      isFalse,
+    );
   });
 
   test('pages merge by brightness, omit linked and hidden NGCs, and keep unknowns last', () async {

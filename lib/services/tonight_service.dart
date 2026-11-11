@@ -5,63 +5,7 @@ import 'package:astronomia/moonillum.dart' as moonillum;
 import 'package:astronomia/moonposition.dart' as moon;
 import 'package:astronomia/solar.dart' as solar;
 
-import '../ra_dec.dart';
-
-class ObservingTarget {
-  final int number;
-  final bool isNgc;
-  final String type;
-  final String? constellation;
-  final num? magnitude;
-  final RightAscession ra;
-  final Declination dec;
-  final List<int> ngcNumbers;
-  final List<int> messierNumbers;
-
-  const ObservingTarget(
-    this.number,
-    this.type,
-    this.constellation,
-    this.magnitude,
-    this.ra,
-    this.dec, [
-    this.ngcNumbers = const [],
-  ]) : isNgc = false,
-       messierNumbers = const [];
-
-  const ObservingTarget.ngc(
-    this.number,
-    this.type,
-    this.constellation,
-    this.magnitude,
-    this.ra,
-    this.dec, [
-    this.messierNumbers = const [],
-  ]) : isNgc = true,
-       ngcNumbers = const [];
-
-  factory ObservingTarget.fromMessierJson(Map<String, dynamic> json) =>
-      ObservingTarget(
-        json['number'] as int,
-        json['type'] as String,
-        json['constellation'] as String?,
-        json['magnitude'] as num?,
-        RightAscession.fromJSON(json['ra'] as Map<String, dynamic>),
-        Declination.fromJSON(json['dec'] as Map<String, dynamic>),
-        (json['ngcNumbers'] as List<dynamic>? ?? []).cast<int>(),
-      );
-
-  factory ObservingTarget.fromNgcJson(Map<String, dynamic> json) =>
-      ObservingTarget.ngc(
-        json['number'] as int,
-        json['type'] as String,
-        json['constellation'] as String?,
-        json['magnitude'] as num?,
-        RightAscession.fromJSON(json['ra'] as Map<String, dynamic>),
-        Declination.fromJSON(json['dec'] as Map<String, dynamic>),
-        (json['messierNumbers'] as List<dynamic>? ?? []).cast<int>(),
-      );
-}
+import '../models/observing_target.dart';
 
 bool hasKnownMagnitude(ObservingTarget target) =>
     target.magnitude != null && target.magnitude!.isFinite;

@@ -7,7 +7,7 @@ import 'confirm_dialog.dart';
 import 'generated/l10n.dart';
 import 'utils.dart';
 import 'equipment.dart';
-import 'add_observation.dart';
+import 'models/observation_data.dart';
 
 /// Tracks the gallery tiles that are currently selected
 List<DocumentReference?> selectedTiles = [];
@@ -92,11 +92,13 @@ class GallaryTile extends StatefulWidget {
         seeing = data.seeing,
         visibility = data.visibility,
         transparency = data.transparency,
-        notes = data.notes,
+        notes = List.of(data.notes),
         latitude = data.latitude,
         longitude = data.longitude,
         location = data.location,
-        equipment = data.equipment;
+        equipment = data.equipmentReference == null
+            ? null
+            : Equipment.fromReference(data.equipmentReference);
 
   @override
   State<GallaryTile> createState() => _GallaryTileState();

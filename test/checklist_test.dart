@@ -1,5 +1,6 @@
 import 'package:astro_log/checklist.dart';
 import 'package:astro_log/checklist_item.dart';
+import 'package:astro_log/models/checklist_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,6 +43,27 @@ class _Batch extends Fake implements WriteBatch {
 }
 
 void main() {
+  test('checklist records retain optional catalog metadata', () {
+    final catalog = ChecklistData.fromJson({
+      'title': 'M 31',
+      'value': true,
+      'kind': 'catalogObject',
+      'catalog': 'Messier',
+      'number': 31,
+    });
+    expect(catalog.toJson(), {
+      'title': 'M 31',
+      'value': true,
+      'kind': 'catalogObject',
+      'catalog': 'Messier',
+      'number': 31,
+    });
+    expect(
+      ChecklistData(title: 'Eyepiece', value: false).toJson(),
+      {'title': 'Eyepiece', 'value': false},
+    );
+  });
+
   test('saving a checked catalog object preserves its metadata', () async {
     final reference = _Document();
     final data = <String, dynamic>{
