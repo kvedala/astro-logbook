@@ -158,6 +158,7 @@ class TargetVisibility {
   final ObservingTarget target;
   final DateTime bestTime;
   final double altitudeDegrees;
+  final List<TimeInterval> intervals;
   final double Function(DateTime) _moonAltitude;
   late final bool moonUp = _moonAltitude(bestTime) > 0.125;
 
@@ -165,6 +166,7 @@ class TargetVisibility {
     this.target,
     this.bestTime,
     this.altitudeDegrees,
+    this.intervals,
     this._moonAltitude,
   );
 }
@@ -290,16 +292,68 @@ class TonightSky {
   TargetVisibility? visibility(ObservingTarget target) {
     DateTime? best;
     var maxAltitude = 0.0;
+    final visibleIntervals = <TimeInterval>[];
     for (final interval in darkness) {
       final sidereal = astro.mean(_jd(interval.start)) * 2 * math.pi / 86400;
       final untilTransit =
           (target.ra.radian - longitude * _radians - sidereal) % (2 * math.pi);
+      const siderealDayMicros = 86164.0905 * 1e6;
       final transit = interval.start.add(
         Duration(
-          microseconds: (untilTransit / (2 * math.pi) * 86164.0905 * 1e6)
+          microseconds: (untilTransit / (2 * math.pi) * siderealDayMicros)
               .round(),
         ),
       );
+      final boundaries = <DateTime>[interval.start, interval.end];
+      // Altitude is monotonic between upper and lower transits.
+      for (final angle in [
+        untilTransit,
+        (untilTransit + math.pi) % (2 * math.pi),
+      ]) {
+        var extremum = interval.start.add(
+          Duration(
+            microseconds: (angle / (2 * math.pi) * siderealDayMicros).round(),
+          ),
+        );
+        while (extremum.isBefore(interval.end)) {
+          if (extremum.isAfter(interval.start)) boundaries.add(extremum);
+          extremum = extremum.add(
+            Duration(microseconds: siderealDayMicros.round()),
+          );
+        }
+      }
+      boundaries.sort();
+      DateTime? visibleStart =
+          _altitude(interval.start, target.ra.radian, target.dec.radian) > 0
+          ? interval.start
+          : null;
+      for (var i = 0; i < boundaries.length - 1; i++) {
+        var left = boundaries[i];
+        var right = boundaries[i + 1];
+        final leftUp = _altitude(left, target.ra.radian, target.dec.radian) > 0;
+        final rightUp =
+            _altitude(right, target.ra.radian, target.dec.radian) > 0;
+        if (leftUp == rightUp) continue;
+        while (right.difference(left) > const Duration(seconds: 30)) {
+          final mid = left.add(right.difference(left) ~/ 2);
+          if ((_altitude(mid, target.ra.radian, target.dec.radian) > 0) ==
+              leftUp) {
+            left = mid;
+          } else {
+            right = mid;
+          }
+        }
+        final crossing = left.add(right.difference(left) ~/ 2);
+        if (rightUp) {
+          visibleStart = crossing;
+        } else if (visibleStart != null) {
+          visibleIntervals.add(TimeInterval(visibleStart, crossing));
+          visibleStart = null;
+        }
+      }
+      if (visibleStart != null) {
+        visibleIntervals.add(TimeInterval(visibleStart, interval.end));
+      }
       // A fixed target reaches its maximum at transit or at an interval edge.
       for (final time in [
         interval.start,
@@ -315,6 +369,12 @@ class TonightSky {
     }
     return best == null
         ? null
-        : TargetVisibility(target, best, maxAltitude, moonAltitude);
+        : TargetVisibility(
+            target,
+            best,
+            maxAltitude,
+            visibleIntervals,
+            moonAltitude,
+          );
   }
 }

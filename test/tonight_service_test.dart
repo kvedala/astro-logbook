@@ -93,7 +93,84 @@ void main() {
     expect(visible!.altitudeDegrees, closeTo(40, 0.1));
     expect(visible.bestTime.isBefore(sky.darkness.single.start), isFalse);
     expect(visible.bestTime.isAfter(sky.darkness.single.end), isFalse);
+    expect(visible.intervals.single.start, sky.darkness.single.start);
+    expect(visible.intervals.single.end, sky.darkness.single.end);
     expect(sky.visibility(south), isNull);
+  });
+
+  test('visible intervals are clipped to darkness and horizon crossings', () {
+    final sky = TonightSky(40, -74, DateTime.utc(2024, 9, 22, 18));
+    const rising = ObservingTarget(
+      1,
+      'Galaxy',
+      null,
+      null,
+      RightAscession(6, 0),
+      Declination(0, 0, '+'),
+    );
+    const setting = ObservingTarget(
+      2,
+      'Galaxy',
+      null,
+      null,
+      RightAscession(18, 0),
+      Declination(0, 0, '+'),
+    );
+    final rise = sky.visibility(rising)!.intervals.single;
+    final set = sky.visibility(setting)!.intervals.single;
+    expect(
+      rise.start.difference(DateTime.utc(2024, 9, 23, 4, 45)).abs(),
+      lessThan(const Duration(minutes: 10)),
+    );
+    expect(rise.end, sky.darkness.single.end);
+    expect(set.start, sky.darkness.single.start);
+    expect(
+      set.end.difference(DateTime.utc(2024, 9, 23, 4, 45)).abs(),
+      lessThan(const Duration(minutes: 10)),
+    );
+  });
+
+  test('detects a short visibility window around transit', () {
+    final sky = TonightSky(40, -74, DateTime.utc(2024, 9, 22, 18));
+    const target = ObservingTarget(
+      1,
+      'Galaxy',
+      null,
+      null,
+      RightAscession(0, 0),
+      Declination(49, 59.9, '-'),
+    );
+    final result = sky.visibility(target)!;
+    expect(result.intervals, hasLength(1));
+    final interval = result.intervals.single;
+    expect(
+      interval.end.difference(interval.start),
+      lessThan(const Duration(minutes: 10)),
+    );
+    expect(result.bestTime.isAfter(interval.start), isTrue);
+    expect(result.bestTime.isBefore(interval.end), isTrue);
+  });
+
+  test('a full dark day can contain two separate visibility windows', () {
+    final sky = TonightSky(89, 15.6, DateTime.utc(2024, 12, 21, 18));
+    for (var hour = 0; hour < 24; hour++) {
+      final target = ObservingTarget(
+        hour,
+        'Galaxy',
+        null,
+        null,
+        RightAscession(hour, 0),
+        const Declination(0, 0, '+'),
+      );
+      final intervals = sky.visibility(target)?.intervals ?? [];
+      if (intervals.length == 2) {
+        expect(intervals.first.start, sky.start);
+        expect(intervals.last.end, sky.end);
+        expect(intervals.first.end.isBefore(intervals.last.start), isTrue);
+        return;
+      }
+    }
+    fail('Expected a target with two separate visibility windows');
   });
 
   test('best time finds the transit within the darkness interval', () {

@@ -291,10 +291,61 @@ void main() {
     await tester.ensureVisible(find.text('M 31 (NGC 224) · Spiral Galaxy'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Andromeda · Magnitude 3.4'), findsOneWidget);
+    expect(
+      find.textContaining('Visible in darkness: Mon 00:23–Mon 09:13'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Best Mon 05:28'), findsOneWidget);
     expect(find.text('M 2 · Galaxy'), findsNothing);
     await tester.tap(find.text('M 31 (NGC 224) · Spiral Galaxy'));
     expect(opened, 31);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows full NGC constellation and explains visibility', (
+    tester,
+  ) async {
+    final sky = TonightSky(40, -74, DateTime.utc(2024, 9, 22, 18));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TonightResults(
+            sky: sky,
+            targets: const [],
+            ngcPageSource: () {
+              var sent = false;
+              return () async {
+                if (sent) return null;
+                sent = true;
+                return const [
+                  ObservingTarget.ngc(
+                    1,
+                    'Galaxy',
+                    'Pegasus',
+                    13,
+                    RightAscession(0, 7.3),
+                    Declination(27, 43, '+'),
+                  ),
+                ];
+              };
+            },
+            onRefresh: () {},
+            onOpenObject: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('About visibility'), findsOneWidget);
+    await tester.tap(find.text('About visibility'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Visible times are when an object'),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(find.text('NGC 1 · Galaxy'), 200);
+    expect(find.textContaining('Pegasus · Magnitude 13'), findsOneWidget);
+    expect(find.textContaining('Visible in darkness:'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

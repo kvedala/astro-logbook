@@ -273,18 +273,43 @@ class _TonightHeader extends StatelessWidget {
           const Text(
             'Using a recent location while updating GPS; results may change.',
           ),
-        const SizedBox(height: 12),
-        Text('Sunset: ${_events(sky.sunEvents, false)}'),
-        Text('Sunrise: ${_events(sky.sunEvents, true)}'),
-        Text('Astronomical darkness: $darkText'),
-        Text('Moonrise: ${_events(sky.moonEvents, true)}'),
-        Text('Moonset: ${_events(sky.moonEvents, false)}'),
-        Text(
-          'Moon illuminated: ${(sky.moonIllumination(sky.start.add(const Duration(hours: 12))) * 100).round()}% (near midnight)',
+        Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Astronomical darkness: $darkText',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 4,
+                  children: [
+                    Text('Sunset: ${_events(sky.sunEvents, false)}'),
+                    Text('Sunrise: ${_events(sky.sunEvents, true)}'),
+                    Text('Moonrise: ${_events(sky.moonEvents, true)}'),
+                    Text('Moonset: ${_events(sky.moonEvents, false)}'),
+                    Text(
+                      'Moon illuminated: ${(sky.moonIllumination(sky.start.add(const Duration(hours: 12))) * 100).round()}% (near midnight)',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
-        const SizedBox(height: 12),
-        const Text(
-          'Best time is the highest altitude during astronomical darkness. Objects near the horizon may be difficult to see. Moonlight, light pollution, weather, equipment and surface brightness affect visibility; magnitude alone does not determine darkness. Times are approximate.',
+        const ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: Text('About visibility'),
+          children: [
+            Text(
+              'Visible times are when an object is above the horizon during astronomical darkness. Best time is its highest altitude in darkness. Objects near the horizon may be difficult to see. Moonlight, light pollution, weather, equipment and surface brightness affect visibility; magnitude alone does not determine darkness. Times are approximate.',
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Text(
@@ -460,6 +485,7 @@ class _TonightResultsState extends State<TonightResults> {
                 if (hasKnownMagnitude(item.target))
                   'Magnitude ${item.target.magnitude}',
               ].join(' · '),
+              'Visible in darkness: ${item.intervals.map((interval) => '${_time(interval.start)}–${_time(interval.end)}').join(', ')}',
               [
                 'Best ${_time(item.bestTime)} · ${item.altitudeDegrees.round()}° high',
                 if (item.moonUp) 'Moon up at best time',
