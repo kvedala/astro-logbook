@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 import 'package:material_ui/material_ui.dart';
 
 import 'services/tonight_service.dart';
+import 'object_tile.dart';
+import 'observation_actions.dart';
 import 'weather_page.dart';
 import 'wikipedia_page.dart';
 
@@ -13,6 +16,7 @@ class TonightPage extends StatefulWidget {
   final Future<gps.LocationData> Function()? locationProvider;
   final Future<gps.LocationData?> Function()? lastKnownLocationProvider;
   final Stream<List<ObservingTarget>> Function()? catalogProvider;
+  final Stream<List<Map<String, dynamic>>> Function()? observationsProvider;
   final Future<List<ObservingTarget>?> Function() Function()? ngcPageSource;
   final DateTime Function()? clock;
 
@@ -21,6 +25,7 @@ class TonightPage extends StatefulWidget {
     this.locationProvider,
     this.lastKnownLocationProvider,
     this.catalogProvider,
+    this.observationsProvider,
     this.ngcPageSource,
     this.clock,
   });
@@ -33,6 +38,7 @@ class _TonightPageState extends State<TonightPage> {
   late Future<gps.LocationData> _location;
   late Future<gps.LocationData?> _lastKnownLocation;
   Stream<List<ObservingTarget>>? _catalog;
+  Stream<List<Map<String, dynamic>>>? _observations;
   Timer? _nightTimer;
   DateTime? _nextNightUpdate;
 
@@ -82,110 +88,155 @@ class _TonightPageState extends State<TonightPage> {
             .toList(),
       );
 
+  Stream<List<Map<String, dynamic>>> _loadObservations() async* {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      throw StateError('Sign in to see observation status.');
+    }
+    yield* FirebaseFirestore.instance
+        .collection('users/$uid/observations')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
   @override
   Widget build(BuildContext context) {
     final catalogStream = _catalog ??=
         (widget.catalogProvider ?? _loadCatalog)();
-    return StreamBuilder<List<ObservingTarget>>(
-      key: ObjectKey(catalogStream),
-      stream: catalogStream,
-      builder: (context, catalog) {
-        return FutureBuilder<gps.LocationData?>(
-          future: _lastKnownLocation,
-          builder: (context, lastKnown) => FutureBuilder<gps.LocationData>(
-            future: _location,
-            builder: (context, location) {
-              final pending = location.connectionState != ConnectionState.done;
-              final now = widget.clock?.call() ?? DateTime.now();
-              final cached = lastKnown.data;
-              final timestamp = cached?.time;
-              final age = timestamp == null || !timestamp.isFinite
-                  ? null
-                  : now.millisecondsSinceEpoch - timestamp;
-              final recent =
-                  cached != null &&
-                  cached.latitude.isFinite &&
-                  cached.longitude.isFinite &&
-                  cached.latitude.abs() <= 90 &&
-                  cached.longitude.abs() <= 180 &&
-                  age != null &&
-                  age >= 0 &&
-                  age <= const Duration(minutes: 10).inMilliseconds;
-              if (pending && !recent) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const Text('Getting location...'),
-                      if (lastKnown.hasError)
-                        Text(
-                          'Could not get last known location: ${lastKnown.error}',
-                        ),
-                    ],
-                  ),
-                );
-              }
-              if (!pending && (location.hasError || !location.hasData)) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Could not get location: ${location.error ?? "No location available"}',
-                      ),
-                      TextButton(
-                        onPressed: () => setState(_refresh),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              final position = pending ? cached! : location.data!;
-              final sky = TonightSky(
-                position.latitude,
-                position.longitude,
-                now,
-              );
-              _scheduleNightUpdate(sky, now);
-              if (catalog.hasError || !catalog.hasData) {
-                return ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    _TonightHeader(
-                      sky: sky,
-                      onRefresh: () => setState(_refresh),
-                      locationPending: pending,
+    final observations = _observations ??=
+        (widget.observationsProvider ?? _loadObservations)();
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: observations,
+      builder: (context, observationSnapshot) => StreamBuilder<List<ObservingTarget>>(
+        key: ObjectKey(catalogStream),
+        stream: catalogStream,
+        builder: (context, catalog) {
+          return FutureBuilder<gps.LocationData?>(
+            future: _lastKnownLocation,
+            builder: (context, lastKnown) => FutureBuilder<gps.LocationData>(
+              future: _location,
+              builder: (context, location) {
+                final pending =
+                    location.connectionState != ConnectionState.done;
+                final now = widget.clock?.call() ?? DateTime.now();
+                final cached = lastKnown.data;
+                final timestamp = cached?.time;
+                final age = timestamp == null || !timestamp.isFinite
+                    ? null
+                    : now.millisecondsSinceEpoch - timestamp;
+                final recent =
+                    cached != null &&
+                    cached.latitude.isFinite &&
+                    cached.longitude.isFinite &&
+                    cached.latitude.abs() <= 90 &&
+                    cached.longitude.abs() <= 180 &&
+                    age != null &&
+                    age >= 0 &&
+                    age <= const Duration(minutes: 10).inMilliseconds;
+                if (pending && !recent) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const Text('Getting location...'),
+                        if (lastKnown.hasError)
+                          Text(
+                            'Could not get last known location: ${lastKnown.error}',
+                          ),
+                      ],
                     ),
-                    if (catalog.hasError)
-                      Text('Could not load Messier catalog: ${catalog.error}')
-                    else
-                      const Center(
-                        child: Column(
-                          children: [
-                            CircularProgressIndicator(),
-                            Text('Loading catalog...'),
-                          ],
+                  );
+                }
+                if (!pending && (location.hasError || !location.hasData)) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Could not get location: ${location.error ?? "No location available"}',
                         ),
-                      ),
-                  ],
+                        TextButton(
+                          onPressed: () => setState(_refresh),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                final position = pending ? cached! : location.data!;
+                final sky = TonightSky(
+                  position.latitude,
+                  position.longitude,
+                  now,
                 );
-              }
-              return TonightResults(
-                sky: sky,
-                locationPending: pending,
-                targets: catalog.data!,
-                ngcPageSource: widget.ngcPageSource ?? () => _NgcPages().next,
-                onRefresh: () => setState(_refresh),
-                onOpenObject: (target) => target.isNgc
-                    ? openNgcWikipedia(context, target.number)
-                    : openMessierWikipedia(context, target.number),
-              );
-            },
-          ),
-        );
-      },
+                _scheduleNightUpdate(sky, now);
+                if (catalog.hasError || !catalog.hasData) {
+                  return ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      _TonightHeader(
+                        sky: sky,
+                        onRefresh: () => setState(_refresh),
+                        locationPending: pending,
+                      ),
+                      if (catalog.hasError)
+                        Text('Could not load Messier catalog: ${catalog.error}')
+                      else
+                        const Center(
+                          child: Column(
+                            children: [
+                              CircularProgressIndicator(),
+                              Text('Loading catalog...'),
+                            ],
+                          ),
+                        ),
+                    ],
+                  );
+                }
+                return TonightResults(
+                  sky: sky,
+                  locationPending: pending,
+                  targets: catalog.data!,
+                  observations: observationSnapshot.hasError
+                      ? null
+                      : observationSnapshot.data,
+                  observationsError: observationSnapshot.error,
+                  onRetryObservations: () =>
+                      setState(() => _observations = null),
+                  ngcPageSource: widget.ngcPageSource ?? () => _NgcPages().next,
+                  onRefresh: () => setState(_refresh),
+                  onOpenObject: (target) => target.isNgc
+                      ? openNgcWikipedia(context, target.number)
+                      : openMessierWikipedia(context, target.number),
+                  onOpenObservations: (target, viewed) {
+                    if (!viewed) {
+                      addTargetObservation(context, target);
+                      return;
+                    }
+                    final uid = FirebaseAuth.instance.currentUser?.uid;
+                    if (uid == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Sign in to see your observations.'),
+                        ),
+                      );
+                      return;
+                    }
+                    openTargetObservations(
+                      context,
+                      target,
+                      FirebaseFirestore.instance.collection(
+                        'users/$uid/observations',
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -330,6 +381,10 @@ class TonightResults extends StatefulWidget {
   final List<ObservingTarget> targets;
   final VoidCallback onRefresh;
   final void Function(ObservingTarget target) onOpenObject;
+  final void Function(ObservingTarget target, bool viewed)? onOpenObservations;
+  final List<Map<String, dynamic>>? observations;
+  final Object? observationsError;
+  final VoidCallback? onRetryObservations;
   final Future<List<ObservingTarget>?> Function() Function() ngcPageSource;
 
   const TonightResults({
@@ -339,6 +394,10 @@ class TonightResults extends StatefulWidget {
     required this.targets,
     required this.onRefresh,
     required this.onOpenObject,
+    this.onOpenObservations,
+    this.observations,
+    this.observationsError,
+    this.onRetryObservations,
     required this.ngcPageSource,
   });
 
@@ -421,8 +480,6 @@ class _TonightResultsState extends State<TonightResults> {
     super.dispose();
   }
 
-  String _time(DateTime time) => DateFormat('EEE HH:mm').format(time);
-
   @override
   Widget build(BuildContext context) {
     final sky = widget.sky;
@@ -441,6 +498,20 @@ class _TonightResultsState extends State<TonightResults> {
                 onRefresh: widget.onRefresh,
                 locationPending: widget.locationPending,
               ),
+              if (widget.observationsError != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Could not load observations: ${widget.observationsError}',
+                    ),
+                    if (widget.onRetryObservations != null)
+                      TextButton(
+                        onPressed: widget.onRetryObservations,
+                        child: const Text('Retry observations'),
+                      ),
+                  ],
+                ),
               if (visible.isEmpty && _pager.done)
                 Text(
                   sky.darkness.isEmpty
@@ -469,31 +540,27 @@ class _TonightResultsState extends State<TonightResults> {
         }
         final item = visible[index - 1];
         final target = item.target;
-        final title = target.isNgc
-            ? 'NGC ${target.number}'
-            : 'M ${target.number}${target.ngcNumbers.isEmpty ? '' : ' (${target.ngcNumbers.map((n) => 'NGC $n').join(', ')})'}';
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(
-            target.type.trim().isEmpty ? title : '$title · ${target.type}',
-          ),
-          subtitle: Text(
-            [
-              [
-                if (item.target.constellation != null)
-                  item.target.constellation!,
-                if (hasKnownMagnitude(item.target))
-                  'Magnitude ${item.target.magnitude}',
-              ].join(' · '),
-              'Visible in darkness: ${item.intervals.map((interval) => '${_time(interval.start)}–${_time(interval.end)}').join(', ')}',
-              [
-                'Best ${_time(item.bestTime)} · ${item.altitudeDegrees.round()}° high',
-                if (item.moonUp) 'Moon up at best time',
-              ].join(' · '),
-            ].where((line) => line.isNotEmpty).join('\n'),
-          ),
-          trailing: const Icon(Icons.open_in_new),
-          onTap: () => widget.onOpenObject(target),
+        final name = '${target.isNgc ? 'NGC' : 'M'} ${target.number}';
+        final viewed = widget.observations == null
+            ? null
+            : targetWasViewed(target, widget.observations!);
+        return ObjectTile(
+          name: name,
+          title: target.type.trim().isEmpty ? name : '$name · ${target.type}',
+          details: [
+            if (!target.isNgc && target.ngcNumbers.isNotEmpty)
+              target.ngcNumbers.map((n) => 'NGC $n').join(', '),
+            ?target.constellation,
+            if (hasKnownMagnitude(target)) 'Magnitude ${target.magnitude}',
+          ].join(' · '),
+          visibilityLabel: 'Visible in darkness tonight',
+          visibility: item,
+          viewed: viewed,
+          onOpenObject: () => widget.onOpenObject(target),
+          onOpenObservations:
+              viewed == null || widget.onOpenObservations == null
+              ? null
+              : () => widget.onOpenObservations!(target, viewed),
         );
       },
     );

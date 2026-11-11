@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:astro_log/object_tile.dart';
+import 'package:astro_log/observation_actions.dart';
 import 'package:astro_log/ra_dec.dart';
 import 'package:astro_log/services/tonight_service.dart';
 import 'package:astro_log/tonight_page.dart';
@@ -26,6 +28,184 @@ void main() {
     Declination(90, 0, '-'),
   );
 
+  test('matches NGC and Messier observations through catalog links', () {
+    const ngc = ObservingTarget.ngc(
+      99,
+      'Galaxy',
+      null,
+      null,
+      RightAscession(0, 0),
+      Declination(90, 0, '+'),
+      [77],
+    );
+    expect(
+      targetWasViewed(visible, [
+        {'ngc': 224},
+      ]),
+      isTrue,
+    );
+    expect(
+      targetWasViewed(ngc, [
+        {'messier': 77},
+      ]),
+      isTrue,
+    );
+    expect(
+      targetWasViewed(ngc, [
+        {'ngc': 99},
+      ]),
+      isTrue,
+    );
+    expect(
+      targetWasViewed(ngc, [
+        {'messier': 78},
+        {'ngc': 98},
+      ]),
+      isFalse,
+    );
+  });
+
+  testWidgets('tonight tiles update observation status and actions', (
+    tester,
+  ) async {
+    const ngc = ObservingTarget.ngc(
+      99,
+      'Cluster',
+      null,
+      4,
+      RightAscession(0, 0),
+      Declination(90, 0, '+'),
+      [77],
+    );
+    final sky = TonightSky(40, -74, DateTime.utc(2024, 9, 22, 18));
+    final logs = ValueNotifier<List<Map<String, dynamic>>>([
+      {'ngc': 224},
+      {'messier': 77},
+    ]);
+    addTearDown(logs.dispose);
+    ObservingTarget? selected;
+    bool? observed;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: logs,
+            builder: (context, observations, _) => TonightResults(
+              sky: sky,
+              targets: [visible],
+              observations: observations,
+              ngcPageSource: () {
+                var sent = false;
+                return () async {
+                  if (sent) return null;
+                  sent = true;
+                  return [ngc];
+                };
+              },
+              onRefresh: () {},
+              onOpenObject: (_) {},
+              onOpenObservations: (target, viewed) {
+                selected = target;
+                observed = viewed;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    Finder tile(String title) =>
+        find.ancestor(of: find.text(title), matching: find.byType(ObjectTile));
+    Finder action(String title, String label) =>
+        find.descendant(of: tile(title), matching: find.byTooltip(label));
+    await tester.scrollUntilVisible(find.text('M 31 · Spiral Galaxy'), 200);
+    expect(
+      action('M 31 · Spiral Galaxy', 'Observed: View observations'),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(find.text('NGC 99 · Cluster'), 200);
+    await tester.tap(action('NGC 99 · Cluster', 'Observed: View observations'));
+    expect(selected?.number, 99);
+    expect(selected?.isNgc, isTrue);
+    expect(observed, isTrue);
+
+    logs.value = [];
+    await tester.pumpAndSettle();
+    await tester.tap(
+      action('NGC 99 · Cluster', 'Not observed: Add observation'),
+    );
+    expect(selected?.number, 99);
+    expect(observed, isFalse);
+    await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
+    expect(
+      action('M 31 · Spiral Galaxy', 'Not observed: Add observation'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('observation stream updates status and reports errors', (
+    tester,
+  ) async {
+    final logs = StreamController<List<Map<String, dynamic>>>();
+    var requests = 0;
+    addTearDown(logs.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TonightPage(
+            locationProvider: () async => gps.LocationData.fromMap({
+              'latitude': 40.0,
+              'longitude': -74.0,
+            }),
+            catalogProvider: () => Stream.value([visible]),
+            observationsProvider: () => requests++ == 0
+                ? logs.stream
+                : Stream.value([
+                    {'ngc': 224},
+                  ]),
+            ngcPageSource: () =>
+                () async => null,
+            clock: () => DateTime.utc(2024, 9, 22, 18),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    await tester.scrollUntilVisible(find.text('M 31 · Spiral Galaxy'), 200);
+    expect(
+      find.byTooltip('Observation status loading or unavailable'),
+      findsOneWidget,
+    );
+    logs.add([]);
+    await tester.pump();
+    expect(find.byTooltip('Not observed: Add observation'), findsOneWidget);
+    logs.add([
+      {'ngc': 224},
+    ]);
+    await tester.pump();
+    expect(find.byTooltip('Observed: View observations'), findsOneWidget);
+    logs.addError(StateError('offline'));
+    await tester.pump();
+    expect(
+      find.byTooltip('Observation status loading or unavailable'),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(find.text('What’s visible tonight?'));
+    expect(
+      find.textContaining('Could not load observations: Bad state: offline'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Retry observations'));
+    await tester.pump();
+    await tester.pump();
+    await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
+    expect(find.byTooltip('Observed: View observations'), findsOneWidget);
+    expect(requests, 2);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('uses a recent last-known location until a fresh fix arrives', (
     tester,
   ) async {
@@ -35,6 +215,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             locationProvider: () => fresh.future,
             lastKnownLocationProvider: () async => gps.LocationData.fromMap({
               'latitude': 40.0,
@@ -87,6 +268,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: TonightPage(
+              observationsProvider: () => Stream.value([]),
               locationProvider: () => fresh.future,
               lastKnownLocationProvider: () async => gps.LocationData.fromMap({
                 'latitude': 40.0,
@@ -132,6 +314,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             locationProvider: () => location.future,
             catalogProvider: () => catalog.stream,
             ngcPageSource: () =>
@@ -164,6 +347,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             locationProvider: () async => gps.LocationData.fromMap({
               'latitude': 40.7128,
               'longitude': -74.006,
@@ -198,6 +382,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () {
@@ -237,6 +422,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () async => location,
@@ -288,16 +474,23 @@ void main() {
 
     await tester.tap(find.byTooltip('Refresh location and times'));
     expect(refreshed, isTrue);
-    await tester.ensureVisible(find.text('M 31 (NGC 224) · Spiral Galaxy'));
+    await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Andromeda · Magnitude 3.4'), findsOneWidget);
+    expect(find.textContaining('Visible in darkness:'), findsNothing);
+    await tester.tap(
+      find.byTooltip('Visibility details: Visible in darkness tonight'),
+    );
+    await tester.pumpAndSettle();
     expect(
       find.textContaining('Visible in darkness: Mon 00:23–Mon 09:13'),
       findsOneWidget,
     );
     expect(find.textContaining('Best Mon 05:28'), findsOneWidget);
     expect(find.text('M 2 · Galaxy'), findsNothing);
-    await tester.tap(find.text('M 31 (NGC 224) · Spiral Galaxy'));
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('M 31 · Spiral Galaxy'));
     expect(opened, 31);
     expect(tester.takeException(), isNull);
   });
@@ -345,6 +538,10 @@ void main() {
     );
     await tester.scrollUntilVisible(find.text('NGC 1 · Galaxy'), 200);
     expect(find.textContaining('Pegasus · Magnitude 13'), findsOneWidget);
+    await tester.tap(
+      find.byTooltip('Visibility details: Visible in darkness tonight'),
+    );
+    await tester.pumpAndSettle();
     expect(find.textContaining('Visible in darkness:'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -375,7 +572,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('M 31 (NGC 224) · Spiral Galaxy'));
+      await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byTooltip('Visibility details: Visible in darkness tonight'),
+      );
       await tester.pumpAndSettle();
       expect(
         find.textContaining('Moon up at best time'),
@@ -383,6 +584,8 @@ void main() {
       );
       expect(find.textContaining('Moon below horizon'), findsNothing);
       expect(tester.takeException(), isNull);
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
     }
   });
 
@@ -480,6 +683,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () async {
@@ -526,6 +730,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: TonightPage(
+            observationsProvider: () => Stream.value([]),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () async => location,
@@ -579,12 +784,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.dragUntilVisible(
-      find.text('M 31 (NGC 224) · Spiral Galaxy'),
+      find.text('M 31 · Spiral Galaxy'),
       find.byType(ListView),
       const Offset(0, -250),
     );
     await tester.pumpAndSettle();
-    expect(find.text('M 31 (NGC 224) · Spiral Galaxy'), findsOneWidget);
+    expect(find.text('M 31 · Spiral Galaxy'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

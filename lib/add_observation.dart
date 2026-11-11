@@ -111,7 +111,10 @@ class ObservationData {
 
 /// Widget to add observation data to DB
 class AddObservationPage extends StatefulWidget {
-  const AddObservationPage({super.key});
+  final int? messierNumber;
+  final int? ngcNumber;
+
+  const AddObservationPage({super.key, this.messierNumber, this.ngcNumber});
 
   @override
   State<AddObservationPage> createState() => _AddObservationPageState();
@@ -144,6 +147,13 @@ class _AddObservationPageState extends State<AddObservationPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.messierNumber != null) {
+      _responses['messier'] = widget.messierNumber;
+      _responses['title'] = 'M ${widget.messierNumber}';
+    } else if (widget.ngcNumber != null) {
+      _responses['ngc'] = widget.ngcNumber;
+      _responses['title'] = 'NGC ${widget.ngcNumber}';
+    }
     FirebaseAnalytics.instance.logScreenView(
       screenName: S.current.addObservation,
     );
