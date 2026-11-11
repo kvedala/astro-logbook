@@ -3,13 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as gps;
 
 import 'generated/l10n.dart';
-import 'ra_dec.dart';
+import 'models/ra_dec.dart';
+import 'models/catalog_data.dart';
 import 'rise_times.dart';
 import 'wikipedia_page.dart';
 
 /// Generic Celestial object catalog
-///
-/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 abstract class Catalog extends StatelessWidget {
   /// name of the catalog
   final String name;
@@ -61,16 +60,18 @@ abstract class Catalog extends StatelessWidget {
   //     );
 
   /// Export to JSON format Map
-  Map<String, dynamic> get json => {
-        "number": id,
-        "catalog": name,
-        "type": type,
-        if (magnitude != null) "magnitude": magnitude,
-        "ra": ra.json,
-        "dec": dec.json,
-        "viewed": viewed,
-        "difficulty": difficulty,
-      };
+  CatalogData get catalogData => CatalogData(
+        id: id,
+        catalog: name,
+        type: type,
+        ra: ra,
+        dec: dec,
+        viewed: viewed,
+        difficulty: difficulty,
+        magnitude: magnitude,
+      );
+
+  Map<String, dynamic> get json => catalogData.toJson();
 
   @override
   Widget build(BuildContext context) {
@@ -164,31 +165,44 @@ class Messier extends Catalog {
       : super(name: "Messier", type: type);
 
   @override
-  Map<String, dynamic> get json => {
-        ...super.json,
-        if (designation != null) 'designation': designation,
-        if (constellation != null) 'constellation': constellation,
-        if (size != null) 'size': size,
-        if (distanceLightYears != null) 'distanceLightYears': distanceLightYears,
-        if (viewingSeason != null) 'viewingSeason': viewingSeason,
-        if (ngcNumbers.isNotEmpty) 'ngcNumbers': ngcNumbers,
-      };
+  CatalogData get catalogData => CatalogData(
+        id: id,
+        catalog: name,
+        type: type,
+        ra: ra,
+        dec: dec,
+        viewed: viewed,
+        difficulty: difficulty,
+        magnitude: magnitude,
+        designation: designation,
+        constellation: constellation,
+        size: size,
+        distanceLightYears: distanceLightYears,
+        viewingSeason: viewingSeason,
+        ngcNumbers: ngcNumbers,
+      );
 
   factory Messier.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {
+    final data = CatalogData.fromJson({
+      ...json,
+      'catalog': 'Messier',
+      'viewed': viewed,
+      'info': null,
+    });
     return Messier(
-      json['number'],
-      json['type'],
-      RightAscession.fromJSON(json['ra']),
-      Declination.fromJSON(json['dec']),
-      difficulty: json['difficulty'],
-      magnitude: json['magnitude'] as num?,
-      designation: json['designation'] as String?,
-      constellation: json['constellation'] as String?,
-      size: json['size'] as String?,
-      distanceLightYears: json['distanceLightYears'] as int?,
-      viewingSeason: json['viewingSeason'] as String?,
-      ngcNumbers: (json['ngcNumbers'] as List<dynamic>? ?? []).cast<int>(),
+      data.id,
+      data.type,
+      data.ra,
+      data.dec,
+      difficulty: data.difficulty,
+      magnitude: data.magnitude,
+      designation: data.designation,
+      constellation: data.constellation,
+      size: data.size,
+      distanceLightYears: data.distanceLightYears,
+      viewingSeason: data.viewingSeason,
+      ngcNumbers: data.ngcNumbers,
       viewed: viewed,
       currentLocation: currentLocation,
     );
@@ -214,25 +228,41 @@ class NGC extends Catalog {
       : super(name: "NGC", type: type);
 
   @override
-  Map<String, dynamic> get json => {
-        ...super.json,
-        if (designation != null) 'designation': designation,
-        if (constellation != null) 'constellation': constellation,
-        if (info != null) 'info': info,
-      };
+  CatalogData get catalogData => CatalogData(
+        id: id,
+        catalog: name,
+        type: type,
+        ra: ra,
+        dec: dec,
+        viewed: viewed,
+        difficulty: difficulty,
+        magnitude: magnitude,
+        designation: designation,
+        constellation: constellation,
+        info: info,
+      );
 
   factory NGC.fromJSON(Map<String, dynamic> json,
       [bool viewed = false, gps.LocationData? currentLocation]) {
+    final data = CatalogData.fromJson({
+      ...json,
+      'catalog': 'NGC',
+      'viewed': viewed,
+      'ngcNumbers': null,
+      'size': null,
+      'distanceLightYears': null,
+      'viewingSeason': null,
+    });
     return NGC(
-      json['number'],
-      json['type'],
-      RightAscession.fromJSON(json['ra']),
-      Declination.fromJSON(json['dec']),
-      difficulty: json['difficulty'],
-      magnitude: json['magnitude'] as num?,
-      designation: json['designation'] as String?,
-      constellation: json['constellation'] as String?,
-      info: json['info'] as String?,
+      data.id,
+      data.type,
+      data.ra,
+      data.dec,
+      difficulty: data.difficulty,
+      magnitude: data.magnitude,
+      designation: data.designation,
+      constellation: data.constellation,
+      info: data.info,
       viewed: viewed,
       currentLocation: currentLocation,
     );

@@ -2,12 +2,51 @@ import 'dart:async';
 
 import 'package:astro_log/object_tile.dart';
 import 'package:astro_log/observation_actions.dart';
-import 'package:astro_log/ra_dec.dart';
+import 'package:astro_log/models/ra_dec.dart';
+import 'package:astro_log/models/observing_target.dart';
 import 'package:astro_log/services/tonight_service.dart';
 import 'package:astro_log/tonight_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart' as gps;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// ignore: subtype_of_sealed_class
+class _Document extends Fake
+    implements DocumentReference<Map<String, dynamic>> {}
+
+// ignore: subtype_of_sealed_class
+class _Snapshot<T> extends Fake implements DocumentSnapshot<T> {
+  _Snapshot(this.exists);
+
+  @override
+  final bool exists;
+}
+
+class _Transaction extends Fake implements Transaction {
+  Map<String, dynamic>? data;
+
+  @override
+  Future<DocumentSnapshot<T>> get<T extends Object?>(
+    DocumentReference<T> reference,
+  ) async => _Snapshot<T>(data != null);
+
+  @override
+  Transaction set<T>(
+    DocumentReference<T> reference,
+    T value, [
+    SetOptions? options,
+  ]) {
+    data = Map<String, dynamic>.from(value as Map);
+    return this;
+  }
+
+  @override
+  Transaction delete(DocumentReference reference) {
+    data = null;
+    return this;
+  }
+}
 
 void main() {
   const visible = ObservingTarget(
@@ -34,6 +73,28 @@ void main() {
     expect(isChecklistObjectDocumentId('catalog_messier_bad'), isFalse);
     expect(isChecklistObjectDocumentId('custom-item'), isFalse);
   });
+
+  test(
+    'checklist membership changes are idempotent and preserve checked items',
+    () async {
+      final transaction = _Transaction();
+      final reference = _Document();
+      await setChecklistMembership(transaction, reference, visible, true);
+      expect(transaction.data, {
+        'kind': 'catalogObject',
+        'catalog': 'Messier',
+        'number': 31,
+        'title': 'M 31',
+        'value': false,
+      });
+      transaction.data!['value'] = true;
+      await setChecklistMembership(transaction, reference, visible, true);
+      expect(transaction.data!['value'], isTrue);
+      await setChecklistMembership(transaction, reference, visible, false);
+      await setChecklistMembership(transaction, reference, visible, false);
+      expect(transaction.data, isNull);
+    },
+  );
 
   test('matches NGC and Messier observations through catalog links', () {
     const ngc = ObservingTarget.ngc(
@@ -158,6 +219,7 @@ void main() {
       final checklistIds = ValueNotifier<Set<String>>({});
       addTearDown(checklistIds.dispose);
       ObservingTarget? toggled;
+      bool? intended;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -171,11 +233,16 @@ void main() {
                     () async => null,
                 onRefresh: () {},
                 onOpenObject: (_) {},
-                onToggleChecklist: (target) {
+                onSetChecklist: (target, selected) {
                   toggled = target;
+                  intended = selected;
                   final id = checklistObjectDocumentId(target);
                   final updated = {...ids};
-                  if (!updated.add(id)) updated.remove(id);
+                  if (selected) {
+                    updated.add(id);
+                  } else {
+                    updated.remove(id);
+                  }
                   checklistIds.value = updated;
                 },
               ),
@@ -188,10 +255,12 @@ void main() {
       await tester.tap(find.byTooltip('Add to viewing checklist'));
       await tester.pumpAndSettle();
       expect(toggled, same(visible));
+      expect(intended, isTrue);
       expect(find.byTooltip('Remove from viewing checklist'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Remove from viewing checklist'));
       await tester.pumpAndSettle();
+      expect(intended, isFalse);
       expect(find.byTooltip('Add to viewing checklist'), findsOneWidget);
       expect(
         checklistObjectDocumentId(
@@ -205,6 +274,94 @@ void main() {
           ),
         ),
         'catalog_ngc_31',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'pending checklist writes disable only their target and recover on failure',
+    (tester) async {
+      const ngc = ObservingTarget.ngc(
+        99,
+        'Cluster',
+        null,
+        4,
+        RightAscession(0, 0),
+        Declination(90, 0, '+'),
+      );
+      final write = Completer<void>();
+      final retry = Completer<void>();
+      final calls = <(ObservingTarget, bool)>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TonightPage(
+              locationProvider: () async => gps.LocationData.fromMap({
+                'latitude': 40.0,
+                'longitude': -74.0,
+              }),
+              catalogProvider: () => Stream.value([visible, ngc]),
+              observationsProvider: () => Stream.value([]),
+              checklistProvider: () => Stream.value(<String>{}),
+              checklistUpdater: (target, selected) {
+                calls.add((target, selected));
+                return calls.length == 1 ? write.future : retry.future;
+              },
+              ngcPageSource: () =>
+                  () async => null,
+              clock: () => DateTime.utc(2024, 9, 22, 18),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.scrollUntilVisible(find.text('M 31 · Spiral Galaxy'), 200);
+      Finder button(String title) => find.descendant(
+        of: find.ancestor(
+          of: find.text(title),
+          matching: find.byType(ObjectTile),
+        ),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is IconButton &&
+              widget.tooltip == 'Add to viewing checklist',
+        ),
+      );
+      await tester.tap(button('M 31 · Spiral Galaxy'));
+      await tester.tap(button('M 31 · Spiral Galaxy'));
+      await tester.pump();
+      expect(calls, [(visible, true)]);
+      expect(
+        tester.widget<IconButton>(button('M 31 · Spiral Galaxy')).onPressed,
+        isNull,
+      );
+      await tester.scrollUntilVisible(find.text('NGC 99 · Cluster'), 200);
+      expect(
+        tester.widget<IconButton>(button('NGC 99 · Cluster')).onPressed,
+        isNotNull,
+      );
+      write.completeError(StateError('offline'));
+      await tester.pump();
+      expect(
+        find.textContaining('Could not update tonight checklist:'),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
+      await tester.pump();
+      expect(
+        tester.widget<IconButton>(button('M 31 · Spiral Galaxy')).onPressed,
+        isNotNull,
+      );
+      await tester.tap(button('M 31 · Spiral Galaxy'));
+      await tester.pump();
+      expect(calls, [(visible, true), (visible, true)]);
+      retry.complete();
+      await tester.pump();
+      expect(
+        tester.widget<IconButton>(button('M 31 · Spiral Galaxy')).onPressed,
+        isNotNull,
       );
       expect(tester.takeException(), isNull);
     },
@@ -896,7 +1053,7 @@ void main() {
               sky: sky,
               targets: [visible],
               checklistObjectIds: const {},
-              onToggleChecklist: (_) {},
+              onSetChecklist: (_, _) {},
               onRefresh: () {},
               onOpenObject: (_) {},
             ),

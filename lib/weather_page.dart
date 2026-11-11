@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:location/location.dart' as gps;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
+/// Display the bundled Astrospheric forecast at the user's location.
 class WeatherPage extends StatelessWidget {
   const WeatherPage({super.key});
 
@@ -72,7 +73,7 @@ console.log(d.style);"
     );
   }
 
-  /// Get current address from GPS coordinates
+  /// Request location service and permission before obtaining a fresh position.
   static Future<gps.LocationData> get getCurrentPosition async {
     final location = gps.Location();
     if (!await location.requestService()) {
@@ -88,6 +89,7 @@ console.log(d.style);"
     return Future.error(Exception('Location permission not granted.'));
   }
 
+  /// Return a cached position only when location service and permission are available.
   static Future<gps.LocationData?> get lastKnownPosition async {
     final location = gps.Location();
     if (!await location.serviceEnabled()) return null;

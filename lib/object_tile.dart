@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'services/tonight_service.dart';
 
+/// Display a catalog target with independent navigation and status actions.
 class ObjectTile extends StatelessWidget {
   final String name;
   final String title;
@@ -12,6 +13,7 @@ class ObjectTile extends StatelessWidget {
   final bool visibilityKnown;
   final bool? viewed;
   final bool? checklistSelected;
+  final bool checklistUpdating;
   final VoidCallback onOpenObject;
   final VoidCallback? onOpenObservations;
   final VoidCallback? onToggleChecklist;
@@ -26,6 +28,7 @@ class ObjectTile extends StatelessWidget {
     this.visibilityKnown = true,
     required this.viewed,
     this.checklistSelected,
+    this.checklistUpdating = false,
     required this.onOpenObject,
     required this.onOpenObservations,
     this.onToggleChecklist,
@@ -117,7 +120,7 @@ class ObjectTile extends StatelessWidget {
                           ? Icons.playlist_add_check
                           : Icons.playlist_add,
                     ),
-                    onPressed: checklistSelected == null
+                    onPressed: checklistSelected == null || checklistUpdating
                         ? null
                         : onToggleChecklist,
                   ),

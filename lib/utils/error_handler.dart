@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+/// Record errors in Crashlytics and present a user-facing message.
 class ErrorHandler {
+  /// Report [error] with optional context and show a categorized notification.
   static void handleError(dynamic error, {String? context}) {
     String message = 'An error occurred';
 

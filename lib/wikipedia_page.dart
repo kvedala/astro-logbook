@@ -3,10 +3,12 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Open the Messier article in a browser on web or an in-app view on mobile.
 Future<void> openMessierWikipedia(BuildContext context, int number) async {
   await _openWikipedia(context, 'M $number', 'Messier_$number');
 }
 
+/// Open the NGC article in a browser on web or an in-app view on mobile.
 Future<void> openNgcWikipedia(BuildContext context, int number) async {
   await _openWikipedia(context, 'NGC $number', 'NGC_$number');
 }

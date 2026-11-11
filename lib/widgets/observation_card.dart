@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import '../models/observation_data.dart';
 
+/// Summarize an observation's title, catalog identifiers and date.
 class ObservationCard extends StatelessWidget {
   final ObservationData observation;
   final VoidCallback? onTap;

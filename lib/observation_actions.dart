@@ -3,8 +3,10 @@ import 'package:material_ui/material_ui.dart';
 
 import 'add_observation.dart';
 import 'gallary_tile.dart';
-import 'services/tonight_service.dart';
+import 'models/observing_target.dart';
+import 'models/observation_data.dart';
 
+/// Observations of linked catalog entries also count as viewed.
 bool matchesCatalogObservation({
   required int number,
   required bool isNgc,
@@ -17,6 +19,7 @@ bool matchesCatalogObservation({
       linkedNumbers.contains(observation[linked]);
 }
 
+/// Match a target against observations using its catalog and linked numbers.
 bool targetWasViewed(
   ObservingTarget target,
   Iterable<Map<String, dynamic>> observations,
@@ -29,6 +32,7 @@ bool targetWasViewed(
   ),
 );
 
+/// Open the observation form prefilled with the target's catalog number.
 void addTargetObservation(BuildContext context, ObservingTarget target) {
   Navigator.of(context).push(
     MaterialPageRoute<void>(
@@ -40,6 +44,7 @@ void addTargetObservation(BuildContext context, ObservingTarget target) {
   );
 }
 
+/// Open a live view of observations associated with the target.
 void openTargetObservations(
   BuildContext context,
   ObservingTarget target,
@@ -99,9 +104,11 @@ class _TargetObservationsPage extends StatelessWidget {
               crossAxisSpacing: 8,
             ),
             itemCount: docs.length,
-            itemBuilder: (context, index) => GallaryTile.fromObservation(
-              ObservationData.fromJSON(docs[index].data()),
-              reference: docs[index].reference,
+            itemBuilder: (context, index) => GallaryTile(
+              observation: ObservationData.fromJson(
+                docs[index].data(),
+                reference: docs[index].reference,
+              ),
             ),
           );
         },

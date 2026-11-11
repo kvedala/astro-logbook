@@ -12,7 +12,7 @@ import 'package:material_ui/material_ui.dart';
 import 'generated/l10n.dart';
 import 'utils.dart';
 
-///
+/// Preview and export the selected observation documents as a PDF.
 class GeneratePDF extends StatelessWidget {
   final List<DocumentReference?> selectedTiles;
 
@@ -41,6 +41,7 @@ class GeneratePDF extends StatelessWidget {
     );
   }
 
+  /// Load observations and their referenced equipment for the export.
   Future<List<Map<String, dynamic>>> _getData() async {
     List<Map<String, dynamic>> outData = [];
 
@@ -62,6 +63,7 @@ class GeneratePDF extends StatelessWidget {
     return outData;
   }
 
+  /// Render the observation and equipment data into a multipage document.
   Future<Uint8List> _buildDoc(
       BuildContext context, List<Map<String, dynamic>>? data) {
     final pdfDocument = pw.Document(

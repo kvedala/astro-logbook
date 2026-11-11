@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/observation_data.dart';
 
+/// Load the signed-in user's observations in descending date order as they scroll.
 class PaginatedObservationList extends StatefulWidget {
   const PaginatedObservationList({super.key});
 

@@ -7,108 +7,52 @@ import 'confirm_dialog.dart';
 import 'generated/l10n.dart';
 import 'utils.dart';
 import 'equipment.dart';
-import 'add_observation.dart';
+import 'models/observation_data.dart';
 
 /// Tracks the gallery tiles that are currently selected
 List<DocumentReference?> selectedTiles = [];
 
 /// Widget to display tile in the gallery view
-///
-/// TODO: Optimize JSON serialization using automatic code generation: https://pub.dev/packages/json_serializable
 class GallaryTile extends StatefulWidget {
-  /// path of image file, if any
-  final String? filePath;
-
-  /// title of the tile
-  final String? title;
-
-  /// [Image] to display on the tile
-  final Image? image;
-
-  /// Time of observation or image
-  final DateTime? time;
-
-  /// Messier catalog number, if any
-  final int? messier;
-
-  /// NGC catalog number, if any
-  final int? ngc;
-
-  /// Notes taken for the observation/photograph
-  final List<String>? notes;
-
-  /// Observation latitude
-  final num? latitude;
-
-  /// Observation longitude
-  final num? longitude;
-
-  /// Address of the location
-  final String? location;
-
-  /// Sky seeing at the time of observation
-  final num? seeing;
-
-  /// Sky visibility at the time of observation
-  final num? visibility;
-
-  /// Sky transparency at the time of observation
-  final num? transparency;
-
-  /// [Equipment] details
-  final Equipment? equipment;
-
-  /// dB document reference
-  final DocumentReference? reference;
+  /// Observation displayed by this tile.
+  final ObservationData observation;
 
   /// Widget to display tile in the gallery view
-  const GallaryTile(
-    this.title, {
-    super.key,
-    this.filePath,
-    this.image,
-    this.time,
-    this.latitude,
-    this.longitude,
-    this.messier,
-    this.ngc,
-    this.seeing,
-    this.visibility,
-    this.transparency,
-    this.notes,
-    this.location,
-    this.equipment,
-    this.reference,
-  });
-
-  /// Generate a gallery tile using data from [ObservationData] object.
-  GallaryTile.fromObservation(ObservationData data, {super.key, this.reference})
-      : title = data.title,
-        filePath = data.fileName,
-        image = null,
-        time = data.dateTime,
-        messier = data.messier,
-        ngc = data.ngc,
-        seeing = data.seeing,
-        visibility = data.visibility,
-        transparency = data.transparency,
-        notes = data.notes,
-        latitude = data.latitude,
-        longitude = data.longitude,
-        location = data.location,
-        equipment = data.equipment;
+  const GallaryTile({super.key, required this.observation});
 
   @override
   State<GallaryTile> createState() => _GallaryTileState();
-
-  // final Map<String, dynamic> state = {'isChecked': false};
 }
 
 class _GallaryTileState extends State<GallaryTile> {
-  bool get isSelected => selectedTiles.any((ref) => ref == widget.reference);
+  late List<String> _notes;
+  Equipment? _equipment;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetObservation();
+  }
+
+  @override
+  void didUpdateWidget(GallaryTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.observation != widget.observation) _resetObservation();
+  }
+
+  /// Reset editable state when the observation changes.
+  void _resetObservation() {
+    _notes = List.of(widget.observation.notes);
+    final reference = widget.observation.equipmentReference;
+    _equipment = reference == null ? null : Equipment.fromReference(reference);
+  }
+
+  bool get isSelected =>
+      selectedTiles.any((ref) => ref == widget.observation.reference);
 
   @override
   Widget build(BuildContext context) {
+    final observation = widget.observation;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(),
@@ -128,24 +72,21 @@ class _GallaryTileState extends State<GallaryTile> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  widget.title!,
-                  style: const TextStyle(fontSize: 20),
-                ),
-                widget.messier == null
+                Text(observation.title!, style: const TextStyle(fontSize: 20)),
+                observation.messier == null
                     ? const SizedBox()
                     : Text(
-                        "${S.current.messierNumber} ${widget.messier}",
+                        "${S.current.messierNumber} ${observation.messier}",
                         style: const TextStyle(fontSize: 15),
                       ),
-                widget.ngc == null
+                observation.ngc == null
                     ? const SizedBox()
                     : Text(
-                        "${S.current.ngcNumber} ${widget.ngc}",
+                        "${S.current.ngcNumber} ${observation.ngc}",
                         style: const TextStyle(fontSize: 15),
                       ),
                 Text(
-                  "${S.current.observationDate} ${widget.time!.yMMMd} ${widget.time!.hourMinute} (${widget.time!.timeZoneName})",
+                  "${S.current.observationDate} ${observation.dateTime!.yMMMd} ${observation.dateTime!.hourMinute} (${observation.dateTime!.timeZoneName})",
                   style: const TextStyle(fontSize: 15),
                 ),
               ],
@@ -153,21 +94,32 @@ class _GallaryTileState extends State<GallaryTile> {
           ),
         ),
         onTap: () async {
-          final List<String> originalNotes = List.from(widget.notes!);
-          await Navigator.push(context,
-              MaterialPageRoute(builder: (context) => _ShowDetails(widget)));
-          if (!const UnorderedIterableEquality<String>()
-              .equals(originalNotes, widget.notes)) {
-            widget.reference!.update({'notes': widget.notes});
-            debugPrint("${widget.reference!.path}: Updating the DB notes.");
+          final notes = _notes;
+          final originalNotes = List<String>.of(notes);
+          final reference = observation.reference;
+          final equipment = _equipment;
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => _ShowDetails(observation, notes, equipment),
+            ),
+          );
+          if (!const UnorderedIterableEquality<String>().equals(
+            originalNotes,
+            notes,
+          )) {
+            reference!.update({'notes': notes});
+            debugPrint("${reference.path}: Updating the DB notes.");
           } else {
-            debugPrint("${widget.reference!.path}: NOT Updating the DB notes.");
+            debugPrint("${reference!.path}: NOT Updating the DB notes.");
           }
         },
         onLongPress: () {
-          setState(() => isSelected
-              ? selectedTiles.remove(widget.reference)
-              : selectedTiles.add(widget.reference));
+          setState(
+            () => isSelected
+                ? selectedTiles.remove(observation.reference)
+                : selectedTiles.add(observation.reference),
+          );
         },
       ),
     );
@@ -176,35 +128,44 @@ class _GallaryTileState extends State<GallaryTile> {
 
 /// Page to display the details of observation
 class _ShowDetails extends StatefulWidget {
-  /// [GallaryTile] to show details of
-  final GallaryTile tile;
+  final ObservationData observation;
+  final List<String> notes;
+  final Equipment? equipment;
 
   /// convenient lookup table to display as table rows
   final Map<String, dynamic> tableItems;
 
-  _ShowDetails(this.tile)
-      : tableItems = {
-          'Messier': TextEditingController(
-              text: tile.messier == null ? "-" : tile.messier.toString()),
-          'NGC': TextEditingController(
-              text: tile.ngc == null ? "-" : tile.ngc.toString()),
-          'Date & Time': TextEditingController(
-              text:
-                  "${tile.time!.yMMMd} ${tile.time!.hourMinute} (${tile.time!.timeZoneName})"),
-          'Seeing':
-              tile.seeing == null ? "Unknown" : tile.seeing!.toInt().toString(),
-          'Visibility': tile.visibility == null
-              ? "Unknown"
-              : tile.visibility!.toInt().toString(),
-          'Transparency': tile.transparency == null
-              ? "Unknown"
-              : tile.transparency!.toInt().toString(),
-          'Location': tile.location,
-          'Latitude': TextEditingController(
-              text: decimalDegreesToDMS(tile.latitude!, 'lat')),
-          'Longitude': TextEditingController(
-              text: decimalDegreesToDMS(tile.longitude!, 'long')),
-        };
+  _ShowDetails(this.observation, this.notes, this.equipment)
+    : tableItems = {
+        'Messier': TextEditingController(
+          text: observation.messier == null
+              ? "-"
+              : observation.messier.toString(),
+        ),
+        'NGC': TextEditingController(
+          text: observation.ngc == null ? "-" : observation.ngc.toString(),
+        ),
+        'Date & Time': TextEditingController(
+          text:
+              "${observation.dateTime!.yMMMd} ${observation.dateTime!.hourMinute} (${observation.dateTime!.timeZoneName})",
+        ),
+        'Seeing': observation.seeing == null
+            ? "Unknown"
+            : observation.seeing!.toInt().toString(),
+        'Visibility': observation.visibility == null
+            ? "Unknown"
+            : observation.visibility!.toInt().toString(),
+        'Transparency': observation.transparency == null
+            ? "Unknown"
+            : observation.transparency!.toInt().toString(),
+        'Location': observation.location,
+        'Latitude': TextEditingController(
+          text: decimalDegreesToDMS(observation.latitude!, 'lat'),
+        ),
+        'Longitude': TextEditingController(
+          text: decimalDegreesToDMS(observation.longitude!, 'long'),
+        ),
+      };
 
   @override
   _ShowDetailsState createState() => _ShowDetailsState();
@@ -214,7 +175,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
   Future<void> updateDateTime(BuildContext context, String key) async {
     await showDatePicker(
       context: context,
-      initialDate: widget.tile.time!,
+      initialDate: widget.observation.dateTime!,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     ).then((newDate) async {
@@ -228,11 +189,12 @@ class _ShowDetailsState extends State<_ShowDetails> {
       }
       await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(widget.tile.time!),
+        initialTime: TimeOfDay.fromDateTime(widget.observation.dateTime!),
       ).then((newTime) async {
         if (newTime == null) return;
-        newDate = newDate!
-            .add(Duration(hours: newTime.hour, minutes: newTime.minute));
+        newDate = newDate!.add(
+          Duration(hours: newTime.hour, minutes: newTime.minute),
+        );
         while (!context.mounted) {
           await Future.delayed(const Duration(milliseconds: 100));
         }
@@ -244,7 +206,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
           if (v != ConfirmAction.accept) return;
           widget.tableItems[key].text =
               "${newDate!.yMMMd} ${newDate!.hourMinute} (${newDate!.timeZoneName})";
-          widget.tile.reference!.update({'dateTime': newDate});
+          widget.observation.reference!.update({'dateTime': newDate});
           setState(() {});
         });
       });
@@ -253,9 +215,10 @@ class _ShowDetailsState extends State<_ShowDetails> {
 
   Future<void> updateTextData(BuildContext context, String key) async {
     final newValue = TextEditingController(
-        text: widget.tableItems[key].runtimeType == TextEditingController
-            ? widget.tableItems[key].text
-            : widget.tableItems[key]);
+      text: widget.tableItems[key].runtimeType == TextEditingController
+          ? widget.tableItems[key].text
+          : widget.tableItems[key],
+    );
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -270,15 +233,18 @@ class _ShowDetailsState extends State<_ShowDetails> {
           TextButton(
             child: Text(S.current.save),
             onPressed: () {
-              confirmDialog(context, '${S.current.newValue}: ${newValue.text}')
-                  .then((value) async {
+              confirmDialog(
+                context,
+                '${S.current.newValue}: ${newValue.text}',
+              ).then((value) async {
                 if (value != ConfirmAction.accept) return;
                 widget.tableItems[key].runtimeType == TextEditingController
                     ? widget.tableItems[key].text = newValue.text
                     : widget.tableItems[key] = newValue.text;
                 setState(() {});
-                widget.tile.reference!
-                    .update({key.toLowerCase(): newValue.text});
+                widget.observation.reference!.update({
+                  key.toLowerCase(): newValue.text,
+                });
                 while (!context.mounted) {
                   await Future.delayed(const Duration(milliseconds: 100));
                 }
@@ -295,15 +261,21 @@ class _ShowDetailsState extends State<_ShowDetails> {
     ).then((value) => null);
   }
 
-  Future<void> updateNumericData(BuildContext context, String key,
-      {required bool decimal, required bool signed}) async {
+  Future<void> updateNumericData(
+    BuildContext context,
+    String key, {
+    required bool decimal,
+    required bool signed,
+  }) async {
     final newValue = TextEditingController(
-        text: (key == 'Latitude'
-                ? widget.tile.latitude
-                : key == 'Longitude'
-                    ? widget.tile.longitude
-                    : num.tryParse(widget.tableItems[key].text))
-            .toString());
+      text:
+          (key == 'Latitude'
+                  ? widget.observation.latitude
+                  : key == 'Longitude'
+                  ? widget.observation.longitude
+                  : num.tryParse(widget.tableItems[key].text))
+              .toString(),
+    );
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -325,8 +297,10 @@ class _ShowDetailsState extends State<_ShowDetails> {
                   ? num.tryParse(newValue.text)
                   : int.tryParse(newValue.text);
               if (v == null) return;
-              confirmDialog(context, '${S.current.newValue}: ${newValue.text}')
-                  .then((value) async {
+              confirmDialog(
+                context,
+                '${S.current.newValue}: ${newValue.text}',
+              ).then((value) async {
                 if (value != ConfirmAction.accept) return;
                 if (key == 'Latitude') {
                   widget.tableItems[key].text = decimalDegreesToDMS(v, 'lat');
@@ -336,7 +310,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
                   widget.tableItems[key].text = newValue.text;
                 }
                 setState(() {});
-                widget.tile.reference!.update({key.toLowerCase(): v});
+                widget.observation.reference!.update({key.toLowerCase(): v});
                 while (!context.mounted) {
                   await Future.delayed(const Duration(milliseconds: 100));
                 }
@@ -377,123 +351,131 @@ class _ShowDetailsState extends State<_ShowDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.tile.title!),
-        centerTitle: true,
-      ),
-      body: Column(children: [
-        Expanded(
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Table(
-                      columnWidths: const {
-                        0: FixedColumnWidth(120),
-                        1: FlexColumnWidth(),
-                        2: FixedColumnWidth(48)
-                      },
-                      children: widget.tableItems.entries
-                          .map(
-                            (e) => TableRow(
-                              children: [
-                                Text(
-                                  e.key,
-                                  style: const TextStyle(fontSize: 18),
+      appBar: AppBar(title: Text(widget.observation.title!), centerTitle: true),
+      body: Column(
+        children: [
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Table(
+                          columnWidths: const {
+                            0: FixedColumnWidth(120),
+                            1: FlexColumnWidth(),
+                            2: FixedColumnWidth(48),
+                          },
+                          children: widget.tableItems.entries
+                              .map(
+                                (e) => TableRow(
+                                  children: [
+                                    Text(
+                                      e.key,
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    Text(
+                                      (e.value.runtimeType ==
+                                              TextEditingController)
+                                          ? e.value.text
+                                          : e.value,
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const [
+                                          'Date & Time',
+                                          'Location',
+                                          'NGC',
+                                          'Messier',
+                                          'Latitude',
+                                          'Longitude',
+                                        ].contains(e.key)
+                                        ? IconButton(
+                                            icon: const Icon(Icons.edit),
+                                            onPressed: () =>
+                                                _updateField(context, e.key),
+                                          )
+                                        : const SizedBox(),
+                                  ],
                                 ),
-                                Text(
-                                  (e.value.runtimeType == TextEditingController)
-                                      ? e.value.text
-                                      : e.value,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const [
-                                  'Date & Time',
-                                  'Location',
-                                  'NGC',
-                                  'Messier',
-                                  'Latitude',
-                                  'Longitude'
-                                ].contains(e.key)
-                                    ? IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _updateField(context, e.key),
-                                      )
-                                    : const SizedBox(),
-                              ],
+                              )
+                              .toList(),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        child: widget.equipment ?? const SizedBox(),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Notes:",
+                              style: TextStyle(fontSize: 20),
                             ),
-                          )
-                          .toList(),
-                    ),
+                            IconButton(
+                              icon: const Icon(Icons.add_box_rounded),
+                              onPressed: _addNote,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    child: widget.tile.equipment ?? const SizedBox(),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    child: Row(
-                      children: [
-                        const Text("Notes:", style: TextStyle(fontSize: 20)),
-                        IconButton(
-                            icon: const Icon(Icons.add_box_rounded),
-                            onPressed: _addNote)
-                      ],
-                    ),
-                  ),
-                ]),
-              ),
-              SliverList.builder(
-                itemCount: widget.tile.notes!.length,
-                itemBuilder: (context, index) => Dismissible(
-                  key: Key(widget.tile.notes![index]),
-                  background: Container(color: Colors.red.shade700),
-                  child: ListTile(
-                    leading: Text("${index + 1}"),
-                    title: Text(widget.tile.notes![index]),
-                    onTap: () => _editNote(context, index),
-                  ),
-                  confirmDismiss: (dir) => confirmDeleteTile(context),
-                  onDismissed: (dir) => widget.tile.notes!.removeAt(index),
                 ),
-              ),
-            ],
+                SliverList.builder(
+                  itemCount: widget.notes.length,
+                  itemBuilder: (context, index) => Dismissible(
+                    key: Key(widget.notes[index]),
+                    background: Container(color: Colors.red.shade700),
+                    child: ListTile(
+                      leading: Text("${index + 1}"),
+                      title: Text(widget.notes[index]),
+                      onTap: () => _editNote(context, index),
+                    ),
+                    confirmDismiss: (dir) => confirmDeleteTile(context),
+                    onDismissed: (dir) => widget.notes.removeAt(index),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: OverflowBar(
-            children: [
-              ElevatedButton.icon(
-                icon: const Icon(Icons.close_rounded),
-                label: Text(S.current.closeDetails),
-                onPressed: () => Navigator.pop(context),
-              ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.delete_forever_rounded),
-                label: Text(S.current.deleteObservation),
-                onPressed: () async =>
-                    confirmDeleteTile(context).then((e) async {
-                  while (!context.mounted) {
-                    await Future.delayed(const Duration(milliseconds: 100));
-                  }
-                  if (!context.mounted) {
-                    Exception("Context not mounted");
-                    return;
-                  }
-                  return e == null
-                      ? null
-                      : e
-                          ? _deleteObservation(context)
-                          : null;
-                }),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: OverflowBar(
+              children: [
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.close_rounded),
+                  label: Text(S.current.closeDetails),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.delete_forever_rounded),
+                  label: Text(S.current.deleteObservation),
+                  onPressed: () async => confirmDeleteTile(context).then((
+                    e,
+                  ) async {
+                    while (!context.mounted) {
+                      await Future.delayed(const Duration(milliseconds: 100));
+                    }
+                    if (!context.mounted) {
+                      Exception("Context not mounted");
+                      return;
+                    }
+                    return e == null
+                        ? null
+                        : e
+                        ? _deleteObservation(context)
+                        : null;
+                  }),
+                ),
+              ],
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -525,13 +507,12 @@ class _ShowDetailsState extends State<_ShowDetails> {
     );
 
     if (response ?? false) {
-      setState(() => widget.tile.notes!.add(textController.text));
+      setState(() => widget.notes.add(textController.text));
     }
   }
 
   void _editNote(BuildContext context, int index) async {
-    final textController =
-        TextEditingController(text: widget.tile.notes![index]);
+    final textController = TextEditingController(text: widget.notes[index]);
     final response = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -558,7 +539,7 @@ class _ShowDetailsState extends State<_ShowDetails> {
     );
 
     if (response ?? false) {
-      setState(() => widget.tile.notes![index] = textController.text);
+      setState(() => widget.notes[index] = textController.text);
     }
   }
 
@@ -568,30 +549,10 @@ class _ShowDetailsState extends State<_ShowDetails> {
         'users/${FirebaseAuth.instance.currentUser?.uid ?? ''}/observations/';
     await store
         .collection(collectionPath)
-        .where('title', isEqualTo: widget.tile.title)
-        .where('dateTime', isEqualTo: widget.tile.time)
+        .where('title', isEqualTo: widget.observation.title)
+        .where('dateTime', isEqualTo: widget.observation.dateTime)
         .get()
         .then((result) async {
-      while (!context.mounted) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-      if (!context.mounted) {
-        Exception("Context not mounted");
-        return;
-      }
-      // Only delete when the title/time pair identifies exactly one document.
-      if (result.size != 1) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Column(children: [
-              Text(S.current.unableToDeleteTheObject),
-              Text(result.toString()),
-            ]),
-          ),
-        );
-        return await Future.delayed(const Duration(seconds: 1), () async {
           while (!context.mounted) {
             await Future.delayed(const Duration(milliseconds: 100));
           }
@@ -599,33 +560,53 @@ class _ShowDetailsState extends State<_ShowDetails> {
             Exception("Context not mounted");
             return;
           }
-          Navigator.pop(context);
-        });
-      }
-      // else clause
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-      selectedTiles.remove(result.docs[0].reference);
-      await store
-          .doc(collectionPath + result.docs[0].id)
-          .delete()
-          .then((value) async {
-        while (!context.mounted) {
-          await Future.delayed(const Duration(milliseconds: 100));
-        }
-        if (!context.mounted) {
-          Exception("Context not mounted");
+          // Only delete when the title/time pair identifies exactly one document.
+          if (result.size != 1) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => AlertDialog(
+                title: Column(
+                  children: [
+                    Text(S.current.unableToDeleteTheObject),
+                    Text(result.toString()),
+                  ],
+                ),
+              ),
+            );
+            return await Future.delayed(const Duration(seconds: 1), () async {
+              while (!context.mounted) {
+                await Future.delayed(const Duration(milliseconds: 100));
+              }
+              if (!context.mounted) {
+                Exception("Context not mounted");
+                return;
+              }
+              Navigator.pop(context);
+            });
+          }
+          // else clause
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) =>
+                const Center(child: CircularProgressIndicator()),
+          );
+          selectedTiles.remove(result.docs[0].reference);
+          await store.doc(collectionPath + result.docs[0].id).delete().then((
+            value,
+          ) async {
+            while (!context.mounted) {
+              await Future.delayed(const Duration(milliseconds: 100));
+            }
+            if (!context.mounted) {
+              Exception("Context not mounted");
+              return;
+            }
+            Navigator.pop(context);
+            Navigator.pop(context);
+          });
           return;
-        }
-        Navigator.pop(context);
-        Navigator.pop(context);
-      });
-      return;
-    });
+        });
   }
 }

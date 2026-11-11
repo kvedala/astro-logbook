@@ -33,6 +33,7 @@ ios/build/
 .pub/
 /build/
 *.lock
+*.g.dart
 
 # Web related
 

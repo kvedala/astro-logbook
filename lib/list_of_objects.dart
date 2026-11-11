@@ -10,8 +10,10 @@ import 'object_tile.dart';
 import 'observation_actions.dart';
 import 'objects.dart';
 import 'services/tonight_service.dart';
+import 'models/observing_target.dart';
 import 'wikipedia_page.dart';
 
+/// Include observations of NGC objects linked to this Messier record.
 bool messierWasViewed(
   Map<String, dynamic> object,
   Iterable<Map<String, dynamic>> observations,
@@ -27,6 +29,7 @@ bool messierWasViewed(
   );
 }
 
+/// Show the Messier catalog with visibility and observation status.
 class ListOfObjects extends StatefulWidget {
   const ListOfObjects({super.key});
 
@@ -217,6 +220,7 @@ class _ListOfObjectsState extends State<ListOfObjects> {
   }
 }
 
+/// Present one Messier object with separate visibility and observation actions.
 class MessierListTile extends StatelessWidget {
   final Messier object;
   final bool viewed;

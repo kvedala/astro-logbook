@@ -9,6 +9,7 @@ class ObservationService {
 
   static String get _userPath => 'users/${_auth.currentUser?.uid ?? ''}';
 
+  /// Fetch observations newest first, optionally starting after a page cursor.
   static Future<List<ObservationData>> getObservations({
     int? limit,
     DocumentSnapshot? startAfter,
@@ -32,12 +33,14 @@ class ObservationService {
         .toList();
   }
 
+  /// Create a new observation document for the signed-in user.
   static Future<void> saveObservation(ObservationData observation) async {
     await _firestore
         .collection('$_userPath/observations')
         .add(observation.toJson());
   }
 
+  /// Update only the provided fields without replacing the document.
   static Future<void> updateObservation(
     DocumentReference reference,
     Map<String, dynamic> data,
@@ -45,6 +48,7 @@ class ObservationService {
     await reference.update(data);
   }
 
+  /// Delete the observation identified by [reference].
   static Future<void> deleteObservation(DocumentReference reference) async {
     await reference.delete();
   }

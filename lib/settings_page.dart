@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'generated/l10n.dart';
 
-/// Page to display the observations as a gallery
+/// Show account statistics and account deletion controls.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 

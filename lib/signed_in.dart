@@ -7,6 +7,7 @@ import 'drawer.dart';
 import 'generated/l10n.dart';
 import 'routes.dart';
 
+/// Host the signed-in navigation tabs and redirect signed-out users.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 

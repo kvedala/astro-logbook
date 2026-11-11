@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.1+356
+
+* Added the ability to add or remove individual visible Messier and NGC objects from the persistent viewing checklist.
+
 ## 2.9.0+356
 
 * Version/build number bump only; no functional changes since 2.8.2+354.

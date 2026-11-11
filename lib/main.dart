@@ -11,6 +11,7 @@ import 'firebase_options.dart';
 
 // import 'uploadobjects.dart';
 
+/// Initialize Firebase and localization before launching the app.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -35,6 +36,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+/// Configure the app's dark theme, routes and localization.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -79,6 +81,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Provide a sign-in entry point for the app.
 class MyHomePage extends StatelessWidget {
   final String? title;
 

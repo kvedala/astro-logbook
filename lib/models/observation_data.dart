@@ -3,18 +3,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'observation_data.g.dart';
 
+/// An observation's persisted fields, plus its separately attached document reference.
 @JsonSerializable()
 class ObservationData {
   final String? title;
   final int? ngc;
   final int? messier;
   final String? fileName;
-  final double? latitude;
-  final double? longitude;
+  final num? latitude;
+  final num? longitude;
   final String? location;
-  final double? seeing;
-  final double? visibility;
-  final double? transparency;
+  final num? seeing;
+  final num? visibility;
+  final num? transparency;
+  // Equipment is stored as a Firestore reference, not an embedded object.
+  @JsonKey(
+    name: 'equipment',
+    fromJson: _referenceFromJson,
+    toJson: _referenceToJson,
+    includeIfNull: false,
+  )
+  final DocumentReference? equipmentReference;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime? dateTime;
   final List<String> notes;
@@ -34,11 +43,13 @@ class ObservationData {
     this.seeing,
     this.visibility,
     this.transparency,
+    this.equipmentReference,
     this.dateTime,
     this.notes = const [],
     this.reference,
   });
 
+  /// Decode Firestore fields and attach the document reference separately.
   factory ObservationData.fromJson(
     Map<String, dynamic> json, {
     DocumentReference? reference,
@@ -53,6 +64,12 @@ class ObservationData {
   static dynamic _dateTimeToJson(DateTime? dateTime) =>
       dateTime != null ? Timestamp.fromDate(dateTime) : null;
 
+  static DocumentReference? _referenceFromJson(Object? value) =>
+      value as DocumentReference?;
+
+  static Object? _referenceToJson(DocumentReference? value) => value;
+
+  /// Copy the observation, preserving its reference when none is supplied.
   ObservationData copyWith({DocumentReference? reference}) {
     return ObservationData(
       title: title,
@@ -65,6 +82,7 @@ class ObservationData {
       seeing: seeing,
       visibility: visibility,
       transparency: transparency,
+      equipmentReference: equipmentReference,
       dateTime: dateTime,
       notes: notes,
       reference: reference ?? this.reference,

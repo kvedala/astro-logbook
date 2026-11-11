@@ -115,6 +115,7 @@ class _ObservationTabBarState extends State<ObservationTabBar> {
 */
 }
 
+/// Edit the filters used by the observation gallery's query.
 class SearchFilterRow extends StatefulWidget {
   final void Function() callback;
 
