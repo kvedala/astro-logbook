@@ -28,6 +28,10 @@ For this, you must be on one of the following platforms: MacOS, Windows, Linux o
   ```sh
   flutter pub get
   ```
+  Generate the ignored serialization files before building or testing:
+  ```sh
+  dart run build_runner build
+  ```
 5. Other build requirements are described [in here](https://flutter.dev/docs/get-started/install).
   * To build for android, [Android Studio](https://developer.android.com/studio).
   * To build for iOS, [XCode](https://apps.apple.com/in/app/xcode/id497799835?mt=12) is required.
