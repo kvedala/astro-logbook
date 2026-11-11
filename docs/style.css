@@ -6,5 +6,7 @@ header img { width: 110px; height: auto; border-radius: 20px; }
 h1, h2 { color: #fff; }
 a { color: #ff6b6b; }
 nav a { margin: 0 .6rem; }
+.app-icon { font-family: "Material Symbols Outlined"; font-size: 1.25em; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-feature-settings: "liga"; -webkit-font-smoothing: antialiased; font-feature-settings: "liga"; vertical-align: middle; color: #ff6b6b; }
+.icon-key { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .4rem; }
 .buttons a { display: inline-block; margin: .3rem; padding: .5rem 1rem; border: 1px solid #ff6b6b; border-radius: 8px; text-decoration: none; }
 footer { text-align: center; font-size: .85rem; color: #8a8fa6; }

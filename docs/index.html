@@ -7,13 +7,16 @@
   <meta name="description" content="A logbook app for stargazers and astronomers to record observations and astrophotographs.">
   <link rel="icon" href="logo.png">
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
     <img src="logo.png" alt="Astronomy Logbook logo">
     <h1>Astronomy Logbook</h1>
     <p>Keep a log of your observations and astrophotographs.</p>
-    <nav><a href="#about">About</a><a href="#features">Features</a><a href="#usage">Usage</a><a href="privacy.html">Privacy Policy</a></nav>
+    <nav><a href="#about">About</a><a href="#features">Features</a><a href="#how-to-use">How to use</a><a href="https://github.com/kvedala/astro-logbook/blob/main/CHANGELOG.md">Changelog</a><a href="privacy.html">Privacy Policy</a></nav>
     <p class="buttons">
       <a href="https://play.google.com/store/apps/details?id=com.vedalaholdings.astro_log2">Google Play</a>
       <a href="https://apps.apple.com/us/app/astronomy-logbook/id1552320892">App Store</a>
@@ -38,14 +41,24 @@
         <li>Only an e-mail address is required to sign in</li>
       </ul>
     </section>
-    <section id="usage">
-      <h2>Usage</h2>
+    <section id="how-to-use">
+      <h2>How to use</h2>
+      <p class="icon-key">The app menu uses these icons:
+        <span class="app-icon" aria-hidden="true">nights_stay</span> Visible tonight
+        <span class="app-icon" aria-hidden="true">comment</span> Observations
+        <span class="app-icon" aria-hidden="true">travel_explore</span> Equipment
+        <span class="app-icon" aria-hidden="true">library_add_check</span> Checklist
+        <span class="app-icon" aria-hidden="true">list</span> List of objects
+        <span class="app-icon" aria-hidden="true">wb_sunny</span> Weather
+        <span class="app-icon" aria-hidden="true">settings</span> Settings.
+      </p>
       <ol>
-        <li>Open the app (Android or iOS) and sign in with your e-mail address.</li>
-        <li>Add your equipment in the Equipment tab.</li>
-        <li>Create a new observation: choose the object, add notes, equipment, and location (optionally use your device location).</li>
-        <li>Use the checklist tab to plan targets for an upcoming session.</li>
-        <li>Browse and filter past observations in the gallery; export them to PDF when needed.</li>
+        <li>Open the app and sign in. Open the navigation menu to choose a page from the icon list above.</li>
+        <li>Before logging an observation, open <span class="app-icon" aria-hidden="true">travel_explore</span> Equipment and tap <span class="app-icon" aria-hidden="true">add</span>. Enter your telescope, aperture, focal length and mount; equipment is selected on each observation.</li>
+        <li>To record a session, open <span class="app-icon" aria-hidden="true">comment</span> Observations and tap <span class="app-icon" aria-hidden="true">add</span>. Enter a title, optional Messier or NGC number, date and time, observing location and equipment. The app can fill in your location from GPS; you can edit the coordinates and location, or enter them yourself. Add seeing and transparency ratings or notes if useful, then submit.</li>
+        <li>To review your log, tap an observation to open its details. Tap <span class="app-icon" aria-hidden="true">search</span> to filter by Messier number, NGC number or date range. Long-press observations to select them, then tap <span class="app-icon" aria-hidden="true">picture_as_pdf</span> to export the selection.</li>
+        <li>Use <span class="app-icon" aria-hidden="true">nights_stay</span> Visible tonight to check target visibility and observing windows for your location. On an object row, <span class="app-icon" aria-hidden="true">open_in_new</span> opens Wikipedia, <span class="app-icon" aria-hidden="true">visibility</span> shows visibility details, the observation icon (<span class="app-icon" aria-hidden="true">add_circle_outline</span> or <span class="app-icon" aria-hidden="true">check_circle</span>) opens matching observations or starts a prefilled log, and <span class="app-icon" aria-hidden="true">playlist_add</span> adds a target to your checklist.</li>
+        <li>In <span class="app-icon" aria-hidden="true">library_add_check</span> Checklist, tap <span class="app-icon" aria-hidden="true">add</span> for your own reminders, check items off, and tap <span class="app-icon" aria-hidden="true">save_alt</span> to save changes. Swipe an item to delete it.</li>
       </ol>
     </section>
     <section id="contact">
@@ -53,6 +66,6 @@
       <p>Source code, issues and feature requests: <a href="https://github.com/kvedala/astro-logbook">github.com/kvedala/astro-logbook</a>.</p>
     </section>
   </main>
-  <footer>&copy; Vedala Holdings &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="delete-account.html">Delete Account</a></footer>
+  <footer>Published by Vedala Holdings Inc. &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="delete-account.html">Delete Account</a></footer>
 </body>
 </html>
