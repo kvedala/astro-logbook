@@ -18,6 +18,12 @@ The maintenance function `uploadMessier()` in [lib/uploadobjects.dart](lib/uploa
 
 `uploadNGC()` adds missing NGC designations, constellations, magnitudes, and catalog notes in resumable transactions, expands existing constellation abbreviations when they match the bundled catalog, and removes legacy `"null"` difficulty placeholders. Use `uploadNGC(constellationsOnly: true)` to update only matching legacy constellation abbreviations. `syncCatalogLinks()` stores associations from the two CSV files in both collections. Linked NGC observations count as viewed in the Messier list, including related objects such as NGC 6603 within M24.
 
+## Changelog updates
+
+When a pull request opens, the changelog workflow commits an entry to its branch. For pull requests from forks, it instead commits to the target branch after the pull request is merged. Add a `## Changelog` section containing bullet points to the pull request description to provide the entries. If the section is missing or empty, the workflow uses non-merge commit subjects reachable from the PR head since its most recent `CHANGELOG.md` change; it fails if no entries are available. Entries are placed under `## Unreleased` and link to the pull request. Description edits after the workflow runs do not update the generated entries.
+
+The workflow requires GitHub Actions to have permission to write repository contents and to push to the relevant branch; branch protection or rulesets may block the push. Commits made with `GITHUB_TOKEN` do not themselves trigger other workflows. Rerun a failed workflow after correcting the underlying issue.
+
 ## Downloads
 
 * Online web app - <https://astrolog.vedala.holdings>
