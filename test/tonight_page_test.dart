@@ -28,6 +28,13 @@ void main() {
     Declination(90, 0, '-'),
   );
 
+  test('recognizes catalog checklist IDs even if metadata was lost', () {
+    expect(isChecklistObjectDocumentId('catalog_messier_31'), isTrue);
+    expect(isChecklistObjectDocumentId('catalog_ngc_31'), isTrue);
+    expect(isChecklistObjectDocumentId('catalog_messier_bad'), isFalse);
+    expect(isChecklistObjectDocumentId('custom-item'), isFalse);
+  });
+
   test('matches NGC and Messier observations through catalog links', () {
     const ngc = ObservingTarget.ngc(
       99,
@@ -144,6 +151,65 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'tonight objects can be added to and removed from the checklist',
+    (tester) async {
+      final sky = TonightSky(40, -74, DateTime.utc(2024, 9, 22, 18));
+      final checklistIds = ValueNotifier<Set<String>>({});
+      addTearDown(checklistIds.dispose);
+      ObservingTarget? toggled;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ValueListenableBuilder<Set<String>>(
+              valueListenable: checklistIds,
+              builder: (context, ids, _) => TonightResults(
+                sky: sky,
+                targets: [visible],
+                checklistObjectIds: ids,
+                ngcPageSource: () =>
+                    () async => null,
+                onRefresh: () {},
+                onOpenObject: (_) {},
+                onToggleChecklist: (target) {
+                  toggled = target;
+                  final id = checklistObjectDocumentId(target);
+                  final updated = {...ids};
+                  if (!updated.add(id)) updated.remove(id);
+                  checklistIds.value = updated;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
+      await tester.tap(find.byTooltip('Add to viewing checklist'));
+      await tester.pumpAndSettle();
+      expect(toggled, same(visible));
+      expect(find.byTooltip('Remove from viewing checklist'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Remove from viewing checklist'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Add to viewing checklist'), findsOneWidget);
+      expect(
+        checklistObjectDocumentId(
+          const ObservingTarget.ngc(
+            31,
+            'Galaxy',
+            null,
+            null,
+            RightAscession(0, 0),
+            Declination(0, 0, '+'),
+          ),
+        ),
+        'catalog_ngc_31',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('observation stream updates status and reports errors', (
     tester,
   ) async {
@@ -159,6 +225,7 @@ void main() {
               'longitude': -74.0,
             }),
             catalogProvider: () => Stream.value([visible]),
+            checklistProvider: () => Stream.value(<String>{}),
             observationsProvider: () => requests++ == 0
                 ? logs.stream
                 : Stream.value([
@@ -206,6 +273,51 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('checklist stream errors are shown and can be retried', (
+    tester,
+  ) async {
+    final checklist = StreamController<Set<String>>();
+    var requests = 0;
+    addTearDown(checklist.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TonightPage(
+            locationProvider: () async => gps.LocationData.fromMap({
+              'latitude': 40.0,
+              'longitude': -74.0,
+            }),
+            catalogProvider: () => Stream.value([visible]),
+            observationsProvider: () => Stream.value([]),
+            checklistProvider: () => requests++ == 0
+                ? checklist.stream
+                : Stream.value({'catalog_messier_31'}),
+            ngcPageSource: () =>
+                () async => null,
+            clock: () => DateTime.utc(2024, 9, 22, 18),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    checklist.addError(StateError('offline'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('What’s visible tonight?'));
+    expect(
+      find.textContaining('Could not load checklist: Bad state: offline'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Retry checklist'));
+    await tester.pump();
+    await tester.pump();
+    await tester.ensureVisible(find.text('M 31 · Spiral Galaxy'));
+    expect(find.byTooltip('Remove from viewing checklist'), findsOneWidget);
+    expect(requests, 2);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('uses a recent last-known location until a fresh fix arrives', (
     tester,
   ) async {
@@ -216,6 +328,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             locationProvider: () => fresh.future,
             lastKnownLocationProvider: () async => gps.LocationData.fromMap({
               'latitude': 40.0,
@@ -269,6 +382,7 @@ void main() {
           home: Scaffold(
             body: TonightPage(
               observationsProvider: () => Stream.value([]),
+              checklistProvider: () => Stream.value(<String>{}),
               locationProvider: () => fresh.future,
               lastKnownLocationProvider: () async => gps.LocationData.fromMap({
                 'latitude': 40.0,
@@ -315,6 +429,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             locationProvider: () => location.future,
             catalogProvider: () => catalog.stream,
             ngcPageSource: () =>
@@ -348,6 +463,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             locationProvider: () async => gps.LocationData.fromMap({
               'latitude': 40.7128,
               'longitude': -74.006,
@@ -383,6 +499,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () {
@@ -423,6 +540,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () async => location,
@@ -684,6 +802,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () async {
@@ -731,6 +850,7 @@ void main() {
         home: Scaffold(
           body: TonightPage(
             observationsProvider: () => Stream.value([]),
+            checklistProvider: () => Stream.value(<String>{}),
             ngcPageSource: () =>
                 () async => null,
             locationProvider: () async => location,
@@ -775,6 +895,8 @@ void main() {
                   () async => null,
               sky: sky,
               targets: [visible],
+              checklistObjectIds: const {},
+              onToggleChecklist: (_) {},
               onRefresh: () {},
               onOpenObject: (_) {},
             ),
