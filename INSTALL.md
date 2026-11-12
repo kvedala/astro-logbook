@@ -70,6 +70,13 @@ This file can be installed on your android device, provided you enable "Install 
 
 ### Build for iOS
 
+The iOS Xcode target uses the FlutterFire CLI to upload Crashlytics symbols.
+Install it before building:
+
+```sh
+dart pub global activate flutterfire_cli
+```
+
 ```sh
 flutter build ipa --release
 ```
