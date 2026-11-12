@@ -122,26 +122,56 @@ def rewrite_entries(commits, api_key):
     if not isinstance(output, list):
         raise ValueError("OpenRouter response did not contain output messages.")
     text_parts = []
+    structured_outputs = []
     for item in output:
         if not isinstance(item, dict) or item.get("type") != "message":
             continue
         output_text = item.get("output_text")
         if isinstance(output_text, str):
             text_parts.append(output_text)
-            continue
-        text_parts.extend(
-            part["text"]
-            for part in item.get("content", [])
-            if isinstance(part, dict)
-            and part.get("type") == "output_text"
-            and isinstance(part.get("text"), str)
+        content = item.get("content")
+        if isinstance(content, dict):
+            output_text = content.get("output_text")
+            if isinstance(output_text, str):
+                text_parts.append(output_text)
+            output_json = content.get("output_json")
+            if isinstance(output_json, dict):
+                structured_outputs.append(output_json)
+        elif isinstance(content, list):
+            text_parts.extend(
+                part["text"]
+                for part in content
+                if isinstance(part, dict)
+                and part.get("type") == "output_text"
+                and isinstance(part.get("text"), str)
+            )
+    if text_parts:
+        try:
+            decoded = json.loads("".join(text_parts))
+        except json.JSONDecodeError as error:
+            raise ValueError(
+                "OpenRouter did not return the required JSON object."
+            ) from error
+    elif structured_outputs:
+        decoded = structured_outputs[0]
+    else:
+        status = result.get("status")
+        output_types = sorted(
+            {
+                item["type"]
+                for item in output
+                if isinstance(item, dict) and isinstance(item.get("type"), str)
+            }
         )
-    if not text_parts:
-        raise ValueError("OpenRouter response did not contain generated text.")
-    try:
-        decoded = json.loads("".join(text_parts))
-    except json.JSONDecodeError as error:
-        raise ValueError("OpenRouter did not return the required JSON object.") from error
+        details = []
+        if status:
+            details.append(f"status: {status}")
+        if output_types:
+            details.append(f"output types: {', '.join(output_types)}")
+        suffix = f" ({'; '.join(details)})" if details else ""
+        raise ValueError(
+            f"OpenRouter response did not contain generated text{suffix}."
+        )
 
     entries = decoded.get("entries") if isinstance(decoded, dict) else None
     if (

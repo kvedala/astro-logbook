@@ -156,6 +156,46 @@ class ChangelogTests(unittest.TestCase):
         self.assertEqual(entries, ["Added a catalog target"])
 
     @patch("update_changelog.urlopen")
+    def test_rewrite_entries_reads_object_style_response_content(self, urlopen):
+        response_body = {
+            "output": [
+                {
+                    "type": "message",
+                    "content": {
+                        "output_text": json.dumps(
+                            {"entries": ["Added a catalog target"]}
+                        )
+                    },
+                }
+            ]
+        }
+        urlopen.return_value = io.BytesIO(json.dumps(response_body).encode("utf-8"))
+
+        entries = update_changelog.rewrite_entries(
+            [{"subject": "feat: add target", "description": ""}], "test-key"
+        )
+
+        self.assertEqual(entries, ["Added a catalog target"])
+
+    @patch("update_changelog.urlopen")
+    def test_rewrite_entries_reads_structured_response_json(self, urlopen):
+        response_body = {
+            "output": [
+                {
+                    "type": "message",
+                    "content": {"output_json": {"entries": ["Added a catalog target"]}},
+                }
+            ]
+        }
+        urlopen.return_value = io.BytesIO(json.dumps(response_body).encode("utf-8"))
+
+        entries = update_changelog.rewrite_entries(
+            [{"subject": "feat: add target", "description": ""}], "test-key"
+        )
+
+        self.assertEqual(entries, ["Added a catalog target"])
+
+    @patch("update_changelog.urlopen")
     def test_invalid_model_output_fails_instead_of_using_commit_subjects(self, urlopen):
         response_body = {
             "output": [
@@ -168,6 +208,21 @@ class ChangelogTests(unittest.TestCase):
         urlopen.return_value = io.BytesIO(json.dumps(response_body).encode("utf-8"))
 
         with self.assertRaisesRegex(ValueError, "required JSON"):
+            update_changelog.rewrite_entries(
+                [{"subject": "feat: add target", "description": ""}], "test-key"
+            )
+
+    @patch("update_changelog.urlopen")
+    def test_missing_generated_text_reports_response_status_and_types(self, urlopen):
+        response_body = {
+            "status": "incomplete",
+            "output": [{"type": "reasoning", "summary": []}],
+        }
+        urlopen.return_value = io.BytesIO(json.dumps(response_body).encode("utf-8"))
+
+        with self.assertRaisesRegex(
+            ValueError, "status: incomplete; output types: reasoning"
+        ):
             update_changelog.rewrite_entries(
                 [{"subject": "feat: add target", "description": ""}], "test-key"
             )
