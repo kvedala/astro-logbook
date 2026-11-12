@@ -2,11 +2,11 @@
 
 ## 2.9.2+369
 
-* Fixed a race condition when adding or removing targets from the Visible tonight checklist.
-
-## 2.9.1+356
-
-* Added the ability to add or remove individual visible Messier and NGC objects from the persistent viewing checklist.
+* Added visible objects to the viewing checklist.
+* Fixed a race condition in checklist membership.
+* Migrated persisted data to serializable models.
+* Removed the obsolete object info backup.
+* Updated gallery tiles to use the observation model.
 
 ## 2.9.0+356
 
