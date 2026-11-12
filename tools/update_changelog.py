@@ -92,8 +92,8 @@ def rewrite_entries(commits, api_key):
                 "model": "openrouter/free",
                 "instructions": instructions,
                 "input": json.dumps(commits, ensure_ascii=False),
-                "max_output_tokens": 2400,
-                "reasoning": {"max_tokens": 400},
+                "max_output_tokens": 8192,
+                "reasoning": {"enabled": False},
                 "text": {"format": {"type": "json_object"}},
             }
         ).encode("utf-8"),
@@ -103,24 +103,35 @@ def rewrite_entries(commits, api_key):
         },
         method="POST",
     )
-    try:
-        with urlopen(request, timeout=60) as response:
-            result = json.load(response)
-    except HTTPError as error:
-        detail = error.read().decode("utf-8", errors="replace")
-        raise RuntimeError(
-            f"OpenRouter returned HTTP {error.code}: {detail[:1000]}"
-        ) from error
-    except URLError as error:
-        raise RuntimeError(f"Could not reach OpenRouter: {error.reason}") from error
-    except json.JSONDecodeError as error:
-        raise ValueError("OpenRouter returned invalid JSON.") from error
+    for attempt in range(2):
+        try:
+            with urlopen(request, timeout=60) as response:
+                result = json.load(response)
+        except HTTPError as error:
+            detail = error.read().decode("utf-8", errors="replace")
+            raise RuntimeError(
+                f"OpenRouter returned HTTP {error.code}: {detail[:1000]}"
+            ) from error
+        except URLError as error:
+            raise RuntimeError(f"Could not reach OpenRouter: {error.reason}") from error
+        except json.JSONDecodeError as error:
+            raise ValueError("OpenRouter returned invalid JSON.") from error
 
-    if not isinstance(result, dict):
-        raise ValueError("OpenRouter returned an invalid response object.")
+        if not isinstance(result, dict):
+            raise ValueError("OpenRouter returned an invalid response object.")
+        if result.get("status") != "incomplete" or attempt:
+            break
+        payload = json.loads(request.data)
+        payload["max_output_tokens"] = 16384
+        request.data = json.dumps(payload).encode("utf-8")
+
     output = result.get("output")
     if not isinstance(output, list):
         raise ValueError("OpenRouter response did not contain output messages.")
+    if result.get("status") == "incomplete" and any(
+        isinstance(item, dict) and item.get("type") == "message" for item in output
+    ):
+        raise ValueError("OpenRouter returned an incomplete response.")
     text_parts = []
     structured_outputs = []
     for item in output:

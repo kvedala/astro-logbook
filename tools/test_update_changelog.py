@@ -130,6 +130,8 @@ class ChangelogTests(unittest.TestCase):
         request = urlopen.call_args.args[0]
         payload = json.loads(request.data)
         self.assertEqual(payload["model"], "openrouter/free")
+        self.assertEqual(payload["max_output_tokens"], 8192)
+        self.assertEqual(payload["reasoning"], {"enabled": False})
         self.assertEqual(payload["text"], {"format": {"type": "json_object"}})
         self.assertEqual(
             json.loads(payload["input"]), commits
@@ -218,7 +220,9 @@ class ChangelogTests(unittest.TestCase):
             "status": "incomplete",
             "output": [{"type": "reasoning", "summary": []}],
         }
-        urlopen.return_value = io.BytesIO(json.dumps(response_body).encode("utf-8"))
+        urlopen.side_effect = lambda *args, **kwargs: io.BytesIO(
+            json.dumps(response_body).encode("utf-8")
+        )
 
         with self.assertRaisesRegex(
             ValueError, "status: incomplete; output types: reasoning"
@@ -226,6 +230,64 @@ class ChangelogTests(unittest.TestCase):
             update_changelog.rewrite_entries(
                 [{"subject": "feat: add target", "description": ""}], "test-key"
             )
+        self.assertEqual(urlopen.call_count, 2)
+
+    @patch("update_changelog.urlopen")
+    def test_incomplete_reasoning_retries_with_larger_output_budget(self, urlopen):
+        requests = []
+        responses = [
+            {"status": "incomplete", "output": [{"type": "reasoning"}]},
+            {
+                "status": "completed",
+                "output": [
+                    {
+                        "type": "message",
+                        "content": [
+                            {"type": "output_text", "text": '{"entries":["Added a target"]}'}
+                        ],
+                    }
+                ],
+            },
+        ]
+
+        def respond(request, timeout):
+            requests.append(json.loads(request.data))
+            return io.BytesIO(json.dumps(responses.pop(0)).encode("utf-8"))
+
+        urlopen.side_effect = respond
+        entries = update_changelog.rewrite_entries(
+            [{"subject": "feat: add target", "description": ""}], "test-key"
+        )
+
+        self.assertEqual(entries, ["Added a target"])
+        self.assertEqual(
+            [request["max_output_tokens"] for request in requests], [8192, 16384]
+        )
+        self.assertEqual(requests[0]["input"], requests[1]["input"])
+        self.assertEqual(requests[1]["reasoning"], {"enabled": False})
+
+    @patch("update_changelog.urlopen")
+    def test_incomplete_response_with_valid_text_is_not_accepted(self, urlopen):
+        response_body = {
+            "status": "incomplete",
+            "output": [
+                {
+                    "type": "message",
+                    "content": [
+                        {"type": "output_text", "text": '{"entries":["Partial notes"]}'}
+                    ],
+                }
+            ],
+        }
+        urlopen.side_effect = lambda *args, **kwargs: io.BytesIO(
+            json.dumps(response_body).encode("utf-8")
+        )
+
+        with self.assertRaisesRegex(ValueError, "incomplete response"):
+            update_changelog.rewrite_entries(
+                [{"subject": "feat: add target", "description": ""}], "test-key"
+            )
+        self.assertEqual(urlopen.call_count, 2)
 
     @patch("update_changelog.urlopen")
     def test_main_generates_release_from_tag_range_with_mocked_model(self, urlopen):
