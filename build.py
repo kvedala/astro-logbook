@@ -91,6 +91,10 @@ def getVersion() -> Tuple[str, bool]:
 if __name__ == '__main__':
     args = makeOptions()
 
+    log.info("Generating JSON serializers")
+    subprocess.run(["dart", "run", "build_runner", "build"],
+                   env=os.environ.copy(), shell=False, cwd=".", check=True)
+
     version, toCommit = getVersion()
     # Build the project
 

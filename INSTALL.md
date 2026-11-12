@@ -28,7 +28,9 @@ For this, you must be on one of the following platforms: MacOS, Windows, Linux o
   ```sh
   flutter pub get
   ```
-  Generate the ignored serialization files before building or testing:
+  The `build.py` release script generates the ignored JSON serializer files
+  before creating a version tag or building. When building or testing directly,
+  generate those files manually:
   ```sh
   dart run build_runner build
   ```
