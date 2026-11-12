@@ -20,9 +20,11 @@ The maintenance function `uploadMessier()` in [lib/uploadobjects.dart](lib/uploa
 
 ## Changelog updates
 
-When a pull request opens, the changelog workflow commits an entry to its branch. For pull requests from forks, it instead commits to the target branch after the pull request is merged. Add a `## Changelog` section containing bullet points to the pull request description to provide the entries. If the section is missing or empty, the workflow uses non-merge commit subjects reachable from the PR head since its most recent `CHANGELOG.md` change; it fails if no entries are available. Entries are placed under `## Unreleased` and link to the pull request. Description edits after the workflow runs do not update the generated entries.
+Pushing a version tag matching `v*` runs the changelog workflow. It finds the nearest previous reachable version tag, sends all commit subjects and non-empty descriptions, including merge commits, between those tags to OpenRouter's `openrouter/free` router, and writes the returned release notes under the new version in `CHANGELOG.md`. The router selects from currently available free models, so model availability and rate limits can vary. Commit messages are sent, not source diffs; avoid putting sensitive information in commit subjects or descriptions. Review generated notes for accuracy. Re-running the workflow for a tag replaces that version's entries.
 
-The workflow requires GitHub Actions to have permission to write repository contents and to push to the relevant branch; branch protection or rulesets may block the push. Commits made with `GITHUB_TOKEN` do not themselves trigger other workflows. Rerun a failed workflow after correcting the underlying issue.
+Set the `OPENROUTER_API_KEY` GitHub Actions secret before pushing a version tag. The release tag must be reachable from the default branch. GitHub Actions needs permission to write repository contents and push to that branch; branch protection or rulesets may block the push. Commits made with `GITHUB_TOKEN` do not themselves trigger other workflows. Rerun a failed workflow after correcting the underlying issue.
+
+To preview the OpenRouter rewrite locally, set `OPENROUTER_API_KEY` in the shell environment and run `RELEASE_TAG=v2.9.2+369 python3 tools/update_changelog.py --dry-run`. This prints the generated diff without changing `CHANGELOG.md`.
 
 ## Downloads
 

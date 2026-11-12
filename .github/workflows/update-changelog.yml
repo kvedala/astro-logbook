@@ -1,59 +1,47 @@
 name: Update changelog
 
 on:
-  pull_request_target:
-    types: [opened, closed]
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-changelog
+  cancel-in-progress: false
+
 jobs:
   update:
-    if: >-
-      (github.event.action == 'opened' &&
-       github.event.pull_request.head.repo.full_name == github.repository) ||
-      (github.event.action == 'closed' &&
-       github.event.pull_request.merged == true &&
-       github.event.pull_request.head.repo.full_name != github.repository)
     runs-on: ubuntu-latest
     steps:
-      - name: Check out trusted automation
+      - name: Check out the default branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          path: automation
-          persist-credentials: false
-
-      - name: Check out branch to update
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.action == 'opened' && github.event.pull_request.head.ref || github.event.pull_request.base.ref }}
+          ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 0
-          path: work
 
-      - name: Fetch fork pull request history
-        if: github.event.action == 'closed'
-        working-directory: work
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: git fetch --no-tags origin "refs/pull/${PR_NUMBER}/head:refs/remotes/origin/changelog-pr-head"
+      - name: Fetch release tags
+        run: git fetch --force --tags origin
 
-      - name: Update changelog
-        working-directory: work
+      - name: Generate release changelog
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          HISTORY_REF: ${{ github.event.action == 'opened' && 'HEAD' || 'refs/remotes/origin/changelog-pr-head' }}
-          BRANCH: ${{ github.event.action == 'opened' && github.event.pull_request.head.ref || github.event.pull_request.base.ref }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 tools/update_changelog.py
+
+      - name: Commit release changelog
+        env:
+          TARGET_BRANCH: ${{ github.event.repository.default_branch }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          python3 ../automation/tools/update_changelog.py
           if git diff --quiet -- CHANGELOG.md; then
-            echo "Changelog already contains this pull request."
+            echo "Changelog already matches ${RELEASE_TAG}."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- CHANGELOG.md
-          git commit -m "Update changelog for PR #${PR_NUMBER}"
-          git push origin "HEAD:refs/heads/${BRANCH}"
+          git commit -m "Update changelog for ${RELEASE_TAG}"
+          git push origin "HEAD:refs/heads/${TARGET_BRANCH}"
