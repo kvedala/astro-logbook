@@ -6,14 +6,7 @@
 * Add checklist membership tracking.
 * Update persistence to use serializable observation models.
 * Use observation models in gallery tiles.
-
-## 2.9.2+369
-
-* Added visible objects to the viewing checklist.
 * Fixed a race condition in checklist membership.
-* Migrated persisted data to serializable models.
-* Removed the obsolete object info backup.
-* Updated gallery tiles to use the observation model.
 
 ## 2.9.0+356
 
