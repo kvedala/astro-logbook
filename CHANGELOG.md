@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.3+385
+
+* Add a viewing checklist showing visible objects for tonight.
+* Add checklist membership tracking.
+* Update persistence to use serializable observation models.
+* Use observation models in gallery tiles.
+
 ## 2.9.2+369
 
 * Added visible objects to the viewing checklist.
