@@ -18,16 +18,24 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // Debug builds use debug providers; release builds use platform attestation.
-    if (!kIsWeb) {
-      await FirebaseAppCheck.instance.activate(
-        providerApple: kDebugMode
-            ? const AppleDebugProvider()
-            : const AppleAppAttestWithDeviceCheckFallbackProvider(),
-        providerAndroid: kDebugMode
-            ? const AndroidDebugProvider()
-            : const AndroidPlayIntegrityProvider(),
-      );
+    await FirebaseAppCheck.instance.activate(
+      providerWeb: kIsWeb
+          ? ReCaptchaEnterpriseProvider(
+              const String.fromEnvironment(
+                'RECAPTCHA_ENTERPRISE_SITE_KEY',
+                defaultValue: '6LfbGCQuAAAAAO4CvfQf4Tf7O_skHj2tUzxdrsva',
+              ),
+            )
+          : null,
+      providerApple: kDebugMode
+          ? const AppleDebugProvider()
+          : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+      providerAndroid: kDebugMode
+          ? const AndroidDebugProvider()
+          : const AndroidPlayIntegrityProvider(),
+    );
+    if (kIsWeb) {
+      await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
     }
     await S.load(Locale.fromSubtags(languageCode: 'en'));
   } catch (e) {

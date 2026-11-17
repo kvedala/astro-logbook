@@ -52,6 +52,19 @@ flutter build web --release
 The build directory by default is: `<repo root>/build/web`. The files therein can be directly uploaded to 
 your hosting server. The current app is hosted using [FirebaseHosting](https://firebase.google.com/docs/hosting).
 
+Web sign-in uses Firebase App Check with reCAPTCHA Enterprise. Register the web
+app in Firebase App Check, and allow the deployed domain on its score-based
+reCAPTCHA key. The bundled public site key is for the author's Firebase project.
+For another project, pass its registered public site key when building:
+
+```sh
+flutter build web --release --dart-define=RECAPTCHA_ENTERPRISE_SITE_KEY=YOUR_SITE_KEY
+```
+
+For local development, use a separate development key and register its domain
+or use the [App Check debug provider](https://firebase.google.com/docs/app-check/flutter/debug-provider).
+Never put a reCAPTCHA secret key in the app.
+
 ### Build for Android
 
 Android uses the FlutterFire configuration in `lib/firebase_options.dart` without
